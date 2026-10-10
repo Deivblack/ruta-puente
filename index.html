@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruta Puente</title>
+<meta name="description" content="Profesionales latinos en EE.UU.: cuéntanos tu experiencia y recibe una revisión gratuita de tu CV o LinkedIn.">
+<meta property="og:title" content="Ruta Puente">
+<meta property="og:description" content="Tu profesión no se quedó en tu país. Cuéntanos tu historia en 5 minutos.">
+<link rel="icon" href="logo-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="logo-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: una sola columna amable — héroe con puente al amanecer, 3 pasos, formulario por etapas en tarjeta */
+:root{
+  --bg:#f3f6f3;        /* niebla verde, neutro con matiz de la marca */
+  --surface:#ffffff;
+  --ink:#1d2b26;       /* verde casi negro */
+  --muted:#5d6c66;
+  --line:#d7e0db;
+  --hope:#2e7d5b;      /* verde esperanza, sobrio */
+  --hope-soft:#e1efe7;
+  --hope-ink:#ffffff;
+  --sun:#e8b04b;       /* detalle alegre: el sol */
+  --sun-soft:#fbf0d9;
+  --coral:#e07a5f;     /* detalle alegre secundario, solo en confeti */
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111a17; --surface:#18241f; --ink:#e7efea; --muted:#a2b2ab; --line:#2a3a33;
+  --hope:#5fbf8f; --hope-soft:#1f3a2e; --hope-ink:#0f1a15; --sun:#f0c062; --sun-soft:#3a3120; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 var(--f-body);padding-inline:16px;padding-block:0 40px}
+.wrap{max-width:760px;margin:0 auto}
+a{color:var(--hope)}
+h1,h2,h3{font-family:var(--f-display);line-height:1.12;text-wrap:balance;margin:0}
+p{margin:0}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+/* Barra superior */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px}
+.brand{display:flex;align-items:center;gap:10px;font:800 20px var(--f-display);color:var(--ink);text-decoration:none}
+.brand svg{width:34px;height:34px}
+.top .cta-sm{font-weight:800;font-size:15px;text-decoration:none;color:var(--hope);border:2px solid var(--hope);padding:6px 14px;border-radius:999px;white-space:nowrap}
+
+/* Héroe */
+.hero{display:flex;flex-direction:column;gap:18px;padding-block:20px 8px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--hope);background:var(--hope-soft);padding:5px 12px;border-radius:999px;align-self:flex-start}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sun)}
+.hero h1{font-size:clamp(34px,7vw,54px);font-weight:800;letter-spacing:-.015em}
+.hero h1 em{font-style:normal;color:var(--hope);position:relative;white-space:nowrap}
+.hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.22em;background:var(--sun);opacity:.45;border-radius:4px;z-index:-1}
+.hero .lead{font-size:19px;color:var(--muted);max-width:56ch}
+.scene{width:100%;max-width:100%;height:auto;display:block;border-radius:var(--radius)}
+.sunrise{animation:rise 2.4s ease-out both}
+@keyframes rise{from{transform:translateY(26px)}to{transform:none}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:800 17px var(--f-body);border:0;border-radius:999px;padding:14px 26px;cursor:pointer;text-decoration:none;background:var(--hope);color:var(--hope-ink);transition:transform .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--hope);border:2px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.small{font-size:14px;color:var(--muted)}
+
+/* Pasos */
+section{padding-block:36px 0}
+.sec-title{font-size:clamp(24px,4.5vw,32px);margin-bottom:16px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;list-style:none;margin:0;padding:0}
+@media (max-width:640px){.steps{grid-template-columns:1fr}}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:6px}
+.steps .num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 16px var(--f-display);background:var(--sun-soft);color:var(--ink);border:2px solid var(--sun)}
+.steps b{font-size:17px}
+.steps span{color:var(--muted);font-size:15px}
+
+/* Quién soy */
+.me{display:flex;gap:16px;align-items:flex-start;background:var(--hope-soft);border-radius:var(--radius);padding:20px}
+.me .avatar{flex:0 0 56px;height:56px;border-radius:50%;background:var(--hope);color:var(--hope-ink);display:grid;place-items:center;font:800 22px var(--f-display)}
+.me p+p{margin-top:8px}
+
+/* Formulario */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.progress{display:flex;gap:6px}
+.progress i{flex:1;height:8px;border-radius:999px;background:var(--line);transition:background .3s}
+.progress i.on{background:var(--hope)}
+.progress i.here{background:var(--sun)}
+.step-label{font-weight:800;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;min-width:0}
+legend{font:700 24px var(--f-display);margin-bottom:6px;padding:0}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>label,.q{font-weight:700}
+.hint{font-size:14px;color:var(--muted);font-weight:400}
+input[type=text],input[type=tel],input[type=number],select,textarea{font:17px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--hope);outline:none}
+textarea{min-height:96px;resize:vertical}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{position:relative;cursor:pointer}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips span{display:inline-block;padding:10px 16px;border-radius:999px;border:2px solid var(--line);background:var(--bg);font-weight:700;font-size:15px;transition:all .15s}
+.chips input:checked+span{background:var(--hope);border-color:var(--hope);color:var(--hope-ink)}
+.chips input:focus-visible+span{outline:3px solid var(--sun);outline-offset:2px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.consent input{width:22px;height:22px;flex:0 0 22px;accent-color:var(--hope);margin-top:2px}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.err{color:#b4462f;font-weight:700;font-size:15px;min-height:1.2em}
+.hp{position:absolute;left:-9999px}
+.done{text-align:center;align-items:center;padding-block:30px}
+.done .big{font:800 30px var(--f-display)}
+.done p{max-width:46ch;color:var(--muted)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:10}
+
+/* Privacidad y pie */
+.privacy{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted)}
+.privacy svg{flex:0 0 18px;margin-top:2px}
+footer{padding-block:40px 0;text-align:center;font-size:14px;color:var(--muted)}
+footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--sun);margin-inline:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="wrap">
+
+  <header class="top">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+  <path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/>
+  <path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M4 40h56" stroke="#1D4D38" stroke-width="5" stroke-linecap="round"/>
+</svg>
+      Ruta Puente
+    </a>
+    <a class="cta-sm" href="#participa">Participar</a>
+  </header>
+
+  <main>
+    <div class="hero">
+      <span class="eyebrow">Para profesionales latinos en EE.UU.</span>
+      <h1>Tu profesión no se quedó en <em>tu país</em>.</h1>
+      <p class="lead">Si eras contadora, ingeniero, maestra o abogado y hoy trabajas en otra cosa, quiero escuchar tu historia. Estoy construyendo un camino para volver a lo nuestro, y empieza contigo.</p>
+      <svg class="scene" viewBox="0 0 720 220" role="img" aria-label="Un puente sobre el agua con el sol saliendo detrás">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e1efe7"/><stop offset="1" stop-color="#fbf0d9"/></linearGradient>
+        </defs>
+        <rect width="720" height="220" fill="url(#sky)"/>
+        <g class="sunrise"><circle cx="360" cy="128" r="54" fill="#E8B04B"/><circle cx="360" cy="128" r="74" fill="#E8B04B" opacity=".18"/></g>
+        <rect y="160" width="720" height="60" fill="#cfe3d8"/>
+        <path d="M0 176 Q90 170 180 176 T360 176 T540 176 T720 176" stroke="#ffffff" stroke-width="3" fill="none" opacity=".8"/>
+        <path d="M0 196 Q90 190 180 196 T360 196 T540 196 T720 196" stroke="#ffffff" stroke-width="3" fill="none" opacity=".6"/>
+        <path d="M40 160 Q360 40 680 160" stroke="#2E7D5B" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <rect x="20" y="152" width="680" height="10" rx="5" fill="#1d4d38"/>
+        <g stroke="#2E7D5B" stroke-width="5" stroke-linecap="round">
+          <path d="M120 152V128M200 152V104M280 152V90M360 152V86M440 152V90M520 152V104M600 152V128"/>
+        </g>
+        <circle cx="108" cy="54" r="4" fill="#E8B04B"/><circle cx="612" cy="40" r="5" fill="#E07A5F" opacity=".7"/><circle cx="560" cy="70" r="3" fill="#2E7D5B" opacity=".6"/><circle cx="170" cy="30" r="3" fill="#E07A5F" opacity=".6"/>
+      </svg>
+      <div class="row">
+        <a class="btn" href="#participa">Quiero participar · 5 min</a>
+        <span class="small">Gratis · en español · sin compromiso</span>
+      </div>
+    </div>
+
+    <section aria-labelledby="como">
+      <h2 class="sec-title" id="como">Así funciona</h2>
+      <ol class="steps">
+        <li><span class="num">1</span><b>Llenas el formulario</b><span>5 minutos, casi todo con opciones para tocar.</span></li>
+        <li><span class="num">2</span><b>Conversamos</b><span>Una llamada de 15 minutos sobre tu experiencia buscando trabajo aquí.</span></li>
+        <li><span class="num">3</span><b>Recibes un regalo</b><span>Reviso tu CV o tu perfil de LinkedIn en inglés, gratis.</span></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="quien">
+      <h2 class="sec-title" id="quien">Quién está detrás</h2>
+      <div class="me">
+        <div class="avatar" aria-hidden="true">D</div>
+        <div>
+          <p><b>Soy David, ecuatoriano en Houston.</b> Por más de 10 años lideré áreas de capacitación en empresas de mi país. Aquí empecé de nuevo, como tantos de nosotros.</p>
+          <p>Sé lo que es aplicar a decenas de trabajos de lo tuyo y no recibir respuesta. Ruta Puente nace de esa experiencia: entender bien el problema antes de construir la solución.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="participa" aria-labelledby="form-title">
+      <h2 class="sec-title" id="form-title">Cuéntame tu historia</h2>
+      <form class="card" id="form" novalidate>
+        <div class="progress" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="step-label" id="step-label" aria-live="polite">Paso 1 de 4</div>
+        <input class="hp" type="text" name="website" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <!-- Paso 1 -->
+        <fieldset data-step="0">
+          <legend>Sobre ti</legend>
+          <div class="field"><label for="nombre">Nombre</label><input type="text" id="nombre" name="nombre" autocomplete="given-name" required></div>
+          <div class="grid2">
+            <div class="field"><label for="whatsapp">WhatsApp</label><input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(832) 000-0000" required></div>
+            <div class="field"><label for="ciudad">Ciudad o ZIP</label><input type="text" id="ciudad" name="ciudad" placeholder="Houston, 77095" required></div>
+          </div>
+          <div class="field"><label for="pais">País de origen</label>
+            <select id="pais" name="pais" required>
+              <option value="">Elige uno</option>
+              <option>Argentina</option><option>Bolivia</option><option>Chile</option><option>Colombia</option><option>Costa Rica</option><option>Cuba</option><option>Ecuador</option><option>El Salvador</option><option>Guatemala</option><option>Honduras</option><option>México</option><option>Nicaragua</option><option>Panamá</option><option>Paraguay</option><option>Perú</option><option>Puerto Rico</option><option>República Dominicana</option><option>Uruguay</option><option>Venezuela</option><option>Otro</option>
+            </select></div>
+          <div class="field"><span class="q" id="q-fuente">¿Cómo te enteraste?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-fuente">
+              <label><input type="radio" name="fuente" value="TikTok" required><span>TikTok</span></label>
+              <label><input type="radio" name="fuente" value="Facebook"><span>Facebook</span></label>
+              <label><input type="radio" name="fuente" value="Instagram"><span>Instagram</span></label>
+              <label><input type="radio" name="fuente" value="LinkedIn"><span>LinkedIn</span></label>
+              <label><input type="radio" name="fuente" value="Un amigo"><span>Un amigo</span></label>
+              <label><input type="radio" name="fuente" value="Otro"><span>Otro</span></label>
+            </div></div>
+        </fieldset>
+
+        <!-- Paso 2 -->
+        <fieldset data-step="1" hidden>
+          <legend>Tu profesión</legend>
+          <div class="field"><label for="profesion">¿Qué profesión tenías en tu país? <span class="hint">Ej.: contadora, ingeniero civil, maestra</span></label><input type="text" id="profesion" name="profesion" required></div>
+          <div class="field"><span class="q" id="q-titulo">¿Tienes título universitario?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-titulo">
+              <label><input type="radio" name="titulo" value="Sí, universitario" required><span>Sí, universitario</span></label>
+              <label><input type="radio" name="titulo" value="Técnico o tecnólogo"><span>Técnico o tecnólogo</span></label>
+              <label><input type="radio" name="titulo" value="No"><span>No</span></label>
+            </div></div>
+          <div class="grid2">
+            <div class="field"><label for="anios_exp">Años de experiencia en tu profesión</label>
+              <select id="anios_exp" name="anios_exp" required><option value="">Elige</option><option>Menos de 2</option><option>2 a 5</option><option>6 a 10</option><option>Más de 10</option></select></div>
+            <div class="field"><label for="tiempo_eeuu">Tiempo en EE.UU.</label>
+              <select id="tiempo_eeuu" name="tiempo_eeuu" required><option value="">Elige</option><option>Menos de 1 año</option><option>1 a 3 años</option><option>4 a 6 años</option><option>Más de 6 años</option></select></div>
+          </div>
+          <div class="field"><span class="q" id="q-aut">¿Puedes trabajar legalmente en EE.UU.?</span>
+            <span class="hint">Solo sí o no. No te pedimos ningún otro detalle.</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-aut">
+              <label><input type="radio" name="autorizado" value="Sí" required><span>Sí</span></label>
+              <label><input type="radio" name="autorizado" value="No"><span>No</span></label>
+            </div></div>
+        </fieldset>
+
+        <!-- Paso 3 -->
+        <fieldset data-step="2" hidden>
+          <legend>Tu búsqueda de trabajo</legend>
+          <div class="grid2">
+            <div class="field"><label for="trabajo_actual">¿En qué trabajas hoy?</label><input type="text" id="trabajo_actual" name="trabajo_actual" placeholder="Ej.: mesero, almacén, delivery" required></div>
+            <div class="field"><label for="horas_trabajo">Horas de trabajo a la semana</label>
+              <select id="horas_trabajo" name="horas_trabajo" required><option value="">Elige</option><option>No trabajo ahora</option><option>Menos de 20</option><option>20 a 40</option><option>Más de 40</option></select></div>
+          </div>
+          <div class="field"><span class="q" id="q-busco">En los últimos 12 meses, ¿buscaste trabajo en tu profesión?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-busco">
+              <label><input type="radio" name="busco_12m" value="Sí" required><span>Sí</span></label>
+              <label><input type="radio" name="busco_12m" value="No"><span>No</span></label>
+            </div></div>
+          <div class="grid2" id="apps-row">
+            <div class="field"><label for="aplicaciones">¿A cuántos trabajos aplicaste?</label><input type="number" id="aplicaciones" name="aplicaciones" min="0" inputmode="numeric" placeholder="0"></div>
+            <div class="field"><label for="respuestas">¿Cuántos te respondieron?</label><input type="number" id="respuestas" name="respuestas" min="0" inputmode="numeric" placeholder="0"></div>
+          </div>
+          <div class="field"><span class="q" id="q-barrera">¿Qué es lo que más te frena?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-barrera">
+              <label><input type="radio" name="barrera" value="El inglés" required><span>El inglés</span></label>
+              <label><input type="radio" name="barrera" value="Validar mis títulos"><span>Validar mis títulos</span></label>
+              <label><input type="radio" name="barrera" value="No tengo contactos"><span>No tengo contactos</span></label>
+              <label><input type="radio" name="barrera" value="No tengo tiempo"><span>No tengo tiempo</span></label>
+              <label><input type="radio" name="barrera" value="No sé cómo funciona el sistema aquí"><span>No sé cómo funciona aquí</span></label>
+              <label><input type="radio" name="barrera" value="Otra"><span>Otra</span></label>
+            </div></div>
+          <div class="field"><label for="horas_disponibles">Siendo realista, ¿cuántas horas a la semana podrías dedicar a buscar en tu profesión?</label>
+            <select id="horas_disponibles" name="horas_disponibles" required><option value="">Elige</option><option>Menos de 2</option><option>2 a 5</option><option>6 a 10</option><option>Más de 10</option></select></div>
+        </fieldset>
+
+        <!-- Paso 4 -->
+        <fieldset data-step="3" hidden>
+          <legend>Último paso</legend>
+          <div class="field"><label for="comentario">¿Algo más que quieras contarme? <span class="hint">Opcional</span></label><textarea id="comentario" name="comentario" placeholder="Por ejemplo: qué has intentado, qué te gustaría lograr…"></textarea></div>
+          <div class="field"><span class="q" id="q-horario">¿Cuándo prefieres la llamada?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-horario">
+              <label><input type="radio" name="horario" value="Mañana" required><span>Mañana</span></label>
+              <label><input type="radio" name="horario" value="Tarde"><span>Tarde</span></label>
+              <label><input type="radio" name="horario" value="Noche"><span>Noche</span></label>
+              <label><input type="radio" name="horario" value="Fin de semana"><span>Fin de semana</span></label>
+            </div></div>
+          <label class="consent" for="consentimiento"><input type="checkbox" id="consentimiento" name="consentimiento" value="Sí" required><span>Acepto que David me contacte por WhatsApp para una llamada sobre mi experiencia. Mis datos no se comparten con nadie y puedo pedir que se borren cuando quiera.</span></label>
+        </fieldset>
+
+        <div class="err" id="err" role="alert"></div>
+        <div class="nav">
+          <button type="button" class="btn ghost" id="back" hidden>Atrás</button>
+          <button type="button" class="btn" id="next" style="margin-left:auto">Siguiente</button>
+          <button type="submit" class="btn" id="send" hidden style="margin-left:auto">Enviar mi historia</button>
+        </div>
+        <div class="privacy"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>Tus respuestas solo las ve David. No pedimos documentos ni números de identificación.</span></div>
+      </form>
+
+      <div class="card done" id="done" hidden aria-live="polite">
+        <img src="logo-icon.svg" width="72" height="72" alt="">
+        <div class="big" id="done-title">¡Gracias!</div>
+        <p id="done-text"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>Ruta Puente <span class="sun"></span> Houston, Texas <span class="sun"></span> Hecho con esperanza</footer>
+</div>
+
+<script>
+// Pega aquí la URL de tu Apps Script (termina en /exec)
+const SCRIPT_URL = "PEGA_AQUI_LA_URL_DE_APPS_SCRIPT";
+
+const form = document.getElementById('form');
+const steps = [...form.querySelectorAll('fieldset[data-step]')];
+const bars = [...form.querySelectorAll('.progress i')];
+const back = document.getElementById('back'), next = document.getElementById('next'), send = document.getElementById('send');
+const err = document.getElementById('err'), label = document.getElementById('step-label');
+let cur = 0;
+
+function show(i){
+  cur = i;
+  steps.forEach((s,j)=> s.hidden = j!==i);
+  bars.forEach((b,j)=>{ b.className = j<i ? 'on' : (j===i ? 'here' : ''); });
+  label.textContent = `Paso ${i+1} de ${steps.length}`;
+  back.hidden = i===0; next.hidden = i===steps.length-1; send.hidden = i!==steps.length-1;
+  err.textContent = '';
+}
+function valid(i){
+  const fs = steps[i];
+  const fields = [...fs.querySelectorAll('[required]')];
+  const names = new Set();
+  for(const f of fields){
+    if(f.type==='radio'){ if(names.has(f.name)) continue; names.add(f.name);
+      if(!fs.querySelector(`input[name="${f.name}"]:checked`)) return f; }
+    else if(f.type==='checkbox'){ if(!f.checked) return f; }
+    else if(!f.value.trim()) return f;
+  }
+  return null;
+}
+function check(i){
+  const bad = valid(i);
+  if(bad){ err.textContent = 'Te falta responder una pregunta de este paso.'; (bad.type==='radio'? bad.closest('.field') : bad).scrollIntoView({block:'center'}); bad.focus({preventScroll:true}); return false; }
+  return true;
+}
+next.addEventListener('click',()=>{ if(check(cur)){ show(cur+1); form.scrollIntoView({block:'start'}); } });
+back.addEventListener('click',()=> show(cur-1));
+
+// Mostrar aplicaciones solo si buscó
+const appsRow = document.getElementById('apps-row');
+form.querySelectorAll('input[name="busco_12m"]').forEach(r=>r.addEventListener('change',()=>{ appsRow.hidden = r.value==='No' && r.checked; }));
+
+function prioridad(d){
+  if(d.autorizado==='No') return 'Fuera de perfil';
+  const pts = (d.titulo!=='No' ? 1:0) + (d.busco_12m==='Sí' ? 1:0) + (d.autorizado==='Sí' ? 1:0);
+  return pts===3 ? 'Alta' : (pts===2 ? 'Media' : 'Baja');
+}
+
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  if(!check(cur)) return;
+  const data = Object.fromEntries(new FormData(form).entries());
+  if(data.website) return; // trampa para bots
+  delete data.website;
+  data.prioridad = prioridad(data);
+  if(!SCRIPT_URL.startsWith('https://')){ err.textContent = 'El formulario todavía no está conectado. Escríbele a David por WhatsApp.'; return; }
+  send.disabled = true; send.textContent = 'Enviando…';
+  try{
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body:new URLSearchParams(data) });
+    finish(data);
+  }catch(ex){
+    send.disabled = false; send.textContent = 'Enviar mi historia';
+    err.textContent = 'No se pudo enviar. Revisa tu conexión a internet e inténtalo de nuevo.';
+  }
+});
+
+function finish(d){
+  form.hidden = true;
+  const done = document.getElementById('done'); done.hidden = false;
+  const name = (d.nombre||'').split(' ')[0];
+  if(d.prioridad==='Fuera de perfil'){
+    document.getElementById('done-title').textContent = `Gracias, ${name}`;
+    document.getElementById('done-text').textContent = 'Gracias de corazón por compartir tu historia. Por ahora este proyecto está enfocado en personas que ya pueden trabajar legalmente en EE.UU. Guardé tus datos y te escribiré cuando tengamos algo que te sirva.';
+  }else{
+    document.getElementById('done-title').textContent = `¡Gracias, ${name}!`;
+    document.getElementById('done-text').textContent = 'Recibí tu historia. Te escribo por WhatsApp en los próximos 2 días para agendar nuestra llamada de 15 minutos.';
+    confetti();
+  }
+  done.scrollIntoView({block:'center'});
+}
+
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = document.getElementById('confetti'), x = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const colors = ['#2E7D5B','#E8B04B','#E07A5F','#5FBF8F'];
+  const ps = Array.from({length:90},()=>({x:c.width/2,y:c.height/3,vx:(Math.random()-.5)*10,vy:Math.random()*-9-3,s:Math.random()*6+4,c:colors[Math.random()*4|0],r:Math.random()*6}));
+  let t=0; (function f(){ x.clearRect(0,0,c.width,c.height);
+    ps.forEach(p=>{ p.vy+=.25; p.x+=p.vx; p.y+=p.vy; p.r+=.1; x.save(); x.translate(p.x,p.y); x.rotate(p.r); x.fillStyle=p.c; x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); x.restore(); });
+    if(++t<140) requestAnimationFrame(f); else x.clearRect(0,0,c.width,c.height); })();
+}
+show(0);
+</script>
+</body>
+</html>
