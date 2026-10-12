@@ -89,7 +89,9 @@ section{padding-block:36px 0}
 .progress i.on{background:var(--hope)}
 .progress i.here{background:var(--sun)}
 .step-label{font-weight:800;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;min-width:0}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:22px;min-width:0}
+fieldset > .field + .field, fieldset > .grid2, fieldset > .grid2 + .field{padding-top:18px;border-top:1px solid var(--line)}
+.field>input[type=text][hidden]+*{margin:0}
 legend{font:700 24px var(--f-display);margin-bottom:6px;padding:0}
 .field{display:flex;flex-direction:column;gap:6px;min-width:0}
 .field>label,.q{font-weight:700}
@@ -202,7 +204,7 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
           </div>
           <div class="field"><label for="pais">País de origen</label>
             <select id="pais" name="pais" required>
-              <option value="">Elige uno</option>
+              <option value="">Elige tu país</option>
               <option>Argentina</option><option>Bolivia</option><option>Chile</option><option>Colombia</option><option>Costa Rica</option><option>Cuba</option><option>Ecuador</option><option>El Salvador</option><option>Guatemala</option><option>Honduras</option><option>México</option><option>Nicaragua</option><option>Panamá</option><option>Paraguay</option><option>Perú</option><option>Puerto Rico</option><option>República Dominicana</option><option>Uruguay</option><option>Venezuela</option><option>Otro</option>
             </select></div>
           <div class="field"><span class="q" id="q-fuente">¿Cómo te enteraste?</span>
@@ -213,25 +215,34 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
               <label><input type="radio" name="fuente" value="LinkedIn"><span>LinkedIn</span></label>
               <label><input type="radio" name="fuente" value="Un amigo"><span>Un amigo</span></label>
               <label><input type="radio" name="fuente" value="Otro"><span>Otro</span></label>
-            </div></div>
+            </div>
+            <input type="text" id="fuente_otro" name="fuente_otro" placeholder="¿Dónde? Ej.: iglesia, consulado, un grupo" hidden></div>
         </fieldset>
 
         <!-- Paso 2 -->
         <fieldset data-step="1" hidden>
           <legend>Tu profesión</legend>
-          <div class="field"><label for="profesion">¿Qué profesión tenías en tu país? <span class="hint">Ej.: contadora, ingeniero civil, maestra</span></label><input type="text" id="profesion" name="profesion" required></div>
+          <div class="field"><label for="profesion">¿Qué profesión tenías en tu país?</label><input type="text" id="profesion" name="profesion" placeholder="Ej.: contadora, ingeniero civil, maestra" required></div>
           <div class="field"><span class="q" id="q-titulo">¿Tienes título universitario?</span>
             <div class="chips" role="radiogroup" aria-labelledby="q-titulo">
               <label><input type="radio" name="titulo" value="Sí, universitario" required><span>Sí, universitario</span></label>
               <label><input type="radio" name="titulo" value="Técnico o tecnólogo"><span>Técnico o tecnólogo</span></label>
               <label><input type="radio" name="titulo" value="No"><span>No</span></label>
             </div></div>
-          <div class="grid2">
-            <div class="field"><label for="anios_exp">Años de experiencia en tu profesión</label>
-              <select id="anios_exp" name="anios_exp" required><option value="">Elige</option><option>Menos de 2</option><option>2 a 5</option><option>6 a 10</option><option>Más de 10</option></select></div>
-            <div class="field"><label for="tiempo_eeuu">Tiempo en EE.UU.</label>
-              <select id="tiempo_eeuu" name="tiempo_eeuu" required><option value="">Elige</option><option>Menos de 1 año</option><option>1 a 3 años</option><option>4 a 6 años</option><option>Más de 6 años</option></select></div>
-          </div>
+          <div class="field"><span class="q" id="q-anios">¿Cuántos años trabajaste en tu profesión?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-anios">
+              <label><input type="radio" name="anios_exp" value="Menos de 2" required><span>Menos de 2</span></label>
+              <label><input type="radio" name="anios_exp" value="2 a 5"><span>2 a 5</span></label>
+              <label><input type="radio" name="anios_exp" value="6 a 10"><span>6 a 10</span></label>
+              <label><input type="radio" name="anios_exp" value="Más de 10"><span>Más de 10</span></label>
+            </div></div>
+          <div class="field"><span class="q" id="q-tiempo">¿Cuánto tiempo llevas en EE.UU.?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-tiempo">
+              <label><input type="radio" name="tiempo_eeuu" value="Menos de 1 año" required><span>Menos de 1 año</span></label>
+              <label><input type="radio" name="tiempo_eeuu" value="1 a 3 años"><span>1 a 3 años</span></label>
+              <label><input type="radio" name="tiempo_eeuu" value="4 a 6 años"><span>4 a 6 años</span></label>
+              <label><input type="radio" name="tiempo_eeuu" value="Más de 6 años"><span>Más de 6 años</span></label>
+            </div></div>
           <div class="field"><span class="q" id="q-aut">¿Puedes trabajar legalmente en EE.UU.?</span>
             <span class="hint">Solo sí o no. No te pedimos ningún otro detalle.</span>
             <div class="chips" role="radiogroup" aria-labelledby="q-aut">
@@ -243,11 +254,14 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
         <!-- Paso 3 -->
         <fieldset data-step="2" hidden>
           <legend>Tu búsqueda de trabajo</legend>
-          <div class="grid2">
-            <div class="field"><label for="trabajo_actual">¿En qué trabajas hoy?</label><input type="text" id="trabajo_actual" name="trabajo_actual" placeholder="Ej.: mesero, almacén, delivery" required></div>
-            <div class="field"><label for="horas_trabajo">Horas de trabajo a la semana</label>
-              <select id="horas_trabajo" name="horas_trabajo" required><option value="">Elige</option><option>No trabajo ahora</option><option>Menos de 20</option><option>20 a 40</option><option>Más de 40</option></select></div>
-          </div>
+          <div class="field"><label for="trabajo_actual">¿En qué trabajas hoy?</label><input type="text" id="trabajo_actual" name="trabajo_actual" placeholder="Ej.: mesero, almacén, delivery" required></div>
+          <div class="field"><span class="q" id="q-horas-trabajo">¿Cuántas horas trabajas a la semana?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-horas-trabajo">
+              <label><input type="radio" name="horas_trabajo" value="No trabajo ahora" required><span>No trabajo ahora</span></label>
+              <label><input type="radio" name="horas_trabajo" value="Menos de 20"><span>Menos de 20</span></label>
+              <label><input type="radio" name="horas_trabajo" value="20 a 40"><span>20 a 40</span></label>
+              <label><input type="radio" name="horas_trabajo" value="Más de 40"><span>Más de 40</span></label>
+            </div></div>
           <div class="field"><span class="q" id="q-busco">En los últimos 12 meses, ¿buscaste trabajo en tu profesión?</span>
             <div class="chips" role="radiogroup" aria-labelledby="q-busco">
               <label><input type="radio" name="busco_12m" value="Sí" required><span>Sí</span></label>
@@ -265,9 +279,15 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
               <label><input type="radio" name="barrera" value="No tengo tiempo"><span>No tengo tiempo</span></label>
               <label><input type="radio" name="barrera" value="No sé cómo funciona el sistema aquí"><span>No sé cómo funciona aquí</span></label>
               <label><input type="radio" name="barrera" value="Otra"><span>Otra</span></label>
+            </div>
+            <input type="text" id="barrera_otra" name="barrera_otra" placeholder="Cuéntanos cuál" hidden></div>
+          <div class="field"><span class="q" id="q-horas-disp">Siendo realista, ¿cuántas horas a la semana podrías dedicar a buscar en tu profesión?</span>
+            <div class="chips" role="radiogroup" aria-labelledby="q-horas-disp">
+              <label><input type="radio" name="horas_disponibles" value="Menos de 2" required><span>Menos de 2</span></label>
+              <label><input type="radio" name="horas_disponibles" value="2 a 5"><span>2 a 5</span></label>
+              <label><input type="radio" name="horas_disponibles" value="6 a 10"><span>6 a 10</span></label>
+              <label><input type="radio" name="horas_disponibles" value="Más de 10"><span>Más de 10</span></label>
             </div></div>
-          <div class="field"><label for="horas_disponibles">Siendo realista, ¿cuántas horas a la semana podrías dedicar a buscar en tu profesión?</label>
-            <select id="horas_disponibles" name="horas_disponibles" required><option value="">Elige</option><option>Menos de 2</option><option>2 a 5</option><option>6 a 10</option><option>Más de 10</option></select></div>
         </fieldset>
 
         <!-- Paso 4 -->
@@ -331,6 +351,7 @@ function valid(i){
     if(f.type==='radio'){ if(names.has(f.name)) continue; names.add(f.name);
       if(!fs.querySelector(`input[name="${f.name}"]:checked`)) return f; }
     else if(f.type==='checkbox'){ if(!f.checked) return f; }
+    else if(f.hidden) continue;
     else if(!f.value.trim()) return f;
   }
   return null;
@@ -342,6 +363,15 @@ function check(i){
 }
 next.addEventListener('click',()=>{ if(check(cur)){ show(cur+1); form.scrollIntoView({block:'start'}); } });
 back.addEventListener('click',()=> show(cur-1));
+
+// Cuadro de texto cuando eligen "Otro" / "Otra"
+[['fuente','Otro','fuente_otro'],['barrera','Otra','barrera_otra']].forEach(([n,v,id])=>{
+  const box = document.getElementById(id);
+  form.querySelectorAll(`input[name="${n}"]`).forEach(r=>r.addEventListener('change',()=>{
+    const on = form.querySelector(`input[name="${n}"]:checked`)?.value === v;
+    box.hidden = !on; box.required = on; if(on) box.focus();
+  }));
+});
 
 // Mostrar aplicaciones solo si buscó
 const appsRow = document.getElementById('apps-row');
@@ -359,6 +389,9 @@ form.addEventListener('submit', async e=>{
   const data = Object.fromEntries(new FormData(form).entries());
   if(data.website) return; // trampa para bots
   delete data.website;
+  if(data.fuente==='Otro' && data.fuente_otro) data.fuente = 'Otro: ' + data.fuente_otro.trim();
+  if(data.barrera==='Otra' && data.barrera_otra) data.barrera = 'Otra: ' + data.barrera_otra.trim();
+  delete data.fuente_otro; delete data.barrera_otra;
   data.prioridad = prioridad(data);
   if(!SCRIPT_URL.startsWith('https://')){ err.textContent = 'El formulario todavía no está conectado. Escríbele a David por WhatsApp.'; return; }
   send.disabled = true; send.textContent = 'Enviando…';
