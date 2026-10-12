@@ -41,8 +41,16 @@ p{margin:0}
 @media (max-width:420px){.route{grid-template-columns:1fr}}
 .route button{all:unset;cursor:pointer;box-sizing:border-box;width:100%;display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .route .st{flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
-.route .ok .st{background:var(--hope);color:var(--hope-ink)}
+.route .st{transition:background .25s,color .25s}
+.route .new .st{background:var(--line);color:var(--muted)}
+.route .ok .st{background:var(--hope);color:var(--hope-ink);animation:pop .35s ease-out}
 .route .todo .st{background:var(--sun);color:#1d2b26}
+.route .ok button{border-color:var(--hope)}
+.route .go{margin-left:auto;font-size:22px;color:var(--muted);line-height:1}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.progress{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:800;color:var(--hope)}
+.progress .track{height:8px;border-radius:999px;background:var(--surface);overflow:hidden}
+.progress .fill{height:100%;width:0;background:var(--hope);border-radius:999px;transition:width .4s ease}
 .route b{display:block;font-size:15px}
 .route small{display:block;font-size:13px;color:var(--muted)}
 .fact{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:700}
@@ -117,8 +125,9 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
 
   <section class="hello" aria-live="polite">
     <h1 id="hello-title">Hola, María</h1>
-    <p id="hello-text">Con lo que nos contaste en el formulario ya armamos tu ruta. Revisa cada paso y corrige si algo no está bien; solo te falta agregar tus logros.</p>
+    <p id="hello-text">Con lo que nos contaste en el formulario ya armamos tu ruta. Abre cada paso, revisa que todo esté bien y confírmalo: se marcará con ✓.</p>
     <div class="facts" id="facts"></div>
+    <div class="progress"><div class="track"><div class="fill" id="progress-bar"></div></div><span id="progress-text">0 de 6 pasos listos</span></div>
     <ol class="route" id="route" aria-label="Tu ruta en 6 pasos"></ol>
   </section>
 
@@ -299,25 +308,42 @@ function go(i){
   document.querySelectorAll(".view").forEach(v=>v.hidden = +v.dataset.step!==i);
   $("#step-count").textContent = `Paso ${i+1} de ${STEPS.length} · ${STEPS[i]}`;
   $("#prev").textContent = i===0 ? "← Tu ruta" : "Atrás";
-  $("#next").textContent = i===STEPS.length-1 ? "Volver a mi ruta" : "Siguiente";
+  $("#next").textContent = i===STEPS.length-1 ? "Confirmar y ver mi ruta" : "Confirmar y seguir";
   render(); window.scrollTo({top:0});
 }
 $("#to-route").onclick = home;
 $("#prev").onclick=()=> state.step===0 ? home() : go(state.step-1);
-$("#next").onclick=()=> state.step===STEPS.length-1 ? home() : go(state.step+1);
+$("#next").onclick=()=>{ revisados.add(state.step); guardarOk(); state.step===STEPS.length-1 ? home() : go(state.step+1); };
 
+// Estado de cada paso: ✓ solo cuando la persona lo revisó (Confirmar) y ya tiene lo que el paso pide
+const KEY_OK = "rp-ok-" + (new URLSearchParams(location.search).get("c") || "demo");
+let revisados = new Set(); try{ revisados = new Set(JSON.parse(localStorage.getItem(KEY_OK)||"[]")); }catch(e){}
+let copiado = false; try{ copiado = localStorage.getItem(KEY_OK+"-copy")==="1"; }catch(e){}
+const guardarOk = ()=>{ try{ localStorage.setItem(KEY_OK, JSON.stringify([...revisados])); }catch(e){} };
+function requisito(i){
+  const zip = ($("#p-zip").value.match(/\d{5}/)||[])[0];
+  return [
+    $("#p-wins").value.trim() ? null : "Falta: tus 3 logros",
+    null, null,
+    zip ? null : "Falta: tu ZIP",
+    copiado ? null : "Falta: copiar tu mensaje",
+    rows.length ? null : "Falta: anotar tu primera aplicación"
+  ][i];
+}
 function pintarRuta(){
-  const m = findTitle($("#p-title").value), wins = $("#p-wins").value.trim();
-  const items = [
-    ["Tu perfil", wins ? "Listo" : "Falta: tus 3 logros", !!wins],
-    ["Tu cargo aquí", m ? m.en : "Lo revisamos contigo", !!m],
-    ["Tu carril", state.primary || "Listo", true],
-    ["Vacantes cerca", ($("#p-zip").value.match(/\d{5}/)||["Agrega tu ZIP"])[0], !!$("#p-zip").value.match(/\d{5}/)],
-    ["Mensaje de contacto", "Listo para copiar", true],
-    ["Tus aplicaciones", "Anótalas aquí", true]
-  ];
-  $("#route").innerHTML = items.map(([t,d,ok],i)=>`<li class="${ok?"ok":"todo"}"><button type="button" data-go="${i}"><span class="st">${ok?"✓":i+1}</span><span><b>${t}</b><small>${esc(d)}</small></span></button></li>`).join("");
+  const m = findTitle($("#p-title").value), zip = ($("#p-zip").value.match(/\d{5}/)||[])[0];
+  const info = ["Resumen en inglés", m ? m.en : "Lo revisamos contigo", state.primary || "", zip ? "Cerca de " + zip : "", "Para LinkedIn", rows.length ? rows.length + " anotadas" : ""];
+  const nombres = ["Tu perfil","Tu cargo aquí","Tu carril","Vacantes cerca","Mensaje de contacto","Tus aplicaciones"];
+  let listos = 0;
+  $("#route").innerHTML = nombres.map((t,i)=>{
+    const falta = requisito(i), ok = revisados.has(i) && !falta; if(ok) listos++;
+    const cls = ok ? "ok" : (revisados.has(i) && falta ? "todo" : "new");
+    const sub = ok ? info[i] || "Listo" : (falta && revisados.has(i) ? falta : "Por revisar");
+    return `<li class="${cls}"><button type="button" data-go="${i}"><span class="st" aria-hidden="true">${ok?"✓":i+1}</span><span><b>${t}</b><small>${esc(sub)}</small></span><span class="go" aria-hidden="true">›</span></button></li>`;
+  }).join("");
   $("#route").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $("#progress-text").textContent = listos === 6 ? "¡Tu ruta está completa!" : `${listos} de 6 pasos listos`;
+  $("#progress-bar").style.width = (listos/6*100) + "%";
 }
 
 function render(){
@@ -378,7 +404,7 @@ function renderRows(){
 $("#add-form").addEventListener("submit",e=>{ e.preventDefault(); rows.unshift({company:$("#a-company").value.trim(), role:$("#a-role").value.trim(), date:iso(today), status:"Sin respuesta"}); $("#a-company").value=""; $("#a-role").value=""; save(); renderRows(); });
 
 document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{
-  const el=$("#"+b.dataset.copy), t=$("#t-"+b.dataset.copy), ok=()=>{t.textContent="Copiado"; setTimeout(()=>t.textContent="",2000);};
+  const el=$("#"+b.dataset.copy), t=$("#t-"+b.dataset.copy), ok=()=>{t.textContent="Copiado"; setTimeout(()=>t.textContent="",2000); if(b.dataset.copy==="msg"){ copiado=true; try{ localStorage.setItem(KEY_OK+"-copy","1"); }catch(e){} } };
   const sel=()=>{ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); t.textContent="Texto seleccionado: cópialo"; };
   try{ navigator.clipboard.writeText(el.textContent).then(ok).catch(sel); }catch(e){ sel(); }
 }));
