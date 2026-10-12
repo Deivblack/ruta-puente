@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../logo-icon.svg" type="image/svg+xml">
+<title>Ruta Puente App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: app de una columna pensada para celular — saludo con sus datos, pasos en chips deslizables, una tarjeta de trabajo por paso */
+:root{
+  --bg:#f3f6f3; --surface:#ffffff; --ink:#1d2b26; --muted:#5d6c66; --line:#d7e0db;
+  --hope:#2e7d5b; --hope-soft:#e1efe7; --hope-ink:#ffffff; --sun:#e8b04b; --sun-soft:#fbf0d9; --warn:#b4541a;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111a17; --surface:#18241f; --ink:#e7efea; --muted:#a2b2ab; --line:#2a3a33;
+  --hope:#5fbf8f; --hope-soft:#1f3a2e; --hope-ink:#0f1a15; --sun:#f0c062; --sun-soft:#3a3120; --warn:#f0965a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111a17; --surface:#18241f; --ink:#e7efea; --muted:#a2b2ab; --line:#2a3a33;
+  --hope:#5fbf8f; --hope-soft:#1f3a2e; --hope-ink:#0f1a15; --sun:#f0c062; --sun-soft:#3a3120; --warn:#f0965a; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body);padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.15;text-wrap:balance}
+p{margin:0}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:16px 0}
+.brand{display:flex;align-items:center;gap:8px;white-space:nowrap;font:800 18px var(--f-display);color:var(--ink)}
+.brand svg{width:30px;height:30px}
+.preview{font-size:12px;font-weight:800;color:var(--warn);background:var(--sun-soft);border:1px solid var(--sun);padding:3px 10px;border-radius:999px}
+.hello{background:var(--hope-soft);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.hello h1{font-size:clamp(26px,6vw,34px)}
+.hello p{color:var(--muted)}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.route{list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:420px){.route{grid-template-columns:1fr}}
+.route button{all:unset;cursor:pointer;box-sizing:border-box;width:100%;display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.route .st{flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
+.route .ok .st{background:var(--hope);color:var(--hope-ink)}
+.route .todo .st{background:var(--sun);color:#1d2b26}
+.route b{display:block;font-size:15px}
+.route small{display:block;font-size:13px;color:var(--muted)}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:700}
+.steps{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.steps button{all:unset;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--surface);border:2px solid var(--line);font-weight:800;font-size:15px}
+.steps button .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;background:var(--line);color:var(--ink)}
+.steps button[aria-selected="true"]{border-color:var(--hope);background:var(--hope);color:var(--hope-ink)}
+.steps button[aria-selected="true"] .n{background:var(--sun);color:#1d2b26}
+.steps button.done .n{background:var(--hope-soft);color:var(--hope)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card h2{font-size:22px}
+.hint{color:var(--muted);font-size:15px}
+label{display:flex;flex-direction:column;gap:6px;font-weight:700;min-width:0}
+input,select,textarea{font:17px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:11px 13px;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--hope);outline:none}
+textarea{min-height:96px;resize:vertical}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+.out{background:var(--hope-soft);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.out-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--hope)}
+.out-text{white-space:pre-wrap;background:var(--surface);border-radius:10px;padding:14px;border:1px solid var(--line);font-size:16px}
+.big{font:800 24px/1.2 var(--f-display)}
+.from{font-size:14px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--surface);border:1px solid var(--line);padding:4px 10px;border-radius:999px;font-size:14px;font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:800 16px var(--f-body);border:0;border-radius:999px;padding:12px 20px;cursor:pointer;background:var(--hope);color:var(--hope-ink);text-decoration:none}
+.btn.ghost{background:transparent;color:var(--hope);border:2px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.toast{font-size:14px;color:var(--hope);font-weight:700;min-height:1.2em}
+.tip{display:flex;gap:12px;align-items:flex-start;background:var(--sun-soft);border-radius:14px;padding:14px}
+.tip .dot{flex:0 0 10px;height:10px;border-radius:50%;background:var(--sun);margin-top:8px}
+.lanes{display:flex;flex-direction:column;gap:8px}
+.lane{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border:2px solid var(--line);border-radius:12px;cursor:pointer;font-weight:700}
+.lane input{width:auto;accent-color:var(--hope)}
+.lane.on{border-color:var(--hope);background:var(--hope-soft)}
+.lane small{font-weight:600;color:var(--muted)}
+.split{display:flex;height:34px;border-radius:999px;overflow:hidden;font-weight:800;font-size:14px}
+.split div{display:flex;align-items:center;padding:0 12px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.split .a{flex:8;background:var(--hope);color:var(--hope-ink)}
+.split .b{flex:2;background:var(--sun);color:#1d2b26}
+.links{display:grid;gap:8px}
+.links a{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;border-radius:12px;background:var(--bg);border:2px solid var(--line);color:var(--ink);text-decoration:none;font-weight:800}
+.links a span{font-size:13px;color:var(--muted);font-weight:700;white-space:nowrap}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td select{padding:5px 6px;font-size:14px}
+.pill{font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.pill.due{background:var(--sun-soft);color:var(--warn);border:1px solid var(--warn)}
+.pill.ok{color:var(--hope);border:1px solid var(--hope)}
+.x{all:unset;cursor:pointer;color:var(--muted);padding:2px 8px}
+.nav{display:flex;justify-content:space-between;gap:10px}
+footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="var(--hope)" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/></svg>
+      Ruta Puente
+    </div>
+    <span class="preview" id="badge">Ejemplo</span>
+  </header>
+
+  <section class="hello" aria-live="polite">
+    <h1 id="hello-title">Hola, María</h1>
+    <p id="hello-text">Con lo que nos contaste en el formulario ya armamos tu ruta. Revisa cada paso y corrige si algo no está bien; solo te falta agregar tus logros.</p>
+    <div class="facts" id="facts"></div>
+    <ol class="route" id="route" aria-label="Tu ruta en 6 pasos"></ol>
+  </section>
+
+  <nav class="steps" role="tablist" id="steps" aria-label="Pasos"></nav>
+
+  <!-- 1 Perfil -->
+  <section class="card view" data-step="0">
+    <h2>Tu perfil en inglés</h2>
+    <p class="hint">Esto ya viene de tu formulario. Corrige lo que haga falta y agrega tus logros: son lo que más pesa en un CV de EE.UU.</p>
+    <div class="grid2">
+      <label for="p-title">Tu profesión<input id="p-title"></label>
+      <label for="p-years">Años de experiencia<select id="p-years"><option>Menos de 2</option><option>2 a 5</option><option>6 a 10</option><option>Más de 10</option></select></label>
+      <label for="p-country">País<input id="p-country"></label>
+      <label for="p-zip">Ciudad o ZIP<input id="p-zip"></label>
+    </div>
+    <label for="p-wins">Tus 3 logros más importantes <span class="hint">(uno por línea, con números si puedes)</span>
+      <textarea id="p-wins" placeholder="Ej.: Reduje errores de conciliación en 40%"></textarea></label>
+    <div class="out">
+      <span class="out-label">Tu resumen profesional</span>
+      <div class="out-text" id="summary"></div>
+      <div class="row"><button class="btn" data-copy="summary" type="button">Copiar resumen</button><span class="toast" id="t-summary" aria-live="polite"></span></div>
+    </div>
+  </section>
+
+  <!-- 2 Traducción -->
+  <section class="card view" data-step="1" hidden>
+    <h2>Cómo se llama tu trabajo aquí</h2>
+    <p class="hint">Un reclutador en EE.UU. busca por cargos y palabras clave. Esto es lo que tienes que poner en tu CV y en LinkedIn.</p>
+    <div class="out" id="t-out"></div>
+    <div class="tip" id="tip-titulo"><span class="dot" aria-hidden="true"></span><p>Para que tu título cuente aquí, existe la evaluación de credenciales (por ejemplo WES o ECE): traduce tu grado a su equivalente en EE.UU. Ruta Puente orienta; no da asesoría legal.</p></div>
+  </section>
+
+  <!-- 3 Carril -->
+  <section class="card view" data-step="2" hidden>
+    <h2>Tu carril principal</h2>
+    <p class="hint">Aplicar a todo diluye tu perfil. Elige uno principal (80% de tu esfuerzo) y uno de respaldo (20%).</p>
+    <div class="lanes" id="lanes"></div>
+    <div class="split" aria-hidden="true"><div class="a" id="lane-a"></div><div class="b" id="lane-b"></div></div>
+    <p id="lane-plan"></p>
+  </section>
+
+  <!-- 4 Vacantes -->
+  <section class="card view" data-step="3" hidden>
+    <h2>Vacantes reales cerca de ti</h2>
+    <p class="hint" id="v-note"></p>
+    <div class="grid2">
+      <label for="v-kw">Buscar<input id="v-kw"></label>
+      <label for="v-radius">Distancia<select id="v-radius"><option value="5">5 millas</option><option value="10">10 millas</option><option value="15" selected>15 millas</option><option value="25">25 millas</option></select></label>
+    </div>
+    <div class="links" id="v-links"></div>
+    <p class="hint">Estos botones abren búsquedas en portales reales. Ruta Puente nunca inventa vacantes.</p>
+  </section>
+
+  <!-- 5 Contacto -->
+  <section class="card view" data-step="4" hidden>
+    <h2>Escríbele a una persona antes de aplicar</h2>
+    <p class="hint">Un mensaje corto a alguien de la empresa responde mucho más que una aplicación en frío.</p>
+    <div class="tip" id="tip-barrera"><span class="dot" aria-hidden="true"></span><p id="tip-barrera-text"></p></div>
+    <div class="grid2">
+      <label for="c-company">Empresa<input id="c-company" placeholder="Ej.: Memorial Hermann"></label>
+      <label for="c-person">Nombre del contacto<input id="c-person" placeholder="Ej.: Laura"></label>
+    </div>
+    <div class="out">
+      <span class="out-label">Tu mensaje para LinkedIn (en inglés)</span>
+      <div class="out-text" id="msg"></div>
+      <div class="row"><button class="btn" data-copy="msg" type="button">Copiar mensaje</button><span class="toast" id="t-msg" aria-live="polite"></span></div>
+      <p class="hint" id="msg-count"></p>
+    </div>
+  </section>
+
+  <!-- 6 Seguimiento -->
+  <section class="card view" data-step="5" hidden>
+    <h2>Tus aplicaciones</h2>
+    <p class="hint">Anota cada aplicación. A los 7 días te avisamos para escribirle a la empresa. Esto se guarda solo en tu celular.</p>
+    <form class="row" id="add-form">
+      <input id="a-company" placeholder="Empresa" style="flex:1 1 150px" required>
+      <input id="a-role" placeholder="Puesto" style="flex:1 1 150px" required>
+      <button class="btn" type="submit">Agregar</button>
+    </form>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Empresa</th><th>Puesto</th><th>Aplicaste</th><th>Seguimiento</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="hint" id="stats"></p>
+  </section>
+
+  <div class="nav">
+    <button class="btn ghost" id="prev" type="button">Atrás</button>
+    <button class="btn" id="next" type="button">Siguiente</button>
+  </div>
+
+  <footer>Ruta Puente · Houston · orientación de empleo, no asesoría legal ni migratoria</footer>
+</div>
+
+<script>
+// En la web: URL de Apps Script; si no hay código o falla, la app abre con datos de ejemplo
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
+const $ = s => document.querySelector(s);
+const STEPS = ["Perfil","Tu cargo","Carril","Vacantes","Contacto","Aplicaciones"];
+
+const EJEMPLO = { nombre:"María", pais:"Colombia", profesion:"Contadora", anios_exp:"6 a 10", ciudad:"Houston, 77095", barrera:"No tengo contactos" };
+
+const TITLES = {
+  "contador": {en:"Staff Accountant", alt:["Senior Accountant","Accounting Specialist"], kw:["GAAP","month-end close","reconciliations","QuickBooks","Excel"], lanes:["Staff Accountant","Accounts Payable Specialist","Bookkeeper"]},
+  "jefe de capacitacion": {en:"Training Manager", alt:["L&D Manager","Learning & Development Specialist"], kw:["instructional design","LMS","onboarding","needs analysis"], lanes:["L&D Specialist","Training Coordinator","HR Coordinator"]},
+  "recursos humanos": {en:"HR Generalist", alt:["HR Analyst","HR Coordinator"], kw:["onboarding","HRIS","employee relations","compliance"], lanes:["HR Generalist","HR Coordinator","Recruiting Coordinator"]},
+  "ingeniero civil": {en:"Civil Engineer (EIT)", alt:["Project Engineer","Field Engineer"], kw:["AutoCAD","site inspection","scheduling","cost estimating"], lanes:["Project Engineer","Construction Estimator","Field Engineer"]},
+  "ingeniero industrial": {en:"Industrial Engineer", alt:["Process Improvement Engineer","Operations Analyst"], kw:["Lean","Six Sigma","process mapping","KPIs"], lanes:["Operations Analyst","Process Improvement Specialist","Production Planner"]},
+  "ingeniero de sistemas": {en:"IT Support Specialist", alt:["Systems Analyst","Implementation Specialist"], kw:["help desk","troubleshooting","SQL","implementation"], lanes:["IT Support Specialist","Implementation Specialist","Systems Analyst"]},
+  "abogado": {en:"Paralegal / Legal Assistant", alt:["Compliance Analyst","Contract Administrator"], kw:["legal research","contracts","compliance","bilingual"], lanes:["Bilingual Paralegal","Compliance Analyst","Contract Administrator"]},
+  "medico": {en:"Clinical Research Coordinator", alt:["Medical Assistant","Patient Navigator"], kw:["patient care","EHR","clinical trials","bilingual"], lanes:["Clinical Research Coordinator","Medical Assistant","Patient Navigator"]},
+  "enfermero": {en:"Patient Care Technician", alt:["Certified Nursing Assistant","Patient Navigator"], kw:["patient care","vital signs","EHR","bilingual"], lanes:["Patient Care Technician","Patient Navigator","Medical Assistant"]},
+  "maestro": {en:"Teacher", alt:["Bilingual Teacher","Teaching Assistant"], kw:["lesson planning","classroom management","bilingual","curriculum"], lanes:["Bilingual Teacher","Teaching Assistant","Corporate Trainer"]},
+  "docente": {en:"Teacher", alt:["Bilingual Teacher","Teaching Assistant"], kw:["lesson planning","classroom management","bilingual","curriculum"], lanes:["Bilingual Teacher","Teaching Assistant","Corporate Trainer"]},
+  "ventas": {en:"Sales Manager", alt:["Account Manager","Business Development Rep"], kw:["pipeline","CRM","quota","B2B"], lanes:["Account Manager","Sales Representative","Customer Success Manager"]},
+  "administrador": {en:"Operations Coordinator", alt:["Business Analyst","Office Manager"], kw:["operations","scheduling","budgeting","reporting"], lanes:["Operations Coordinator","Office Manager","Business Analyst"]},
+  "psicologo": {en:"Case Manager", alt:["Behavioral Health Technician","Recruiter"], kw:["case management","assessment","bilingual","documentation"], lanes:["Case Manager","Recruiter","HR Coordinator"]},
+  "bodega": {en:"Warehouse Supervisor", alt:["Inventory Control Specialist","Logistics Coordinator"], kw:["inventory","WMS","OSHA","shipping & receiving"], lanes:["Logistics Coordinator","Inventory Control Specialist","Warehouse Supervisor"]}
+};
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();
+function findTitle(raw){
+  const n = norm(raw); if(!n) return null;
+  const v = [n, n.replace(/a\b/g,"o"), n.replace(/ra\b/g,"r"), n.replace(/a\b/g,"")];
+  for(const k of Object.keys(TITLES)){ if(v.some(x => x===k || x.includes(k) || (x.length>=5 && k.includes(x)))) return {key:k,...TITLES[k]}; }
+  return null;
+}
+const TIPS = {
+  "El inglés": "Tu barrera es el inglés: no tienes que escribir este mensaje desde cero. Copia el que armamos y cambia solo el nombre de la empresa.",
+  "Validar mis títulos": "Tu barrera es el título: muchos puestos piden experiencia equivalente, no el diploma de EE.UU. Pregúntale a tu contacto qué valoran más.",
+  "No tengo contactos": "Tu barrera son los contactos: este paso es para ti. Un mensaje por semana a alguien de tu área ya cambia el resultado.",
+  "No tengo tiempo": "Tu barrera es el tiempo: este mensaje toma 5 minutos. Mándalo en tu descanso.",
+  "No sé cómo funciona el sistema aquí": "Aquí casi todo empieza por una conversación: escribirle a alguien antes de aplicar es lo normal, no es abusar.",
+  "Otra": "Un mensaje corto y concreto, sin pedir trabajo directamente, abre más puertas que una aplicación en frío."
+};
+
+let P = {...EJEMPLO};
+const state = {step:0, primary:null, backup:null};
+
+async function cargar(){
+  const code = new URLSearchParams(location.search).get("c");
+  if(code && SCRIPT_URL){
+    try{
+      const r = await fetch(SCRIPT_URL + "?c=" + encodeURIComponent(code));
+      const d = await r.json();
+      if(d && d.ok){ P = d.persona; $("#badge").hidden = true; }
+    }catch(e){ /* sin conexión: queda el ejemplo */ }
+  }
+  pintarSaludo(); llenarPerfil(); go(0);
+}
+
+function pintarSaludo(){
+  const nombre = (P.nombre||"").split(" ")[0] || "";
+  $("#hello-title").textContent = nombre ? `Hola, ${nombre}` : "Hola";
+  const m = findTitle(P.profesion);
+  const f = [P.profesion, P.anios_exp ? P.anios_exp + " años" : "", P.pais, m ? "→ " + m.en : ""].filter(Boolean);
+  $("#facts").innerHTML = f.map(x=>`<span class="fact">${esc(x)}</span>`).join("");
+}
+function llenarPerfil(){
+  $("#p-title").value = P.profesion||""; $("#p-country").value = P.pais||""; $("#p-zip").value = P.ciudad||"";
+  if(P.anios_exp) $("#p-years").value = P.anios_exp;
+  try{ const w = localStorage.getItem("rp-wins"); if(w) $("#p-wins").value = w; }catch(e){}
+}
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const nav = $("#steps");
+STEPS.forEach((s,i)=>{ const b=document.createElement("button"); b.type="button"; b.setAttribute("role","tab");
+  b.innerHTML=`<span class="n">${i+1}</span>${s}`; b.onclick=()=>go(i); nav.appendChild(b); });
+
+function go(i){
+  state.step=i;
+  document.querySelectorAll(".view").forEach(v=>v.hidden = +v.dataset.step!==i);
+  nav.querySelectorAll("button").forEach((b,j)=>{ b.setAttribute("aria-selected", j===i); b.classList.toggle("done", j<i); });
+  nav.children[i].scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});
+  $("#prev").style.visibility = i===0 ? "hidden" : "visible";
+  $("#next").textContent = i===STEPS.length-1 ? "Listo" : "Siguiente";
+  render();
+}
+$("#prev").onclick=()=>go(Math.max(0,state.step-1));
+$("#next").onclick=()=>{ if(state.step<STEPS.length-1){ go(state.step+1); window.scrollTo({top:0,behavior:"smooth"}); } };
+
+function pintarRuta(){
+  const m = findTitle($("#p-title").value), wins = $("#p-wins").value.trim();
+  const items = [
+    ["Tu perfil", wins ? "Listo" : "Falta: tus 3 logros", !!wins],
+    ["Tu cargo aquí", m ? m.en : "Lo revisamos contigo", !!m],
+    ["Tu carril", state.primary || "Listo", true],
+    ["Vacantes cerca", ($("#p-zip").value.match(/\d{5}/)||["Agrega tu ZIP"])[0], !!$("#p-zip").value.match(/\d{5}/)],
+    ["Mensaje de contacto", "Listo para copiar", true],
+    ["Tus aplicaciones", "Anótalas aquí", true]
+  ];
+  $("#route").innerHTML = items.map(([t,d,ok],i)=>`<li class="${ok?"ok":"todo"}"><button type="button" data-go="${i}"><span class="st">${ok?"✓":i+1}</span><span><b>${t}</b><small>${esc(d)}</small></span></button></li>`).join("");
+  $("#route").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ go(+b.dataset.go); document.querySelector(".steps").scrollIntoView({behavior:"smooth"}); });
+}
+
+function render(){
+  const m = findTitle($("#p-title").value);
+  // 1 resumen
+  const role = m ? m.en : ($("#p-title").value || "professional");
+  const wins = $("#p-wins").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const kw = m ? m.kw.slice(0,3).join(", ") : "process improvement and teamwork";
+  $("#summary").textContent = `Bilingual (English/Spanish) ${role} with ${$("#p-years").value.toLowerCase().replace("más de","10+").replace(" a ","–").replace("menos de","under")} years of experience in ${$("#p-country").value||"Latin America"}, skilled in ${kw}.` + (wins.length ? `\n\nKey results (write them in English):\n${wins.map(w=>"• "+w).join("\n")}` : "\n\nAdd your 3 key results above to complete this summary.");
+  // 2 traducción
+  $("#t-out").innerHTML = m
+    ? `<span class="from">${esc($("#p-title").value)} →</span><span class="big">${m.en}</span><span class="out-label">También te buscan como</span><div class="chips">${m.alt.map(a=>`<span class="chip">${a}</span>`).join("")}</div><span class="out-label">Palabras clave para tu CV</span><div class="chips">${m.kw.map(a=>`<span class="chip">${a}</span>`).join("")}</div>`
+    : `<span class="big">Todavía no tenemos tu cargo</span><p>Lo vamos a agregar. Mientras tanto, escribe tu profesión de forma más general en el paso 1 (por ejemplo "Ingeniero industrial").</p>`;
+  // 3 carril
+  const lanes = m ? m.lanes : ["Coordinator","Specialist","Assistant"];
+  if(!lanes.includes(state.primary)) state.primary = lanes[0];
+  if(!lanes.includes(state.backup) || state.backup===state.primary) state.backup = lanes.find(l=>l!==state.primary);
+  $("#lanes").innerHTML = lanes.map((l,i)=>`<label class="lane ${l===state.primary?"on":""}" for="ln-${i}"><span>${l}<br><small>${l===state.primary?"Principal · 80%":l===state.backup?"Respaldo · 20%":"Toca para elegir como principal"}</small></span><input type="radio" name="ln" id="ln-${i}" value="${l}" ${l===state.primary?"checked":""}></label>`).join("");
+  $("#lanes").querySelectorAll("input").forEach(inp=>inp.onchange=()=>{ const old=state.primary; state.primary=inp.value; if(state.backup===inp.value) state.backup=old; $("#v-kw").value=""; render(); });
+  $("#lane-a").textContent = "80% · "+state.primary; $("#lane-b").textContent = "20% · "+state.backup;
+  $("#lane-plan").textContent = `Con 10 aplicaciones a la semana: 8 a ${state.primary} y 2 a ${state.backup}.`;
+  // 4 vacantes
+  if(!$("#v-kw").value) $("#v-kw").value = state.primary;
+  const q = encodeURIComponent($("#v-kw").value.trim()), zip = ($("#p-zip").value.match(/\d{5}/)||[""])[0] || $("#p-zip").value, z = encodeURIComponent(zip), r = $("#v-radius").value;
+  $("#v-note").textContent = zip ? `Buscando "${$("#v-kw").value}" cerca de ${zip}.` : "Agrega tu ZIP en el paso 1.";
+  const L = [["Indeed",`https://www.indeed.com/jobs?q=${q}&l=${z}&radius=${r}`],["LinkedIn",`https://www.linkedin.com/jobs/search/?keywords=${q}&location=${z}&distance=${r}`],["ZipRecruiter",`https://www.ziprecruiter.com/jobs-search?search=${q}&location=${z}&radius=${r}`],["Google Jobs",`https://www.google.com/search?q=${q}+jobs+near+${z}&ibp=htl;jobs`]];
+  $("#v-links").innerHTML = L.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}<span>${r} millas ↗</span></a>`).join("");
+  // 5 contacto
+  $("#tip-barrera-text").textContent = TIPS[P.barrera] || TIPS["Otra"];
+  const nombre = (P.nombre||"").split(" ")[0];
+  const txt = `Hi ${$("#c-person").value||"there"}, I'm ${nombre||"a professional"}, a bilingual ${role} now based in Houston. I'm interested in ${state.primary} roles at ${$("#c-company").value||"your company"}. Could I ask you 2 quick questions about the team?`;
+  $("#msg").textContent = txt;
+  $("#msg-count").textContent = `${txt.length} de 300 caracteres que permite una nota de LinkedIn${txt.length>300?": acórtalo":""}.`;
+  renderRows();
+  pintarRuta();
+}
+["#p-title","#p-years","#p-country","#p-zip","#v-kw","#v-radius","#c-company","#c-person"].forEach(s=>$(s).addEventListener("input",()=>{ if(s==="#p-title"){ $("#v-kw").value=""; } render(); }));
+$("#p-wins").addEventListener("input",()=>{ try{ localStorage.setItem("rp-wins",$("#p-wins").value); }catch(e){} render(); });
+
+// 6 aplicaciones (solo en este celular)
+const today = new Date(); today.setHours(0,0,0,0);
+const iso = d => d.toISOString().slice(0,10);
+const addDays = (d,n)=>{const x=new Date(d); x.setDate(x.getDate()+n); return x;};
+let rows = []; try{ rows = JSON.parse(localStorage.getItem("rp-apps")||"[]"); }catch(e){ rows=[]; }
+const ST = ["Sin respuesta","Entrevista","Oferta","Rechazo"];
+const save = ()=>{ try{ localStorage.setItem("rp-apps", JSON.stringify(rows)); }catch(e){} };
+const fmt = d => d.slice(8,10)+"/"+d.slice(5,7);
+function renderRows(){
+  $("#rows").innerHTML = rows.map((r,i)=>{ const fu=addDays(new Date(r.date+"T00:00:00"),7), pend=r.status==="Sin respuesta";
+    const pill = !pend ? `<span class="pill ok">Cerrado</span>` : (fu<=today ? `<span class="pill due">Escribir hoy</span>` : `<span class="pill ok">${fmt(iso(fu))}</span>`);
+    return `<tr><td>${esc(r.company)}</td><td>${esc(r.role)}</td><td>${fmt(r.date)}</td><td>${pill}</td><td><select data-i="${i}" aria-label="Estado">${ST.map(s=>`<option ${s===r.status?"selected":""}>${s}</option>`).join("")}</select></td><td><button class="x" data-del="${i}" aria-label="Borrar">✕</button></td></tr>`; }).join("")
+    || `<tr><td colspan="6">Todavía no anotas aplicaciones. Agrega la primera arriba.</td></tr>`;
+  $("#rows").querySelectorAll("select").forEach(s=>s.onchange=()=>{ rows[s.dataset.i].status=s.value; save(); renderRows(); });
+  $("#rows").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ rows.splice(+b.dataset.del,1); save(); renderRows(); });
+  const n=rows.length, iv=rows.filter(r=>r.status==="Entrevista"||r.status==="Oferta").length;
+  $("#stats").textContent = n ? `${n} aplicaciones · ${iv} con entrevista u oferta.` : "";
+}
+$("#add-form").addEventListener("submit",e=>{ e.preventDefault(); rows.unshift({company:$("#a-company").value.trim(), role:$("#a-role").value.trim(), date:iso(today), status:"Sin respuesta"}); $("#a-company").value=""; $("#a-role").value=""; save(); renderRows(); });
+
+document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{
+  const el=$("#"+b.dataset.copy), t=$("#t-"+b.dataset.copy), ok=()=>{t.textContent="Copiado"; setTimeout(()=>t.textContent="",2000);};
+  const sel=()=>{ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); t.textContent="Texto seleccionado: cópialo"; };
+  try{ navigator.clipboard.writeText(el.textContent).then(ok).catch(sel); }catch(e){ sel(); }
+}));
+
+cargar();
+</script>
+
+</body>
+</html>
