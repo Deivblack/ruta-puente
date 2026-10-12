@@ -258,7 +258,7 @@ async function cargar(){
   const code = new URLSearchParams(location.search).get("c");
   if(code && SCRIPT_URL){
     try{
-      const r = await fetch(SCRIPT_URL + "?c=" + encodeURIComponent(code));
+      const r = await fetch(SCRIPT_URL + "?codigo=" + encodeURIComponent(code));
       const d = await r.json();
       if(d && d.ok){ P = d.persona; $("#badge").hidden = true; }
     }catch(e){ /* sin conexión: queda el ejemplo */ }
