@@ -52,6 +52,9 @@ p{margin:0}
 .steps button[aria-selected="true"]{border-color:var(--hope);background:var(--hope);color:var(--hope-ink)}
 .steps button[aria-selected="true"] .n{background:var(--sun);color:#1d2b26}
 .steps button.done .n{background:var(--hope-soft);color:var(--hope)}
+.stepbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stepbar .back{all:unset;cursor:pointer;font-weight:800;color:var(--hope);padding:6px 0}
+.stepbar .count{font-size:14px;font-weight:700;color:var(--muted)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
 .card h2{font-size:22px}
 .hint{color:var(--muted);font-size:15px}
@@ -119,7 +122,10 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
     <ol class="route" id="route" aria-label="Tu ruta en 6 pasos"></ol>
   </section>
 
-  <nav class="steps" role="tablist" id="steps" aria-label="Pasos"></nav>
+  <div class="stepbar" id="stepbar" hidden>
+    <button class="back" id="to-route" type="button">← Tu ruta</button>
+    <span class="count" id="step-count">Paso 1 de 6</span>
+  </div>
 
   <!-- 1 Perfil -->
   <section class="card view" data-step="0">
@@ -202,7 +208,7 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
     <p class="hint" id="stats"></p>
   </section>
 
-  <div class="nav">
+  <div class="nav" id="nav" hidden>
     <button class="btn ghost" id="prev" type="button">Atrás</button>
     <button class="btn" id="next" type="button">Siguiente</button>
   </div>
@@ -263,7 +269,7 @@ async function cargar(){
       if(d && d.ok){ P = d.persona; $("#badge").hidden = true; }
     }catch(e){ /* sin conexión: queda el ejemplo */ }
   }
-  pintarSaludo(); llenarPerfil(); go(0);
+  pintarSaludo(); llenarPerfil(); home();
 }
 
 function pintarSaludo(){
@@ -280,21 +286,25 @@ function llenarPerfil(){
 }
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-const nav = $("#steps");
-STEPS.forEach((s,i)=>{ const b=document.createElement("button"); b.type="button"; b.setAttribute("role","tab");
-  b.innerHTML=`<span class="n">${i+1}</span>${s}`; b.onclick=()=>go(i); nav.appendChild(b); });
-
+// Dos pantallas: la ruta (inicio) y un paso a la vez
+function home(){
+  state.step = -1;
+  document.querySelectorAll(".view").forEach(v=>v.hidden = true);
+  $(".hello").hidden = false; $("#stepbar").hidden = true; $("#nav").hidden = true;
+  render(); window.scrollTo({top:0});
+}
 function go(i){
   state.step=i;
+  $(".hello").hidden = true; $("#stepbar").hidden = false; $("#nav").hidden = false;
   document.querySelectorAll(".view").forEach(v=>v.hidden = +v.dataset.step!==i);
-  nav.querySelectorAll("button").forEach((b,j)=>{ b.setAttribute("aria-selected", j===i); b.classList.toggle("done", j<i); });
-  nav.children[i].scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});
-  $("#prev").style.visibility = i===0 ? "hidden" : "visible";
-  $("#next").textContent = i===STEPS.length-1 ? "Listo" : "Siguiente";
-  render();
+  $("#step-count").textContent = `Paso ${i+1} de ${STEPS.length} · ${STEPS[i]}`;
+  $("#prev").textContent = i===0 ? "← Tu ruta" : "Atrás";
+  $("#next").textContent = i===STEPS.length-1 ? "Volver a mi ruta" : "Siguiente";
+  render(); window.scrollTo({top:0});
 }
-$("#prev").onclick=()=>go(Math.max(0,state.step-1));
-$("#next").onclick=()=>{ if(state.step<STEPS.length-1){ go(state.step+1); window.scrollTo({top:0,behavior:"smooth"}); } };
+$("#to-route").onclick = home;
+$("#prev").onclick=()=> state.step===0 ? home() : go(state.step-1);
+$("#next").onclick=()=> state.step===STEPS.length-1 ? home() : go(state.step+1);
 
 function pintarRuta(){
   const m = findTitle($("#p-title").value), wins = $("#p-wins").value.trim();
@@ -307,7 +317,7 @@ function pintarRuta(){
     ["Tus aplicaciones", "Anótalas aquí", true]
   ];
   $("#route").innerHTML = items.map(([t,d,ok],i)=>`<li class="${ok?"ok":"todo"}"><button type="button" data-go="${i}"><span class="st">${ok?"✓":i+1}</span><span><b>${t}</b><small>${esc(d)}</small></span></button></li>`).join("");
-  $("#route").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ go(+b.dataset.go); document.querySelector(".steps").scrollIntoView({behavior:"smooth"}); });
+  $("#route").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(+b.dataset.go));
 }
 
 function render(){
