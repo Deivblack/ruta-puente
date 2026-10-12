@@ -1,10 +1,12 @@
+function configurarTodo() { activarResumenSemanal(); } // ejecutar una vez
+
 /**
- * Ruta Puente — recibe las respuestas del formulario y las guarda en esta hoja.
- * Instalación: Extensiones > Apps Script > pegar este código > Implementar > Nueva implementación
- * Tipo: Aplicación web · Ejecutar como: Yo · Quién tiene acceso: Cualquier persona.
+ * Ruta Puente — recibe las respuestas del formulario, las guarda en esta hoja
+ * y te envía por correo una ficha de entrevista lista para usar.
+ * Además, cada lunes te envía un resumen semanal (activar una vez con activarResumenSemanal).
  */
 const HOJA = 'Respuestas';
-const AVISAR_POR_CORREO = true; // te llega un correo por cada respuesta nueva
+const ESTADOS = ['Nuevo', 'Contactado', 'Agendado', 'Entrevistado', 'No responde', 'Descartado'];
 
 const COLUMNAS = [
   'fecha', 'prioridad', 'nombre', 'whatsapp', 'ciudad', 'pais', 'fuente',
@@ -13,25 +15,21 @@ const COLUMNAS = [
   'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado'
 ];
 
+/* ---------- Recepción del formulario ---------- */
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const p = (e && e.parameter) || {};
-    if (p.website) return salida({ ok: false }); // bots
+    if (p.website || !p.nombre) return salida({ ok: false }); // bots o envíos vacíos
     const hoja = obtenerHoja();
     const d = Object.assign({}, p);
     d.fecha = new Date();
     d.prioridad = calcularPrioridad(d); // se recalcula aquí, no se confía en el navegador
     d.estado = 'Nuevo';
     hoja.appendRow(COLUMNAS.map(c => limpiar(d[c])));
-    if (AVISAR_POR_CORREO) {
-      MailApp.sendEmail(Session.getEffectiveUser().getEmail(),
-        'Ruta Puente: nueva respuesta (' + d.prioridad + ') — ' + limpiar(d.nombre),
-        'Profesión: ' + limpiar(d.profesion) + '\nBuscó en 12 meses: ' + limpiar(d.busco_12m) +
-        '\nBarrera: ' + limpiar(d.barrera) + '\nWhatsApp: ' + limpiar(d.whatsapp) +
-        '\nHorario: ' + limpiar(d.horario) + '\n\nAbre la hoja para ver todo.');
-    }
+    try { enviarFicha(d); } catch (err) { console.error(err); }
     return salida({ ok: true });
   } finally {
     lock.releaseLock();
@@ -43,6 +41,193 @@ function calcularPrioridad(d) {
   const pts = (d.titulo && d.titulo !== 'No' ? 1 : 0) + (d.busco_12m === 'Sí' ? 1 : 0) + (d.autorizado === 'Sí' ? 1 : 0);
   return pts === 3 ? 'Alta' : pts === 2 ? 'Media' : 'Baja';
 }
+
+/* ---------- Ficha de entrevista por correo ---------- */
+
+const PREGUNTAS_BARRERA = {
+  'El inglés': [
+    '¿En qué momento concreto sientes que el inglés te frena: el CV, la entrevista o el trabajo en sí?',
+    '¿Has tomado clases o practicado por tu cuenta? ¿Qué funcionó y qué no?'
+  ],
+  'Validar mis títulos': [
+    '¿Averiguaste cómo evaluar tu título (por ejemplo WES o ECE)? ¿Qué te detuvo?',
+    '¿Algún empleador te pidió la equivalencia de tu título?'
+  ],
+  'No tengo contactos': [
+    '¿Conoces a alguien que trabaje en tu área aquí, aunque sea de lejos?',
+    '¿Usas LinkedIn? ¿Le has escrito alguna vez a alguien de una empresa?'
+  ],
+  'No tengo tiempo': [
+    '¿Cómo es tu semana típica? ¿En qué momento podrías dedicarle 15 minutos?',
+    'Si tuvieras 1 hora libre a la semana para tu carrera, ¿en qué la usarías?'
+  ],
+  'No sé cómo funciona el sistema aquí': [
+    '¿Qué parte te resulta más confusa: dónde buscar, cómo aplicar o qué poner en el CV?',
+    '¿A quién le has preguntado cómo funciona? ¿Qué te dijeron?'
+  ],
+  'Otra': [
+    'Cuéntame más sobre eso que te frena. ¿Desde cuándo lo sientes así?',
+    '¿Qué tendría que cambiar para que dejara de ser un obstáculo?'
+  ]
+};
+
+function alertas(d) {
+  const a = [];
+  const apps = parseInt(d.aplicaciones, 10) || 0;
+  const resp = parseInt(d.respuestas, 10) || 0;
+  if (d.autorizado === 'No') a.push('Fuera de perfil: no puede trabajar legalmente aún. No agendar; agradécele y guarda el contacto.');
+  if (d.titulo === 'No') a.push('Sin título universitario: confirma si encaja en el perfil antes de dedicarle la llamada completa.');
+  if (d.busco_12m === 'No') a.push('No buscó en los últimos 12 meses: usa la pregunta 1B ("¿qué pasó antes de que dejaras de buscar?").');
+  if (d.busco_12m === 'Sí' && apps >= 20 && resp / apps < 0.05) a.push('Muchas aplicaciones y casi ninguna respuesta (' + tasa(apps, resp) + '): pregunta qué vacantes eligió y si aplicó en frío.');
+  if (d.busco_12m === 'Sí' && apps > 0 && resp === 0) a.push('Cero respuestas: revisa con ella/él cómo es su CV y dónde aplica.');
+  if (d.busco_12m === 'Sí' && apps > 0 && apps < 5) a.push('Buscó pero aplicó muy poco: pregunta qué lo detuvo.');
+  if (d.horas_disponibles === 'Menos de 2') a.push('Tiene menos de 2 horas a la semana: la app tendría que funcionar con 15 minutos.');
+  if (d.horas_trabajo === 'Más de 40') a.push('Trabaja más de 40 horas: ofrécele una llamada corta y flexible.');
+  if (d.tiempo_eeuu === 'Menos de 1 año') a.push('Recién llegado (menos de 1 año): su necesidad puede ser más de orientación general.');
+  return a;
+}
+
+function tasa(apps, resp) {
+  return apps > 0 ? Math.round(resp / apps * 1000) / 10 + '%' : '—';
+}
+
+function linkWhatsApp(num) {
+  let n = String(num || '').replace(/\D/g, '');
+  if (n.length === 10) n = '1' + n;
+  return n.length >= 10 ? 'https://wa.me/' + n : '';
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function enviarFicha(d) {
+  const nombre = esc(d.nombre), prof = esc(d.profesion || 'su profesión'), trabajo = esc(d.trabajo_actual || 'otra cosa');
+  const pais = esc(d.pais || 'su país'), barrera = esc(d.barrera || '—');
+  const apps = parseInt(d.aplicaciones, 10) || 0, resp = parseInt(d.respuestas, 10) || 0;
+  const wa = linkWhatsApp(d.whatsapp);
+  const colores = { 'Alta': '#2E7D5B', 'Media': '#C98A1B', 'Baja': '#7A8580', 'Fuera de perfil': '#B4462F' };
+  const color = colores[d.prioridad] || '#7A8580';
+
+  const resumen = [
+    prof + ' de ' + pais + ' · ' + esc(d.anios_exp || '?') + ' años de experiencia · ' + esc(d.titulo || '') + '.',
+    'Hoy trabaja en ' + trabajo + ' (' + esc(d.horas_trabajo || '?') + ' h/sem) · ' + esc(d.tiempo_eeuu || '?') + ' en EE.UU.',
+    d.busco_12m === 'Sí'
+      ? 'Buscó en su profesión: aplicó a ' + apps + ', le respondieron ' + resp + ' (' + tasa(apps, resp) + '). Barrera: ' + barrera + '.'
+      : 'No buscó en su profesión en los últimos 12 meses. Barrera: ' + barrera + '.'
+  ];
+
+  const p1 = d.busco_12m === 'Sí'
+    ? '1. "Me contaste que aplicaste a ' + apps + ' trabajos. Cuéntame la última vez, paso a paso: ¿dónde buscaste, qué enviaste, qué pasó?"'
+    : '1B. "¿Qué pasó justo antes de que dejaras de buscar trabajo de ' + prof + '?"';
+  const guion = [
+    '<b>Apertura:</b> "Gracias por llenar el formulario. Leí que en ' + pais + ' eras ' + prof + ' y que hoy trabajas en ' + trabajo + '. No te voy a vender nada; quiero entender tu experiencia. ¿Te molesta si tomo notas?"',
+    p1,
+    '2. "De todo ese proceso, ¿qué fue lo que más te desanimó?"',
+    '3. "Marcaste <i>' + barrera + '</i> como lo que más te frena. Dame un ejemplo de cuándo te pasó."',
+    '4. "¿Qué has intentado para resolverlo? ¿Gastaste dinero o tiempo en algo?"',
+    '5. "Si alguien pudiera resolverte una sola cosa de todo esto, ¿cuál sería?"',
+    '6. "¿Cómo sabrías que vas avanzando, aunque todavía no tengas el trabajo?"',
+    '<i>Muestra el prototipo 2 min: pasos 1, 2 (escribe "' + prof + '") y 4 (ZIP de ' + esc(d.ciudad || 'su ciudad') + ').</i>',
+    '7. "¿Qué parte te sirve más y cuál te sobra?"',
+    '8. "¿Qué le falta para que la usaras la próxima semana?"',
+    '9. "¿Te gustaría probar la versión piloto en diciembre?"',
+    '10. "¿Conoces a 1 o 2 personas que estén viviendo esto?"',
+    '<b>Cierre:</b> "Gracias. Envíame tu CV o tu LinkedIn y te lo reviso esta semana."'
+  ];
+  const extra = PREGUNTAS_BARRERA[d.barrera] || PREGUNTAS_BARRERA['Otra'];
+  const al = alertas(d);
+
+  const li = arr => arr.map(x => '<li style="margin:0 0 6px">' + x + '</li>').join('');
+  const html =
+    '<div style="font-family:Arial,sans-serif;max-width:620px;color:#1d2b26;line-height:1.5">' +
+    '<div style="border-left:6px solid ' + color + ';padding:6px 14px;margin-bottom:14px">' +
+    '<div style="font-size:12px;color:#5d6c66;text-transform:uppercase;letter-spacing:.06em">Ficha de entrevista · Ruta Puente</div>' +
+    '<div style="font-size:22px;font-weight:bold">' + nombre + '</div>' +
+    '<div><span style="background:' + color + ';color:#fff;padding:2px 10px;border-radius:12px;font-size:13px;font-weight:bold">Prioridad ' + esc(d.prioridad) + '</span>' +
+    ' &nbsp;Prefiere llamada: <b>' + esc(d.horario || '—') + '</b></div>' +
+    (wa ? '<div style="margin-top:8px"><a href="' + wa + '" style="background:#2E7D5B;color:#fff;padding:8px 14px;border-radius:16px;text-decoration:none;font-weight:bold">Escribir por WhatsApp</a> &nbsp;' + esc(d.whatsapp) + '</div>' : '<div>WhatsApp: ' + esc(d.whatsapp) + '</div>') +
+    '</div>' +
+    '<h3 style="margin:16px 0 6px">Resumen</h3><ul style="padding-left:18px;margin:0">' + li(resumen) + '</ul>' +
+    (al.length ? '<h3 style="margin:16px 0 6px">Alertas</h3><ul style="padding-left:18px;margin:0;background:#fbf0d9;padding:10px 10px 4px 28px;border-radius:8px">' + li(al.map(esc)) + '</ul>' : '') +
+    (d.comentario ? '<h3 style="margin:16px 0 6px">Lo que te escribió</h3><p style="margin:0;font-style:italic">"' + esc(d.comentario) + '"</p>' : '') +
+    '<h3 style="margin:16px 0 6px">Guion (15 min)</h3><ol style="list-style:none;padding-left:0;margin:0">' + li(guion) + '</ol>' +
+    '<h3 style="margin:16px 0 6px">2 preguntas extra por su barrera (' + barrera + ')</h3><ul style="padding-left:18px;margin:0">' + li(extra.map(esc)) + '</ul>' +
+    '<p style="margin-top:18px;font-size:13px;color:#5d6c66">Después de la llamada, cambia su estado en la hoja a "Entrevistado" y anota la frase clave.<br>' +
+    '<a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja de respuestas</a></p></div>';
+
+  const texto = 'Ficha de entrevista: ' + d.nombre + ' (' + d.prioridad + ')\n\n' + resumen.join('\n').replace(/<[^>]+>/g, '') +
+    '\n\nAlertas:\n' + (al.join('\n') || '—') + '\n\nWhatsApp: ' + d.whatsapp;
+
+  MailApp.sendEmail({
+    to: Session.getEffectiveUser().getEmail(),
+    subject: 'Ruta Puente · ' + d.prioridad + ' · ' + d.nombre + ' (' + (d.profesion || '') + ')',
+    body: texto,
+    htmlBody: html,
+    name: 'Ruta Puente'
+  });
+}
+
+/* ---------- Resumen semanal (lunes) ---------- */
+
+function resumenSemanal() {
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const idx = n => cab.indexOf(n);
+  const hace7 = new Date(Date.now() - 7 * 24 * 3600 * 1000);
+  const filas = datos.filter(r => r[idx('nombre')]);
+  const nuevas = filas.filter(r => r[idx('fecha')] instanceof Date && r[idx('fecha')] >= hace7);
+  const contar = (arr, p) => arr.filter(r => r[idx('prioridad')] === p).length;
+  const orden = { 'Alta': 0, 'Media': 1, 'Baja': 2, 'Fuera de perfil': 3 };
+  const pendientes = filas
+    .filter(r => ['Nuevo', 'Contactado', 'Agendado'].indexOf(r[idx('estado')]) >= 0 && r[idx('prioridad')] !== 'Fuera de perfil')
+    .sort((a, b) => (orden[a[idx('prioridad')]] - orden[b[idx('prioridad')]]));
+  const entrevistados = filas.filter(r => r[idx('estado')] === 'Entrevistado').length;
+
+  const filasHtml = pendientes.map(r => {
+    const wa = linkWhatsApp(r[idx('whatsapp')]);
+    return '<tr><td style="padding:6px;border-bottom:1px solid #d7e0db"><b>' + esc(r[idx('nombre')]) + '</b></td>' +
+      '<td style="padding:6px;border-bottom:1px solid #d7e0db">' + esc(r[idx('prioridad')]) + '</td>' +
+      '<td style="padding:6px;border-bottom:1px solid #d7e0db">' + esc(r[idx('profesion')]) + '</td>' +
+      '<td style="padding:6px;border-bottom:1px solid #d7e0db">' + esc(r[idx('estado')]) + '</td>' +
+      '<td style="padding:6px;border-bottom:1px solid #d7e0db">' + (wa ? '<a href="' + wa + '">WhatsApp</a>' : esc(r[idx('whatsapp')])) + '</td></tr>';
+  }).join('');
+
+  const html =
+    '<div style="font-family:Arial,sans-serif;max-width:620px;color:#1d2b26;line-height:1.5">' +
+    '<div style="font-size:22px;font-weight:bold">Ruta Puente · Resumen semanal</div>' +
+    '<p><b>' + nuevas.length + '</b> respuestas nuevas esta semana: ' + contar(nuevas, 'Alta') + ' Alta, ' + contar(nuevas, 'Media') + ' Media, ' +
+    contar(nuevas, 'Baja') + ' Baja, ' + contar(nuevas, 'Fuera de perfil') + ' fuera de perfil.<br>' +
+    'Total: <b>' + filas.length + '</b> respuestas · <b>' + entrevistados + '</b> entrevistadas · meta Sprint 0: 5.</p>' +
+    (pendientes.length
+      ? '<h3>Te falta contactar o entrevistar (' + pendientes.length + ')</h3><table style="border-collapse:collapse;width:100%;font-size:14px"><tr style="background:#e1efe7"><th align="left" style="padding:6px">Nombre</th><th align="left" style="padding:6px">Prioridad</th><th align="left" style="padding:6px">Profesión</th><th align="left" style="padding:6px">Estado</th><th align="left" style="padding:6px">Contacto</th></tr>' + filasHtml + '</table>'
+      : '<p>No tienes personas pendientes. Buen momento para publicar otra vez.</p>') +
+    '<p style="font-size:13px;color:#5d6c66"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja de respuestas</a></p></div>';
+
+  MailApp.sendEmail({
+    to: Session.getEffectiveUser().getEmail(),
+    subject: 'Ruta Puente · Resumen semanal: ' + nuevas.length + ' nuevas, ' + pendientes.length + ' pendientes',
+    body: nuevas.length + ' respuestas nuevas esta semana. ' + pendientes.length + ' pendientes.',
+    htmlBody: html,
+    name: 'Ruta Puente'
+  });
+}
+
+// Ejecutar UNA vez desde el editor: crea el envío de cada lunes a las 8 a. m. y la lista de estados
+function activarResumenSemanal() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'resumenSemanal')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('resumenSemanal').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
+  const hoja = obtenerHoja();
+  const col = COLUMNAS.indexOf('estado') + 1;
+  const regla = SpreadsheetApp.newDataValidation().requireValueInList(ESTADOS, true).build();
+  hoja.getRange(2, col, 1000, 1).setDataValidation(regla);
+  resumenSemanal(); // envía uno ahora para que veas cómo llega
+}
+
+/* ---------- Utilidades ---------- */
 
 function obtenerHoja() {
   const libro = SpreadsheetApp.getActiveSpreadsheet();
@@ -68,7 +253,12 @@ function salida(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-// Para probar desde el editor: Ejecutar > prueba
-function prueba() {
-  doPost({ parameter: { nombre: 'Prueba', whatsapp: '000', profesion: 'Contadora', titulo: 'Sí, universitario', autorizado: 'Sí', busco_12m: 'Sí', barrera: 'El inglés', horario: 'Tarde', consentimiento: 'Sí' } });
+// Para probar la ficha desde el editor sin guardar nada en la hoja: Ejecutar > pruebaFicha
+function pruebaFicha() {
+  const d = { nombre: 'María Prueba', whatsapp: '8320000000', ciudad: 'Houston, 77095', pais: 'Colombia', profesion: 'Contadora',
+    titulo: 'Sí, universitario', anios_exp: '6 a 10', tiempo_eeuu: '1 a 3 años', autorizado: 'Sí', trabajo_actual: 'Almacén',
+    horas_trabajo: '20 a 40', busco_12m: 'Sí', aplicaciones: '40', respuestas: '1', barrera: 'No tengo contactos',
+    horas_disponibles: '2 a 5', horario: 'Tarde', comentario: 'Mi título no lo entienden aquí.' };
+  d.prioridad = calcularPrioridad(d);
+  enviarFicha(d);
 }
