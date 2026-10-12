@@ -1,3 +1,73 @@
+// Ejecuta esta función (botón Ejecutar) cuando quieras poner al día la hoja: códigos, enlaces y pestaña Enlaces
+function actualizarHoja() {
+  const hoja = obtenerHoja();
+  const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+  const cCod = cab.indexOf('codigo') + 1, cEnl = cab.indexOf('enlace') + 1, cNom = cab.indexOf('nombre') + 1;
+  const n = hoja.getLastRow();
+  for (let f = 2; f <= n; f++) {
+    if (!hoja.getRange(f, cNom).getValue()) continue;
+    if (!hoja.getRange(f, cCod).getValue()) {
+      const c = nuevoCodigo();
+      hoja.getRange(f, cCod).setValue(c);
+      hoja.getRange(f, cEnl).setValue(APP_URL + '?c=' + c);
+    }
+  }
+  crearPestanaEnlaces();
+}
+
+const APP_URL = 'https://deivblack.github.io/ruta-puente/app/';
+
+function nuevoCodigo() {
+  return Utilities.getUuid().replace(/-/g, '').slice(0, 10);
+}
+
+// La app pide los datos de una persona con su código: solo lectura y solo los campos mínimos
+function doGet(e) {
+  const c = String((e && e.parameter && e.parameter.c) || '').trim();
+  if (!/^[a-f0-9]{10}$/.test(c)) return salida({ ok: false });
+  const datos = obtenerHoja().getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const r = datos.find(f => f[i('codigo')] === c);
+  if (!r) return salida({ ok: false });
+  return salida({ ok: true, persona: {
+    nombre: String(r[i('nombre')]).split(' ')[0],
+    pais: r[i('pais')], profesion: r[i('profesion')], anios_exp: r[i('anios_exp')],
+    ciudad: r[i('ciudad')], barrera: r[i('barrera')]
+  } });
+}
+
+function crearPestanaEnlaces() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName('Enlaces');
+  if (!h) h = libro.insertSheet('Enlaces');
+  h.clear();
+  const filas = [
+    ['Qué es', 'Enlace', 'Para qué'],
+    ['Landing con formulario', 'https://deivblack.github.io/ruta-puente/', 'Compartir en redes y por WhatsApp'],
+    ['Enlace personal de cada persona', 'Columna "enlace" en la pestaña Respuestas', 'Mandárselo por WhatsApp en la llamada'],
+    ['App con datos de ejemplo', APP_URL, 'Ver la app tal como la ve alguien sin código'],
+    ['Esta hoja', libro.getUrl(), 'Respuestas, estados y enlaces'],
+    ['Script', 'https://script.google.com/home/projects/' + ScriptApp.getScriptId() + '/edit', 'Fichas, resumen semanal y reglas'],
+    ['Arquitectura del proyecto', 'https://claude.ai/code/artifact/176f750f-aa08-446d-ae45-a6cd92b843e4', 'Mapa, flujo y decisiones'],
+    ['Archivos en GitHub', 'https://github.com/Deivblack/ruta-puente', 'Código de la landing y la app']
+  ];
+  h.getRange(1, 1, filas.length, 3).setValues(filas);
+  h.getRange(1, 1, 1, 3).setFontWeight('bold').setBackground('#e1efe7');
+  h.setColumnWidth(1, 230); h.setColumnWidth(2, 460); h.setColumnWidth(3, 300);
+}
+
+// Reenvía la ficha de una persona: cambia FILA por su número de fila en la hoja y pulsa Ejecutar
+function reenviarFicha() {
+  const FILA = 2;
+  const hoja = obtenerHoja();
+  const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+  const val = hoja.getRange(FILA, 1, 1, cab.length).getValues()[0];
+  const d = {};
+  cab.forEach((c, i) => d[c] = val[i]);
+  enviarFicha(d);
+}
+
 function configurarTodo() { activarResumenSemanal(); } // ejecutar una vez
 
 /**
@@ -12,7 +82,7 @@ const COLUMNAS = [
   'fecha', 'prioridad', 'nombre', 'whatsapp', 'ciudad', 'pais', 'fuente',
   'profesion', 'titulo', 'anios_exp', 'tiempo_eeuu', 'autorizado',
   'trabajo_actual', 'horas_trabajo', 'busco_12m', 'aplicaciones', 'respuestas',
-  'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado'
+  'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado', 'codigo', 'enlace'
 ];
 
 /* ---------- Recepción del formulario ---------- */
@@ -28,6 +98,8 @@ function doPost(e) {
     d.fecha = new Date();
     d.prioridad = calcularPrioridad(d); // se recalcula aquí, no se confía en el navegador
     d.estado = 'Nuevo';
+    d.codigo = nuevoCodigo();
+    d.enlace = APP_URL + '?c=' + d.codigo;
     hoja.appendRow(COLUMNAS.map(c => limpiar(d[c])));
     try { enviarFicha(d); } catch (err) { console.error(err); }
     return salida({ ok: true });
@@ -128,10 +200,10 @@ function enviarFicha(d) {
     '4. "¿Qué has intentado para resolverlo? ¿Gastaste dinero o tiempo en algo?"',
     '5. "Si alguien pudiera resolverte una sola cosa de todo esto, ¿cuál sería?"',
     '6. "¿Cómo sabrías que vas avanzando, aunque todavía no tengas el trabajo?"',
-    '<i>Muestra el prototipo 2 min: pasos 1, 2 (escribe "' + prof + '") y 4 (ZIP de ' + esc(d.ciudad || 'su ciudad') + ').</i>',
+    '<i>Mándale su enlace por WhatsApp. Que abra la app, revise sus 6 pasos y te diga en voz alta qué piensa.</i>',
     '7. "¿Qué parte te sirve más y cuál te sobra?"',
     '8. "¿Qué le falta para que la usaras la próxima semana?"',
-    '9. "¿Te gustaría probar la versión piloto en diciembre?"',
+    '9. "¿La usarías esta semana? En 7 días te escribo para saber cómo te fue."',
     '10. "¿Conoces a 1 o 2 personas que estén viviendo esto?"',
     '<b>Cierre:</b> "Gracias. Envíame tu CV o tu LinkedIn y te lo reviso esta semana."'
   ];
@@ -148,6 +220,7 @@ function enviarFicha(d) {
     ' &nbsp;Prefiere llamada: <b>' + esc(d.horario || '—') + '</b></div>' +
     (wa ? '<div style="margin-top:8px"><a href="' + wa + '" style="background:#2E7D5B;color:#fff;padding:8px 14px;border-radius:16px;text-decoration:none;font-weight:bold">Escribir por WhatsApp</a> &nbsp;' + esc(d.whatsapp) + '</div>' : '<div>WhatsApp: ' + esc(d.whatsapp) + '</div>') +
     '</div>' +
+    (d.enlace ? '<div style="background:#e1efe7;border-radius:10px;padding:10px 14px;margin:0 0 6px"><b>Su app personal:</b> <a href="' + d.enlace + '">' + d.enlace + '</a><br><span style="font-size:13px;color:#5d6c66">Mándaselo por WhatsApp durante la llamada.</span></div>' : '') +
     '<h3 style="margin:16px 0 6px">Resumen</h3><ul style="padding-left:18px;margin:0">' + li(resumen) + '</ul>' +
     (al.length ? '<h3 style="margin:16px 0 6px">Alertas</h3><ul style="padding-left:18px;margin:0;background:#fbf0d9;padding:10px 10px 4px 28px;border-radius:8px">' + li(al.map(esc)) + '</ul>' : '') +
     (d.comentario ? '<h3 style="margin:16px 0 6px">Lo que te escribió</h3><p style="margin:0;font-style:italic">"' + esc(d.comentario) + '"</p>' : '') +
@@ -237,6 +310,9 @@ function obtenerHoja() {
     hoja.appendRow(COLUMNAS);
     hoja.setFrozenRows(1);
     hoja.getRange(1, 1, 1, COLUMNAS.length).setFontWeight('bold').setBackground('#e1efe7');
+  }
+  if (hoja.getLastColumn() < COLUMNAS.length) {
+    hoja.getRange(1, 1, 1, COLUMNAS.length).setValues([COLUMNAS]).setFontWeight('bold').setBackground('#e1efe7');
   }
   return hoja;
 }
