@@ -1,3 +1,15 @@
+// BITÁCORA: ejecuta esta función UNA vez (botón Ejecutar). Crea tu clave y la muestra en el registro de ejecución.
+function crearClaveBitacora() {
+  const props = PropertiesService.getScriptProperties();
+  let clave = props.getProperty('BITACORA_CLAVE');
+  if (!clave) {
+    clave = 'rp' + Utilities.getUuid().replace(/-/g, '').slice(0, 8);
+    props.setProperty('BITACORA_CLAVE', clave);
+  }
+  hojaEntrevistas();
+  Logger.log('CLAVE BITACORA: ' + clave);
+}
+
 // Ejecuta esta función (botón Ejecutar) cuando quieras poner al día la hoja: códigos, enlaces y pestaña Enlaces
 function actualizarHoja() {
   const hoja = obtenerHoja();
@@ -23,7 +35,7 @@ function nuevoCodigo() {
 
 // La app pide los datos de una persona con su código: solo lectura y solo los campos mínimos
 function doGet(e) {
-  const c = String((e && e.parameter && e.parameter.c) || '').trim();
+  const c = String((e && e.parameter && (e.parameter.codigo || e.parameter.c)) || '').trim();
   if (!/^[a-f0-9]{10}$/.test(c)) return salida({ ok: false });
   const datos = obtenerHoja().getDataRange().getValues();
   const cab = datos.shift();
@@ -91,6 +103,8 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
+    // La Bitácora manda JSON como texto; el formulario de la landing manda campos normales
+    if (e && e.postData && String(e.postData.type).indexOf('text/plain') === 0) return bitacora(e.postData.contents);
     const p = (e && e.parameter) || {};
     if (p.website || !p.nombre) return salida({ ok: false }); // bots o envíos vacíos
     const hoja = obtenerHoja();
@@ -298,6 +312,115 @@ function activarResumenSemanal() {
   const regla = SpreadsheetApp.newDataValidation().requireValueInList(ESTADOS, true).build();
   hoja.getRange(2, col, 1000, 1).setDataValidation(regla);
   resumenSemanal(); // envía uno ahora para que veas cómo llega
+}
+
+/* ---------- Bitácora de entrevistas (página privada /bitacora/) ---------- */
+
+const HOJA_ENT = 'Entrevistas';
+const COL_ENT = [
+  'actualizado', 'codigo', 'nombre', 'dentro_perfil',
+  'p1_ultima_busqueda', 'p2_desanimo', 'lo_intento',
+  'p3_ejemplo_barrera', 'p4_que_intento', 'gasto', 'monto_usd', 'barrera_clara',
+  'p5_una_cosa', 'p6_avance', 'p7_sirve_sobra', 'p8_falta',
+  'p9_usara', 'p10_referidos', 'compromiso',
+  'frase_clave', 'sorpresa', 'confirma'
+];
+const TEXTOS_ENT = ['p1_ultima_busqueda', 'p2_desanimo', 'p3_ejemplo_barrera', 'p4_que_intento',
+  'p5_una_cosa', 'p6_avance', 'p7_sirve_sobra', 'p8_falta', 'frase_clave', 'sorpresa'];
+
+function bitacora(txt) {
+  let b;
+  try { b = JSON.parse(txt); } catch (err) { return salida({ ok: false, error: 'formato' }); }
+  const clave = PropertiesService.getScriptProperties().getProperty('BITACORA_CLAVE');
+  if (!clave || !b || b.clave !== clave) { Utilities.sleep(800); return salida({ ok: false, error: 'clave' }); }
+  if (b.accion === 'listar') return salida(listarBitacora());
+  if (b.accion === 'guardar') return salida(guardarEntrevista(b.datos || {}));
+  return salida({ ok: false, error: 'accion' });
+}
+
+function hojaEntrevistas() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName(HOJA_ENT);
+  if (!h) h = libro.insertSheet(HOJA_ENT);
+  if (h.getLastRow() === 0) {
+    h.appendRow(COL_ENT);
+    h.setFrozenRows(1);
+    h.getRange(1, 1, 1, COL_ENT.length).setFontWeight('bold').setBackground('#e1efe7');
+  }
+  return h;
+}
+
+function leerEntrevistas() {
+  const datos = hojaEntrevistas().getDataRange().getValues();
+  const cab = datos.shift();
+  const mapa = {};
+  datos.forEach((r, k) => {
+    const o = { _fila: k + 2 };
+    cab.forEach((c, j) => o[c] = r[j] instanceof Date ? r[j].toISOString() : r[j]);
+    if (o.codigo) mapa[String(o.codigo)] = o;
+  });
+  return mapa;
+}
+
+function contarGate(mapa) {
+  const v = Object.keys(mapa).map(k => mapa[k]).filter(o => o.dentro_perfil === 'Sí');
+  return { dentro: v.length, confirman: v.filter(o => o.confirma === 'Sí').length };
+}
+
+function listarBitacora() {
+  const datos = obtenerHoja().getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const mapa = leerEntrevistas();
+  const campos = ['nombre', 'pais', 'profesion', 'anios_exp', 'trabajo_actual', 'horas_trabajo', 'busco_12m',
+    'aplicaciones', 'respuestas', 'barrera', 'comentario', 'prioridad', 'estado'];
+  const personas = datos.filter(r => r[i('nombre')] && r[i('codigo')]).map(r => {
+    const p = { codigo: String(r[i('codigo')]) };
+    campos.forEach(c => p[c] = r[i(c)] instanceof Date ? r[i(c)].toISOString() : r[i(c)]);
+    const ent = mapa[p.codigo];
+    if (ent) { delete ent._fila; p.entrevista = ent; }
+    return p;
+  });
+  return { ok: true, personas: personas, gate: contarGate(mapa) };
+}
+
+function guardarEntrevista(d) {
+  const codigo = String(d.codigo || '');
+  if (!/^[a-f0-9]{10}$/.test(codigo)) return { ok: false, error: 'codigo' };
+  const resp = obtenerHoja();
+  const datos = resp.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const k = datos.findIndex(r => String(r[i('codigo')]) === codigo);
+  if (k < 0) return { ok: false, error: 'persona' };
+
+  const si = v => v === 'Sí' ? 'Sí' : 'No';
+  const o = {};
+  TEXTOS_ENT.forEach(c => o[c] = limpiar(d[c]));
+  o.actualizado = new Date();
+  o.codigo = codigo;
+  o.nombre = limpiar(datos[k][i('nombre')]);
+  o.dentro_perfil = si(d.dentro_perfil);
+  o.lo_intento = si(d.lo_intento);
+  o.barrera_clara = si(d.barrera_clara);
+  o.gasto = ['Sí', 'No'].indexOf(d.gasto) >= 0 ? d.gasto : '';
+  o.monto_usd = Math.max(0, parseInt(d.monto_usd, 10) || 0);
+  o.p9_usara = ['Sí', 'No', 'Tal vez'].indexOf(d.p9_usara) >= 0 ? d.p9_usara : '';
+  o.p10_referidos = Math.max(0, parseInt(d.p10_referidos, 10) || 0);
+  o.compromiso = (o.p9_usara === 'Sí' || o.p10_referidos > 0) ? 'Sí' : 'No';
+  o.confirma = (o.lo_intento === 'Sí' && o.barrera_clara === 'Sí' && o.compromiso === 'Sí') ? 'Sí' : 'No';
+
+  const h = hojaEntrevistas();
+  const fila = COL_ENT.map(c => o[c]);
+  const previa = leerEntrevistas()[codigo];
+  if (previa) h.getRange(previa._fila, 1, 1, COL_ENT.length).setValues([fila]);
+  else h.appendRow(fila);
+
+  const est = datos[k][i('estado')];
+  if (['Nuevo', 'Contactado', 'Agendado', 'No responde', ''].indexOf(est) >= 0) {
+    resp.getRange(k + 2, i('estado') + 1).setValue('Entrevistado');
+  }
+  return { ok: true, confirma: o.confirma, compromiso: o.compromiso, gate: contarGate(leerEntrevistas()) };
 }
 
 /* ---------- Utilidades ---------- */
