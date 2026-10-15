@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Bitácora · Ruta Puente</title>
+<link rel="icon" href="../logo-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito:wght@400;600;700&display=swap">
+<style>
+:root{
+  --bg:#f5f7f4; --card:#ffffff; --fg:#1f2a26; --muted:#5d6c66; --line:#dde5e0;
+  --green:#2e7d5b; --green-soft:#e1efe7; --sun:#e8b04b; --sun-soft:#fbf0d9;
+  --red:#b4533e; --red-soft:#f7e3dd;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Nunito",ui-sans-serif,system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#121915; --card:#1b2420; --fg:#e7eee9; --muted:#9fb0a8; --line:#2c3933;
+  --green:#5fbf8f; --green-soft:#1f3a2d; --sun:#f0c063; --sun-soft:#3a3020;
+  --red:#e2836e; --red-soft:#3d2520; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 120px}
+.wrap{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:34px;height:34px;flex:none}
+h1{font-family:var(--display);font-weight:800;font-size:1.5rem;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-family:var(--body);font-weight:600;font-size:.8rem;color:var(--muted);letter-spacing:0}
+.tools{display:flex;gap:8px}
+.link{font:inherit;font-size:.82rem;font-weight:700;color:var(--green);background:none;border:0;cursor:pointer;padding:4px}
+.gate{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gate h2{grid-column:1/-1;margin:0;font-family:var(--display);font-size:1rem;font-weight:600}
+.meter{display:flex;flex-direction:column;gap:6px;min-width:0}
+.meter b{font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1}
+.meter span{font-size:.82rem;color:var(--muted)}
+.dots{display:flex;gap:5px}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--green);display:block}
+.dots i.on{background:var(--green)}
+.dots.sun i{border-color:var(--sun)} .dots.sun i.on{background:var(--sun)}
+.gate p{grid-column:1/-1;margin:0;font-size:.85rem;color:var(--muted)}
+.label{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.people{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.person{flex:none;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:10px 12px;text-align:left;font:inherit;cursor:pointer;min-width:150px;max-width:220px}
+.person strong{display:block;font-size:.95rem}
+.person span{font-size:.8rem;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.person[aria-pressed="true"]{border-color:var(--green);box-shadow:0 0 0 2px var(--green) inset}
+.pill{display:inline-block;margin-top:6px;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;font-style:normal}
+.pill.todo{background:var(--sun-soft);color:var(--fg)} .pill.done{background:var(--green-soft);color:var(--green)}
+.pill.out{background:var(--red-soft);color:var(--red)}
+.ficha{background:var(--green-soft);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.ficha h2{margin:0;font-family:var(--display);font-size:1.25rem}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}
+.facts div{min-width:0} .facts dt{font-size:.75rem;color:var(--muted)} .facts dd{margin:0;font-weight:700}
+.quote{margin:0;font-style:italic;font-size:.9rem;border-left:3px solid var(--green);padding-left:10px}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary .n{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:.9rem;background:var(--line);color:var(--fg)}
+details.filled summary .n{background:var(--green);color:#fff}
+summary .t{flex:1;min-width:0} summary .t b{display:block;font-family:var(--display);font-weight:600}
+summary .t span{font-size:.8rem;color:var(--muted)}
+summary .chev{color:var(--muted);transition:transform .2s} details[open] .chev{transform:rotate(90deg)}
+.qs{padding:14px 16px 16px;display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line)}
+.q > label,.q > .lbl{display:block;font-weight:700;font-size:.9rem;margin-bottom:6px}
+.q em{font-style:normal;color:var(--muted);font-weight:600}
+textarea,input[type=number],input[type=password],input[type=text]{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{min-height:76px;resize:vertical}
+textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.hint{font-size:.78rem;color:var(--muted);margin-top:4px}
+.say{margin:0;font-size:.92rem}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:6px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.88rem;background:var(--sun-soft);border-radius:10px;padding:10px 12px;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--green);flex:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.decision{background:var(--card);border:2px solid var(--sun);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.decision.yes{border-color:var(--green)}
+.decision h2{margin:0;font-family:var(--display);font-size:1.1rem}
+.crit{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.crit li{display:flex;gap:10px;align-items:center;font-size:.9rem}
+.crit i{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:.8rem;background:var(--line);color:var(--muted)}
+.crit li.ok i{background:var(--green);color:#fff}
+.verdict{font-weight:800;font-family:var(--display);font-size:1.05rem}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.bar .in{max-width:620px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.bar .st{flex:1;font-size:.82rem;color:var(--muted);min-width:0}
+.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 20px;cursor:pointer;background:var(--green);color:#fff}
+.btn:disabled{opacity:.6;cursor:wait}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);
+  padding:10px 16px;border-radius:10px;font-weight:700;font-size:.9rem;max-width:calc(100% - 32px);text-align:center}
+.toast.err{background:var(--red);color:#fff}
+.login{max-width:380px;margin:12vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.login h1{font-size:1.4rem}
+.login p{margin:0;color:var(--muted);font-size:.9rem}
+.err-msg{color:var(--red);font-weight:700;font-size:.88rem}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:20px;text-align:center;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:420px){.facts{grid-template-columns:1fr}.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Pantalla de clave -->
+<form class="login" id="login" hidden>
+  <h1>Bitácora</h1>
+  <p>Página privada de Ruta Puente. Escribe tu clave; este celular la recordará.</p>
+  <label for="clave" class="lbl" style="font-weight:700">Clave</label>
+  <input type="password" id="clave" autocomplete="current-password" autocapitalize="off" spellcheck="false" required>
+  <span class="err-msg" id="login-err" hidden></span>
+  <button class="btn" id="login-btn" type="submit">Entrar</button>
+</form>
+
+<div class="wrap" id="main" hidden>
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="17" r="6" fill="var(--sun)"/><path d="M4 30 Q20 8 36 30" fill="none" stroke="var(--green)" stroke-width="3.2" stroke-linecap="round"/><path d="M3 30h34" stroke="var(--green)" stroke-width="3.2" stroke-linecap="round"/></svg>
+      <h1>Bitácora<small>Entrevistas Sprint 0 · solo para David</small></h1>
+    </div>
+    <div class="tools"><button class="link" id="reload" type="button">Actualizar</button><button class="link" id="logout" type="button">Salir</button></div>
+  </header>
+
+  <section class="gate" aria-label="Avance hacia el Sprint 1">
+    <h2>¿Arranca el Sprint 1?</h2>
+    <div class="meter"><b id="g-in">0 / 5</b><div class="dots" id="d-in"></div><span>entrevistas dentro del perfil</span></div>
+    <div class="meter"><b id="g-ok">0 / 3</b><div class="dots sun" id="d-ok"></div><span>confirman el problema</span></div>
+    <p id="g-msg">Diana y Paulette (7 oct) quedaron fuera del perfil y no cuentan.</p>
+  </section>
+
+  <section>
+    <p class="label">1 · Escoge a la persona</p>
+    <div class="people" id="people" role="group" aria-label="Personas del formulario"></div>
+    <div class="empty" id="no-people" hidden>Todavía no hay respuestas del formulario. Cuando alguien lo llene, aparecerá aquí.</div>
+  </section>
+
+  <div id="work" hidden>
+  <div class="wrap">
+  <section class="ficha" aria-label="Lo que ya sabes por el formulario">
+    <p class="label" style="margin:0">Antes de la llamada · viene del formulario</p>
+    <h2 id="f-name"></h2>
+    <dl class="facts">
+      <div><dt>Profesión en su país</dt><dd id="f-prof"></dd></div>
+      <div><dt>Trabajo actual</dt><dd id="f-job"></dd></div>
+      <div><dt>Aplicaciones / respuestas (12 meses)</dt><dd id="f-apps"></dd></div>
+      <div><dt>Lo que más le frena</dt><dd id="f-bar"></dd></div>
+    </dl>
+    <p class="quote" id="f-com"></p>
+  </section>
+
+  <p class="label" style="margin:0">2 · Durante la llamada · 6 bloques, 10 preguntas</p>
+
+  <details data-b="1">
+    <summary><span class="n">1</span><span class="t"><b>Apertura</b><span>Min 0–1 · leer en voz alta</span></span><span class="chev">›</span></summary>
+    <div class="qs"><p class="say" id="apertura"></p></div>
+  </details>
+
+  <details data-b="2" open>
+    <summary><span class="n">2</span><span class="t"><b>Su historia</b><span>Min 1–6 · preguntas 1 y 2</span></span><span class="chev">›</span></summary>
+    <div class="qs">
+      <div class="q"><label for="p1_ultima_busqueda" id="p1-label">P1 · La última vez que aplicó, paso a paso</label>
+        <textarea id="p1_ultima_busqueda"></textarea>
+        <div class="hint">Toca el micrófono del teclado para dictar.</div></div>
+      <div class="q"><label for="p2_desanimo">P2 · Lo que más le desanimó</label><textarea id="p2_desanimo"></textarea></div>
+      <label class="check"><input type="checkbox" id="lo_intento"> <span><b>Lo intentó:</b> confirmó con hechos que buscó en los últimos 12 meses. <em id="busco-hint"></em></span></label>
+    </div>
+  </details>
+
+  <details data-b="3">
+    <summary><span class="n">3</span><span class="t"><b>Su barrera</b><span>Min 6–9 · preguntas 3 y 4</span></span><span class="chev">›</span></summary>
+    <div class="qs">
+      <div class="q"><label for="p3_ejemplo_barrera" id="p3-label">P3 · Un ejemplo concreto de su barrera</label><textarea id="p3_ejemplo_barrera"></textarea></div>
+      <div class="q"><label for="p4_que_intento">P4 · Qué ha intentado para resolverlo <em>(cursos, asesoría, validar títulos)</em></label><textarea id="p4_que_intento"></textarea></div>
+      <div class="row2">
+        <div class="q"><span class="lbl">¿Gastó dinero?</span><div class="seg" data-name="gasto"><button type="button">Sí</button><button type="button">No</button></div></div>
+        <div class="q"><label for="monto_usd">¿Cuánto? <em>(USD)</em></label><input type="number" id="monto_usd" min="0" inputmode="numeric"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="barrera_clara"> <span><b>Barrera clara:</b> dio un ejemplo concreto, no una idea general.</span></label>
+    </div>
+  </details>
+
+  <details data-b="4">
+    <summary><span class="n">4</span><span class="t"><b>Lo que de verdad necesita</b><span>Min 9–11 · preguntas 5 y 6</span></span><span class="chev">›</span></summary>
+    <div class="qs">
+      <div class="q"><label for="p5_una_cosa">P5 · Si le resolvieran una sola cosa, ¿cuál?</label><textarea id="p5_una_cosa" placeholder="Anota sus palabras exactas"></textarea></div>
+      <div class="q"><label for="p6_avance">P6 · ¿Cómo sabría que va avanzando?</label><textarea id="p6_avance"></textarea></div>
+    </div>
+  </details>
+
+  <details data-b="5">
+    <summary><span class="n">5</span><span class="t"><b>Reacción a su app</b><span>Min 11–14 · preguntas 7 y 8</span></span><span class="chev">›</span></summary>
+    <div class="qs">
+      <p class="say" style="color:var(--muted)">Mándale su enlace personal por WhatsApp (columna "enlace" de la hoja) y que revise sus 6 pasos en voz alta.</p>
+      <div class="q"><label for="p7_sirve_sobra">P7 · ¿Qué le sirve más y qué le sobra?</label><textarea id="p7_sirve_sobra"></textarea></div>
+      <div class="q"><label for="p8_falta">P8 · ¿Qué le falta para usarla la próxima semana?</label><textarea id="p8_falta"></textarea></div>
+    </div>
+  </details>
+
+  <details data-b="6">
+    <summary><span class="n">6</span><span class="t"><b>Cierre</b><span>Min 14–15 · preguntas 9 y 10</span></span><span class="chev">›</span></summary>
+    <div class="qs">
+      <div class="q"><span class="lbl">P9 · "¿La usarás esta semana? En 7 días te escribo."</span><div class="seg" data-name="p9_usara"><button type="button">Sí</button><button type="button">No</button><button type="button">Tal vez</button></div></div>
+      <div class="q"><label for="p10_referidos">P10 · ¿Cuántas personas refirió?</label><input type="number" id="p10_referidos" min="0" inputmode="numeric"></div>
+      <p class="say" style="color:var(--muted)">Cierre: "Gracias. Envíame tu CV o tu LinkedIn y te lo reviso esta semana."</p>
+    </div>
+  </details>
+
+  <details data-b="7">
+    <summary><span class="n">✎</span><span class="t"><b>Tus notas</b><span>Al colgar · 2 minutos</span></span><span class="chev">›</span></summary>
+    <div class="qs">
+      <div class="q"><label for="frase_clave">Frase textual clave</label><textarea id="frase_clave"></textarea></div>
+      <div class="q"><label for="sorpresa">Lo que me sorprendió</label><textarea id="sorpresa"></textarea></div>
+      <div class="q"><span class="lbl">¿Está dentro del perfil?</span><div class="seg" data-name="dentro_perfil"><button type="button">Sí</button><button type="button">No</button></div>
+        <div class="hint">Dentro del perfil: tiene título, puede trabajar legalmente y no trabaja en su profesión.</div></div>
+    </div>
+  </details>
+
+  <section class="decision" id="dec" aria-live="polite">
+    <p class="label" style="margin:0">3 · Se calcula solo</p>
+    <h2>¿Confirma el problema?</h2>
+    <ul class="crit">
+      <li id="k1"><i>✓</i>Lo intentó (bloque 2)</li>
+      <li id="k2"><i>✓</i>Tiene una barrera clara (bloque 3)</li>
+      <li id="k3"><i>✓</i>Se compromete: usará la app o refirió a alguien (bloque 6)</li>
+    </ul>
+    <span class="verdict" id="verdict"></span>
+  </section>
+  </div>
+  </div>
+</div>
+
+<div class="bar" id="bar" hidden><div class="in">
+  <span class="st" id="st"></span>
+  <button class="btn" id="save" type="button">Guardar en la hoja</button>
+</div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
+const TEXTOS = ['p1_ultima_busqueda','p2_desanimo','p3_ejemplo_barrera','p4_que_intento','p5_una_cosa','p6_avance','p7_sirve_sobra','p8_falta','frase_clave','sorpresa'];
+const NUMS = ['monto_usd','p10_referidos'];
+const CHECKS = ['lo_intento','barrera_clara'];
+const SEGS = ['gasto','p9_usara','dentro_perfil'];
+const $ = s => document.querySelector(s);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+let clave = store.get('rp-bit-clave') || '';
+let personas = [], gate = {dentro:0, confirman:0}, actual = null;
+
+async function api(body){
+  const r = await fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify(Object.assign({clave}, body))});
+  return r.json();
+}
+function toast(msg, err){
+  const t = $('#toast'); t.textContent = msg; t.classList.toggle('err', !!err); t.hidden = false;
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3000);
+}
+
+/* ---------- Entrada ---------- */
+$('#login').addEventListener('submit', async e => {
+  e.preventDefault();
+  clave = $('#clave').value.trim();
+  $('#login-btn').disabled = true; $('#login-err').hidden = true;
+  await cargar(true);
+  $('#login-btn').disabled = false;
+});
+$('#logout').addEventListener('click', () => { store.del('rp-bit-clave'); clave=''; mostrarLogin(); });
+$('#reload').addEventListener('click', () => cargar(false));
+
+function mostrarLogin(msg){
+  $('#main').hidden = true; $('#bar').hidden = true; $('#login').hidden = false;
+  if (msg){ $('#login-err').textContent = msg; $('#login-err').hidden = false; }
+}
+
+async function cargar(desdeLogin){
+  if (!clave) return mostrarLogin();
+  let r;
+  try { r = await api({accion:'listar'}); }
+  catch(e){ return desdeLogin ? mostrarLogin('No hay conexión con la hoja. Revisa tu internet e intenta de nuevo.') : toast('No se pudo actualizar. Revisa tu internet.', true); }
+  if (!r.ok){ store.del('rp-bit-clave'); return mostrarLogin(r.error === 'clave' ? 'Esa clave no es correcta.' : 'La hoja respondió con un error.'); }
+  store.set('rp-bit-clave', clave);
+  personas = r.personas || []; gate = r.gate || gate;
+  $('#login').hidden = true; $('#main').hidden = false;
+  pintarGate(); pintarPersonas();
+  if (actual){ const p = personas.find(x => x.codigo === actual.codigo); if (p) elegir(p.codigo, true); }
+  else if (personas.length){ const pend = personas.find(p => !p.entrevista && p.prioridad !== 'Fuera de perfil') || personas[0]; elegir(pend.codigo); }
+}
+
+/* ---------- Contador y personas ---------- */
+function dots(el,n,t){ el.innerHTML=''; for(let i=0;i<t;i++){ const d=document.createElement('i'); if(i<n) d.className='on'; el.appendChild(d); } }
+function pintarGate(){
+  $('#g-in').textContent = Math.min(gate.dentro,99) + ' / 5';
+  $('#g-ok').textContent = gate.confirman + ' / 3';
+  dots($('#d-in'), Math.min(gate.dentro,5), 5); dots($('#d-ok'), Math.min(gate.confirman,3), 3);
+  if (gate.dentro >= 5 && gate.confirman >= 3) $('#g-msg').textContent = '¡Listo! Cumpliste la regla de paso: arranca el Sprint 1.';
+}
+function estadoPill(p){
+  if (p.entrevista) return p.entrevista.dentro_perfil !== 'Sí' ? ['out','Fuera de perfil'] : p.entrevista.confirma === 'Sí' ? ['done','Confirma'] : ['done','Entrevistada'];
+  if (p.prioridad === 'Fuera de perfil') return ['out','Fuera de perfil'];
+  return ['todo', 'Por entrevistar · ' + (p.prioridad || '')];
+}
+function pintarPersonas(){
+  const box = $('#people'); box.innerHTML = '';
+  $('#no-people').hidden = personas.length > 0;
+  const orden = {'Alta':0,'Media':1,'Baja':2,'Fuera de perfil':3};
+  personas.slice().sort((a,b) => (!!a.entrevista - !!b.entrevista) || ((orden[a.prioridad]??4) - (orden[b.prioridad]??4))).forEach(p => {
+    const b = document.createElement('button'); b.type='button'; b.className='person'; b.dataset.c = p.codigo;
+    b.setAttribute('aria-pressed', String(!!actual && actual.codigo === p.codigo));
+    const [cls, txt] = estadoPill(p);
+    const nombre = String(p.nombre||'').trim().split(/\s+/);
+    const corto = nombre[0] + (nombre[1] ? ' ' + nombre[1][0] + '.' : '');
+    b.innerHTML = '<strong></strong><span></span><em class="pill ' + cls + '"></em>';
+    b.querySelector('strong').textContent = corto;
+    b.querySelector('span').textContent = (p.profesion||'—') + ' · ' + (p.pais||'');
+    b.querySelector('em').textContent = txt;
+    b.addEventListener('click', () => elegir(p.codigo));
+    box.appendChild(b);
+  });
+}
+
+/* ---------- Formulario ---------- */
+function setSeg(name, val){ document.querySelectorAll('.seg[data-name="'+name+'"] button').forEach(x => x.setAttribute('aria-pressed', String(x.textContent === val))); }
+function getSeg(name){ const b = document.querySelector('.seg[data-name="'+name+'"] [aria-pressed="true"]'); return b ? b.textContent : ''; }
+function leer(){
+  const d = {codigo: actual.codigo};
+  TEXTOS.forEach(k => d[k] = $('#'+k).value);
+  NUMS.forEach(k => d[k] = $('#'+k).value);
+  CHECKS.forEach(k => d[k] = $('#'+k).checked ? 'Sí' : 'No');
+  SEGS.forEach(k => d[k] = getSeg(k));
+  return d;
+}
+function poner(d){
+  TEXTOS.forEach(k => $('#'+k).value = d[k] || '');
+  NUMS.forEach(k => $('#'+k).value = (d[k] === 0 || d[k]) ? d[k] : '');
+  CHECKS.forEach(k => $('#'+k).checked = d[k] === 'Sí');
+  SEGS.forEach(k => setSeg(k, d[k] || ''));
+}
+function elegir(codigo, conservar){
+  const p = personas.find(x => x.codigo === codigo); if (!p) return;
+  actual = p; calc.sucio = false;
+  document.querySelectorAll('.person').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.c === codigo)));
+  const nom = String(p.nombre||'').trim();
+  $('#f-name').textContent = nom;
+  $('#f-prof').textContent = (p.profesion||'—') + (p.anios_exp ? ', ' + p.anios_exp + ' años' : '');
+  $('#f-job').textContent = (p.trabajo_actual||'—') + (p.horas_trabajo ? ' · ' + p.horas_trabajo + ' h' : '');
+  $('#f-apps').textContent = p.busco_12m === 'Sí' ? (p.aplicaciones||0) + ' / ' + (p.respuestas||0) : 'No buscó en 12 meses';
+  $('#f-bar').textContent = p.barrera || '—';
+  $('#f-com').textContent = p.comentario ? '"' + p.comentario + '"' : 'No dejó comentario.';
+  $('#apertura').textContent = '"Gracias por llenar el formulario y por tu tiempo. Leí que en ' + (p.pais||'tu país') + ' eras ' + (p.profesion||'profesional') +
+    ' y que hoy trabajas en ' + (p.trabajo_actual||'otra cosa') + '. No te voy a vender nada; quiero entender tu experiencia. ¿Te molesta si tomo notas?"';
+  $('#p1-label').innerHTML = p.busco_12m === 'Sí'
+    ? 'P1 · "Me contaste que aplicaste a ' + (parseInt(p.aplicaciones,10)||0) + ' trabajos. Cuéntame la última vez, paso a paso" <em>(¿dónde, qué envió, qué pasó?)</em>'
+    : 'P1 · "¿Qué pasó justo antes de que dejaras de buscar en tu profesión?"';
+  $('#busco-hint').textContent = '(En el formulario dijo: ' + (p.busco_12m || '—') + ')';
+  $('#p3-label').textContent = 'P3 · "Marcaste «' + (p.barrera||'tu barrera') + '». Dame un ejemplo de cuándo te pasó."';
+  const borrador = store.get('rp-bit-draft-' + codigo);
+  let d = null;
+  if (borrador){ try { d = JSON.parse(borrador); } catch(e){} }
+  if (!d && p.entrevista) d = p.entrevista;
+  if (!d) d = {dentro_perfil: p.prioridad === 'Fuera de perfil' ? 'No' : 'Sí'};
+  poner(d);
+  $('#work').hidden = false; $('#bar').hidden = false;
+  calc(!!borrador);
+}
+function guardarBorrador(){ if (actual) store.set('rp-bit-draft-' + actual.codigo, JSON.stringify(leer())); }
+
+function calc(hayBorrador){
+  if (!actual) return;
+  const d = leer();
+  const k1 = d.lo_intento === 'Sí', k2 = d.barrera_clara === 'Sí', k3 = d.p9_usara === 'Sí' || (parseInt(d.p10_referidos,10)||0) > 0;
+  [['#k1',k1],['#k2',k2],['#k3',k3]].forEach(([s,v]) => $(s).classList.toggle('ok', v));
+  const ok = k1 && k2 && k3; $('#dec').classList.toggle('yes', ok);
+  const falta = [!k1 && 'que lo intentó', !k2 && 'la barrera clara', !k3 && 'el compromiso'].filter(Boolean);
+  $('#verdict').textContent = d.dentro_perfil === 'No' ? 'Fuera del perfil: no cuenta para el Sprint 1' : ok ? 'Sí, confirma el problema' : 'Falta ' + falta.join(' y ');
+  let n = 0;
+  document.querySelectorAll('details[data-b]').forEach(det => {
+    const b = +det.dataset.b;
+    const has = b === 1 || [...det.querySelectorAll('textarea,input[type=number]')].some(t => t.value.trim()) || !!det.querySelector('.seg [aria-pressed="true"]') || [...det.querySelectorAll('input[type=checkbox]')].some(c => c.checked);
+    det.classList.toggle('filled', has); if (b <= 6 && has) n++;
+  });
+  const pend = hayBorrador === true || calc.sucio;
+  $('#st').textContent = (pend ? 'Sin guardar en la hoja · borrador en este celular · ' : (actual.entrevista ? 'Guardado en la hoja · ' : '')) + n + ' de 6 bloques';
+}
+function cambio(){ calc.sucio = true; guardarBorrador(); calc(); }
+document.addEventListener('input', e => { if (e.target.closest('#work')) cambio(); });
+document.addEventListener('change', e => { if (e.target.closest('#work')) cambio(); });
+document.querySelectorAll('.seg').forEach(g => g.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const on = b.getAttribute('aria-pressed') === 'true';
+  g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b && !on)));
+  cambio();
+}));
+
+$('#save').addEventListener('click', async () => {
+  if (!actual) return;
+  const btn = $('#save'); btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const r = await api({accion:'guardar', datos: leer()});
+    if (!r.ok) throw new Error(r.error || 'error');
+    store.del('rp-bit-draft-' + actual.codigo); calc.sucio = false;
+    gate = r.gate || gate; pintarGate();
+    toast(r.confirma === 'Sí' ? 'Guardado · confirma el problema' : 'Guardado en la pestaña Entrevistas');
+    await cargar(false);
+  } catch(e){
+    toast(String(e.message) === 'clave' ? 'Tu clave ya no es válida. Sal y vuelve a entrar.' : 'No se pudo guardar. Tu borrador sigue en este celular; intenta de nuevo.', true);
+  } finally { btn.disabled = false; btn.textContent = 'Guardar en la hoja'; }
+});
+
+cargar(true);
+</script>
+</body>
+</html>
