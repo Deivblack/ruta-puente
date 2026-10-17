@@ -10,9 +10,9 @@ function crearClaveBitacora() {
   Logger.log('CLAVE BITACORA: ' + clave);
 }
 
-// Ejecuta esta función (botón Ejecutar) cuando quieras poner al día la hoja: códigos, enlaces y pestaña Enlaces
+// Ejecuta esta función (botón Ejecutar) cuando quieras poner al día la hoja: códigos, enlaces, columnas nuevas y pestaña Enlaces
 function actualizarHoja() {
-  const hoja = obtenerHoja();
+  const hoja = asegurarColumnas();
   const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
   const cCod = cab.indexOf('codigo') + 1, cEnl = cab.indexOf('enlace') + 1, cNom = cab.indexOf('nombre') + 1;
   const n = hoja.getLastRow();
@@ -80,21 +80,24 @@ function reenviarFicha() {
   enviarFicha(d);
 }
 
-function configurarTodo() { activarResumenSemanal(); } // ejecutar una vez
+function configurarTodo() { activarResumenSemanal(); activarSeguimientoEmpleo(); } // ejecutar una vez
 
 /**
  * Ruta Puente — recibe las respuestas del formulario, las guarda en esta hoja
  * y te envía por correo una ficha de entrevista lista para usar.
- * Además, cada lunes te envía un resumen semanal (activar una vez con activarResumenSemanal).
+ * Además, cada lunes te envía un resumen semanal (activar una vez con activarResumenSemanal)
+ * y cada día te avisa del seguimiento 7/30/60/90 (activarSeguimientoEmpleo).
  */
 const HOJA = 'Respuestas';
 const ESTADOS = ['Nuevo', 'Contactado', 'Agendado', 'Entrevistado', 'No responde', 'Descartado'];
+const HITOS_EMPLEO = [7, 30, 60, 90];
 
 const COLUMNAS = [
   'fecha', 'prioridad', 'nombre', 'whatsapp', 'ciudad', 'pais', 'fuente',
   'profesion', 'titulo', 'anios_exp', 'tiempo_eeuu', 'autorizado',
   'trabajo_actual', 'horas_trabajo', 'busco_12m', 'aplicaciones', 'respuestas',
-  'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado', 'codigo', 'enlace'
+  'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado', 'codigo', 'enlace',
+  'fecha_empleo', 'seguimiento_7', 'seguimiento_30', 'seguimiento_60', 'seguimiento_90'
 ];
 
 /* ---------- Recepción del formulario ---------- */
@@ -314,6 +317,143 @@ function activarResumenSemanal() {
   resumenSemanal(); // envía uno ahora para que veas cómo llega
 }
 
+/* ---------- Seguimiento 7/30/60/90 días (fase 7) ---------- */
+// Tú llenas fecha_empleo cuando la persona arranca. El correo diario te avisa
+// si ya pasó el hito y aún no marcaste Sí en seguimiento_7 / _30 / _60 / _90.
+// No se envía nada automático a las personas.
+
+const MSG_SEGUIMIENTO = {
+  7: 'Hola {nombre}, ¿cómo van tus primeros días en el nuevo trabajo? Si algo se traba (herramientas, inglés o el equipo), cuéntame y vemos cómo apoyarte.',
+  30: 'Hola {nombre}, ya va un mes en el rol. ¿Qué te está saliendo bien y qué te está costando? Si quieres, en 10 minutos vemos un plan simple para el próximo mes.',
+  60: 'Hola {nombre}, ¿cómo te sientes a los dos meses? ¿Tu jefe ya te dio feedback? Si te sirve, te ayudo a preparar esa conversación.',
+  90: 'Hola {nombre}, felicidades por llegar a los 90 días. ¿Quieres quedarte en este camino o estás pensando el siguiente paso? Aquí estoy para apoyarte.'
+};
+
+function diasDesde(fecha) {
+  if (!(fecha instanceof Date) || isNaN(fecha.getTime())) return null;
+  const a = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+  const b = new Date();
+  b.setHours(0, 0, 0, 0);
+  return Math.floor((b - a) / (24 * 3600 * 1000));
+}
+
+function mensajeSeguimiento(nombre, hito) {
+  const n = String(nombre || '').split(' ')[0] || 'hola';
+  return (MSG_SEGUIMIENTO[hito] || '').replace('{nombre}', n);
+}
+
+function pendientesSeguimiento(filas, cab) {
+  const idx = n => cab.indexOf(n);
+  const out = [];
+  filas.forEach((r, i) => {
+    const dias = diasDesde(r[idx('fecha_empleo')]);
+    if (dias === null || !r[idx('nombre')]) return;
+    HITOS_EMPLEO.forEach(h => {
+      const col = 'seguimiento_' + h;
+      const hecho = String(r[idx(col)] || '').trim();
+      if (dias >= h && !hecho) {
+        out.push({
+          fila: i + 2,
+          nombre: r[idx('nombre')],
+          whatsapp: r[idx('whatsapp')],
+          profesion: r[idx('profesion')],
+          hito: h,
+          dias: dias,
+          mensaje: mensajeSeguimiento(r[idx('nombre')], h)
+        });
+      }
+    });
+  });
+  return out.sort((a, b) => a.hito - b.hito || String(a.nombre).localeCompare(String(b.nombre)));
+}
+
+function seguimientoEmpleo() {
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  if (cab.indexOf('fecha_empleo') < 0) {
+    Logger.log('Falta la columna fecha_empleo. Ejecuta actualizarHoja() primero.');
+    return;
+  }
+  const pendientes = pendientesSeguimiento(datos, cab);
+  if (!pendientes.length) {
+    Logger.log('Sin seguimientos pendientes hoy.');
+    return;
+  }
+
+  const filasHtml = pendientes.map(p => {
+    const wa = linkWhatsApp(p.whatsapp);
+    return '<tr>' +
+      '<td style="padding:8px;border-bottom:1px solid #d7e0db;vertical-align:top"><b>' + esc(p.nombre) + '</b><br><span style="color:#5d6c66;font-size:12px">' + esc(p.profesion) + '</span></td>' +
+      '<td style="padding:8px;border-bottom:1px solid #d7e0db;vertical-align:top">Día <b>' + p.hito + '</b><br><span style="color:#5d6c66;font-size:12px">' + p.dias + ' días desde el empleo</span></td>' +
+      '<td style="padding:8px;border-bottom:1px solid #d7e0db;vertical-align:top">' + (wa ? '<a href="' + wa + '">Abrir WhatsApp</a>' : esc(p.whatsapp)) + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid #d7e0db;vertical-align:top;font-size:13px">' + esc(p.mensaje) + '</td>' +
+      '</tr>';
+  }).join('');
+
+  const html =
+    '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26;line-height:1.5">' +
+    '<div style="font-size:22px;font-weight:bold">Ruta Puente · Seguimiento 7/30/60/90</div>' +
+    '<p>Hoy tienes <b>' + pendientes.length + '</b> contacto' + (pendientes.length === 1 ? '' : 's') +
+    ' pendiente' + (pendientes.length === 1 ? '' : 's') +
+    '. Copia el mensaje, mándalo por WhatsApp y marca <b>Sí</b> en la columna <code>seguimiento_7</code> / <code>_30</code> / <code>_60</code> / <code>_90</code> de esa persona.</p>' +
+    '<table style="border-collapse:collapse;width:100%;font-size:14px">' +
+    '<tr style="background:#e1efe7">' +
+    '<th align="left" style="padding:8px">Persona</th>' +
+    '<th align="left" style="padding:8px">Hito</th>' +
+    '<th align="left" style="padding:8px">Contacto</th>' +
+    '<th align="left" style="padding:8px">Mensaje sugerido</th></tr>' +
+    filasHtml + '</table>' +
+    '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja de respuestas</a></p></div>';
+
+  MailApp.sendEmail({
+    to: Session.getEffectiveUser().getEmail(),
+    subject: 'Ruta Puente · ' + pendientes.length + ' seguimiento' + (pendientes.length === 1 ? '' : 's') + ' pendiente' + (pendientes.length === 1 ? '' : 's'),
+    body: pendientes.map(p => p.nombre + ' · día ' + p.hito + '\n' + p.mensaje).join('\n\n'),
+    htmlBody: html,
+    name: 'Ruta Puente'
+  });
+}
+
+// Ejecutar UNA vez: crea el correo diario a las 8 a. m. y asegura las columnas nuevas
+function activarSeguimientoEmpleo() {
+  asegurarColumnas();
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'seguimientoEmpleo')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('seguimientoEmpleo').timeBased().everyDays(1).atHour(8).create();
+  Logger.log('Trigger diario de seguimientoEmpleo creado (8 a. m.).');
+}
+
+// Prueba: manda un correo de ejemplo sin leer fechas reales de la hoja
+function pruebaSeguimientoEmpleo() {
+  const ejemplos = [
+    { nombre: 'María Prueba', whatsapp: '8320000000', profesion: 'Contadora', hito: 7, dias: 9, mensaje: mensajeSeguimiento('María Prueba', 7) },
+    { nombre: 'Carlos Ejemplo', whatsapp: '8320000001', profesion: 'Ingeniero', hito: 30, dias: 35, mensaje: mensajeSeguimiento('Carlos Ejemplo', 30) }
+  ];
+  const filasHtml = ejemplos.map(p => {
+    const wa = linkWhatsApp(p.whatsapp);
+    return '<tr><td style="padding:8px;border-bottom:1px solid #d7e0db"><b>' + esc(p.nombre) + '</b></td>' +
+      '<td style="padding:8px;border-bottom:1px solid #d7e0db">Día ' + p.hito + ' (' + p.dias + ' días)</td>' +
+      '<td style="padding:8px;border-bottom:1px solid #d7e0db">' + (wa ? '<a href="' + wa + '">WhatsApp</a>' : '') + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid #d7e0db;font-size:13px">' + esc(p.mensaje) + '</td></tr>';
+  }).join('');
+  MailApp.sendEmail({
+    to: Session.getEffectiveUser().getEmail(),
+    subject: 'Ruta Puente · Prueba seguimiento 7/30/60/90',
+    body: 'Correo de prueba del seguimiento. No usa datos reales de la hoja.',
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26">' +
+      '<div style="font-size:22px;font-weight:bold">Prueba · Seguimiento 7/30/60/90</div>' +
+      '<p>Esto es un ejemplo. Cuando actives el trigger real, solo verás personas con <code>fecha_empleo</code> y sin marcar el hito.</p>' +
+      '<table style="border-collapse:collapse;width:100%;font-size:14px"><tr style="background:#fbf0d9">' +
+      '<th align="left" style="padding:8px">Persona</th><th align="left" style="padding:8px">Hito</th>' +
+      '<th align="left" style="padding:8px">Contacto</th><th align="left" style="padding:8px">Mensaje</th></tr>' +
+      filasHtml + '</table></div>',
+    name: 'Ruta Puente'
+  });
+}
+
 /* ---------- Bitácora de entrevistas (página privada /bitacora/) ---------- */
 
 const HOJA_ENT = 'Entrevistas';
@@ -434,9 +574,22 @@ function obtenerHoja() {
     hoja.setFrozenRows(1);
     hoja.getRange(1, 1, 1, COLUMNAS.length).setFontWeight('bold').setBackground('#e1efe7');
   }
-  if (hoja.getLastColumn() < COLUMNAS.length) {
-    hoja.getRange(1, 1, 1, COLUMNAS.length).setValues([COLUMNAS]).setFontWeight('bold').setBackground('#e1efe7');
-  }
+  return asegurarColumnas(hoja);
+}
+
+// Agrega al final cualquier columna de COLUMNAS que aún no exista (no mueve las que ya están)
+function asegurarColumnas(hoja) {
+  hoja = hoja || SpreadsheetApp.getActiveSpreadsheet().getSheetByName(HOJA);
+  if (!hoja) return obtenerHoja();
+  const lastCol = Math.max(hoja.getLastColumn(), 1);
+  const cab = hoja.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  COLUMNAS.forEach(nombre => {
+    if (cab.indexOf(nombre) < 0) {
+      const col = hoja.getLastColumn() + 1;
+      hoja.getRange(1, col).setValue(nombre).setFontWeight('bold').setBackground('#e1efe7');
+      cab.push(nombre);
+    }
+  });
   return hoja;
 }
 
