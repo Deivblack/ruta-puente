@@ -109,6 +109,17 @@ td select{padding:5px 6px;font-size:14px}
 .x{all:unset;cursor:pointer;color:var(--muted);padding:2px 8px}
 .nav{display:flex;justify-content:space-between;gap:10px}
 footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
+.nivel-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.nivel-item{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.nivel-item.done{border-color:var(--hope);background:var(--hope-soft)}
+.nivel-item label.check{flex-direction:row;align-items:flex-start;gap:10px;font-weight:800;font-size:16px;cursor:pointer}
+.nivel-item input[type="checkbox"]{width:22px;height:22px;flex:0 0 22px;margin-top:2px;accent-color:var(--hope)}
+.nivel-item p{color:var(--muted);font-size:15px;font-weight:600}
+.nivel-item a{color:var(--hope);font-weight:800;font-size:15px;text-decoration:none}
+.nivel-item a:hover{text-decoration:underline}
+.nivel-foot{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.nivel-foot .btn[disabled]{opacity:.45;cursor:not-allowed}
+.linkish{all:unset;cursor:pointer;font-weight:800;color:var(--hope);font-size:14px;padding:4px 0}
 </style>
 </head>
 <body>
@@ -123,12 +134,24 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
     <span class="preview" id="badge">Ejemplo</span>
   </header>
 
-  <section class="hello" aria-live="polite">
+  <section class="card" id="nivelacion" hidden>
+    <h2>Nivelación</h2>
+    <p class="hint">Antes de tu ruta, asegúrate de manejar estas bases. Marca lo que ya sabes hacer. Con 6 de 8 puedes continuar.</p>
+    <div class="progress"><div class="track"><div class="fill" id="nivel-bar"></div></div><span id="nivel-text">0 de 8</span></div>
+    <ul class="nivel-list" id="nivel-list"></ul>
+    <div class="nivel-foot">
+      <button class="btn" id="nivel-go" type="button" disabled>Ir a mi ruta</button>
+      <span class="hint" id="nivel-hint">Te faltan 6 para continuar</span>
+    </div>
+  </section>
+
+  <section class="hello" id="ruta-home" aria-live="polite" hidden>
     <h1 id="hello-title">Hola, María</h1>
     <p id="hello-text">Con lo que nos contaste en el formulario ya armamos tu ruta. Abre cada paso, revisa que todo esté bien y confírmalo: se marcará con ✓.</p>
     <div class="facts" id="facts"></div>
     <div class="progress"><div class="track"><div class="fill" id="progress-bar"></div></div><span id="progress-text">0 de 6 pasos listos</span></div>
     <ol class="route" id="route" aria-label="Tu ruta en 6 pasos"></ol>
+    <button class="linkish" id="to-nivel" type="button">← Ver nivelación</button>
   </section>
 
   <div class="stepbar" id="stepbar" hidden>
@@ -278,7 +301,8 @@ async function cargar(){
       if(d && d.ok){ P = d.persona; $("#badge").hidden = true; }
     }catch(e){ /* sin conexión: queda el ejemplo */ }
   }
-  pintarSaludo(); llenarPerfil(); home();
+  pintarSaludo(); llenarPerfil();
+  if(nivelHechos() >= 6) home(); else showNivel();
 }
 
 function pintarSaludo(){
@@ -295,16 +319,73 @@ function llenarPerfil(){
 }
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
+// Nivelación (fase 2): 8 bases digitales; con ≥6 se abre la ruta de 6 pasos
+const NIVEL = [
+  {id:"correo", t:"Correo profesional",
+    d:"Usa un correo con tu nombre (por ejemplo nombre.apellido@gmail.com). Evita apodos o números largos: es lo primero que ve un reclutador. Si no tienes Gmail, créalo gratis desde el celular en unos minutos.",
+    u:"https://support.google.com/mail/answer/56256", ul:"Cómo crear un Gmail ↗"},
+  {id:"docs", t:"Google Docs y PDF",
+    d:"Tu CV debe abrirse en cualquier computadora. Escríbelo en Google Docs y descárgalo como PDF. Así no se descuadra el formato y casi todos los portales aceptan ese archivo.",
+    u:"https://support.google.com/docs/answer/2423534", ul:"Guardar un Doc como PDF ↗"},
+  {id:"subir", t:"Subir archivo desde el celular",
+    d:"Vas a adjuntar tu CV desde el teléfono. Practica: súbelo a Google Drive o Files y confírmalo en la galería de archivos. Si no sabes hacerlo, este paso te frena al aplicar.",
+    u:"https://support.google.com/drive/answer/2424368", ul:"Subir archivos a Drive ↗"},
+  {id:"linkedin", t:"LinkedIn básico",
+    d:"LinkedIn es el CV vivo de EE.UU. Necesitas foto clara, titular con tu cargo en inglés y un resumen corto. No hace falta tener miles de contactos: un perfil completo ya te hace visible.",
+    u:"https://www.linkedin.com/help/linkedin/answer/a522735", ul:"Crear tu perfil de LinkedIn ↗"},
+  {id:"indeed", t:"Indeed",
+    d:"Indeed es el portal donde más se publica empleo cerca de ti. Crea una cuenta, completa tu perfil y guarda búsquedas. Ahí vas a aplicar a varias vacantes de tu carril.",
+    u:"https://www.indeed.com/career-advice/finding-a-job/how-to-use-indeed", ul:"Cómo usar Indeed ↗"},
+  {id:"ats", t:"Qué es un ATS",
+    d:"Un ATS es el software que filtra CVs antes de que los vea una persona. Usa el mismo cargo y palabras de la vacante, evita tablas y gráficos, y manda PDF o Word limpio. Si no pasa el filtro, nadie te lee.",
+    u:"https://www.usa.gov/jobs-resumes", ul:"Guía de CV (USA.gov) ↗"},
+  {id:"pitch", t:"Presentarte en 30 s en inglés",
+    d:"Practica una frase: quién eres, qué haces y qué buscas. Ejemplo: “I’m a bilingual accountant with 8 years of experience, now in Houston, looking for staff accountant roles.” Grábate y repítela.",
+    u:"https://www.careeronestop.org/JobSearch/Network/informational-interviewing.aspx", ul:"Consejos CareerOneStop ↗"},
+  {id:"mercado", t:"Cómo funciona el mercado",
+    d:"Un recruiter busca candidatos para una empresa. Una staffing agency te coloca de forma temporal o permanente. W-2 es empleado con impuestos retenidos; 1099 es contratista. El pago puede ser por hora o salario anual: pregunta siempre cuál es.",
+    u:"https://www.careeronestop.org/Toolkit/Jobs/find-jobs.aspx", ul:"Buscar empleo (CareerOneStop) ↗"}
+];
+const KEY_NIVEL = "rp-nivel-" + (new URLSearchParams(location.search).get("c") || "demo");
+let nivelOk = {}; try{ nivelOk = JSON.parse(localStorage.getItem(KEY_NIVEL)||"{}")||{}; }catch(e){ nivelOk={}; }
+const guardarNivel = ()=>{ try{ localStorage.setItem(KEY_NIVEL, JSON.stringify(nivelOk)); }catch(e){} };
+const nivelHechos = ()=> NIVEL.reduce((n,it)=> n + (nivelOk[it.id]?1:0), 0);
+
+function pintarNivel(){
+  const n = nivelHechos();
+  $("#nivel-list").innerHTML = NIVEL.map(it=>{
+    const on = !!nivelOk[it.id];
+    return `<li class="nivel-item${on?" done":""}"><label class="check"><input type="checkbox" data-nivel="${it.id}" ${on?"checked":""}><span>${esc(it.t)}</span></label><p>${esc(it.d)}</p><a href="${it.u}" target="_blank" rel="noopener">${esc(it.ul)}</a></li>`;
+  }).join("");
+  $("#nivel-list").querySelectorAll("[data-nivel]").forEach(inp=>{
+    inp.onchange = ()=>{ nivelOk[inp.dataset.nivel] = inp.checked; guardarNivel(); pintarNivel(); };
+  });
+  $("#nivel-bar").style.width = (n/8*100) + "%";
+  $("#nivel-text").textContent = `${n} de 8`;
+  const falta = Math.max(0, 6 - n);
+  $("#nivel-go").disabled = n < 6;
+  $("#nivel-hint").textContent = n >= 6 ? "Listo: ya puedes entrar a tu ruta." : `Te faltan ${falta} para continuar`;
+}
+function showNivel(){
+  state.step = -2;
+  document.querySelectorAll(".view").forEach(v=>v.hidden = true);
+  $("#nivelacion").hidden = false;
+  $("#ruta-home").hidden = true; $("#stepbar").hidden = true; $("#nav").hidden = true;
+  pintarNivel(); window.scrollTo({top:0});
+}
+
 // Dos pantallas: la ruta (inicio) y un paso a la vez
 function home(){
   state.step = -1;
   document.querySelectorAll(".view").forEach(v=>v.hidden = true);
-  $(".hello").hidden = false; $("#stepbar").hidden = true; $("#nav").hidden = true;
+  $("#nivelacion").hidden = true;
+  $("#ruta-home").hidden = false; $("#stepbar").hidden = true; $("#nav").hidden = true;
   render(); window.scrollTo({top:0});
 }
 function go(i){
   state.step=i;
-  $(".hello").hidden = true; $("#stepbar").hidden = false; $("#nav").hidden = false;
+  $("#nivelacion").hidden = true;
+  $("#ruta-home").hidden = true; $("#stepbar").hidden = false; $("#nav").hidden = false;
   document.querySelectorAll(".view").forEach(v=>v.hidden = +v.dataset.step!==i);
   $("#step-count").textContent = `Paso ${i+1} de ${STEPS.length} · ${STEPS[i]}`;
   $("#prev").textContent = i===0 ? "← Tu ruta" : "Atrás";
@@ -312,6 +393,8 @@ function go(i){
   render(); window.scrollTo({top:0});
 }
 $("#to-route").onclick = home;
+$("#to-nivel").onclick = showNivel;
+$("#nivel-go").onclick = ()=>{ if(nivelHechos()>=6) home(); };
 $("#prev").onclick=()=> state.step===0 ? home() : go(state.step-1);
 $("#next").onclick=()=>{ revisados.add(state.step); guardarOk(); state.step===STEPS.length-1 ? home() : go(state.step+1); };
 
