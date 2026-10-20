@@ -1,0 +1,504 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ruta-puente.local/schema/perfil.schema.json",
+  "title": "Archivo Maestro — perfil",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "updated_at",
+    "personal",
+    "eligibility",
+    "targets",
+    "experience",
+    "us_current_jobs",
+    "education",
+    "certifications",
+    "skills",
+    "languages",
+    "standard_answers",
+    "answer_bank",
+    "profile_text",
+    "references",
+    "portal_notes",
+    "pending"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.1" },
+    "updated_at": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "_nota": { "type": "string" },
+    "personal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "legal_first_name", "middle_name", "legal_last_name", "preferred_name",
+        "email", "phone_mobile", "linkedin_url", "date_of_birth",
+        "nationality", "address", "origin_country"
+      ],
+      "properties": {
+        "legal_first_name": { "type": "string" },
+        "middle_name": { "type": "string" },
+        "legal_last_name": { "type": "string" },
+        "preferred_name": { "type": "string" },
+        "name_rule": { "type": "string" },
+        "email": { "type": "string" },
+        "phone_mobile": { "type": "string" },
+        "phone_public_on_linkedin": { "type": "boolean" },
+        "linkedin_url": { "type": "string" },
+        "date_of_birth": {
+          "type": "string",
+          "pattern": "^(\\d{4}-\\d{2}-\\d{2})?$"
+        },
+        "nationality": { "type": "string" },
+        "origin_country": { "type": "string" },
+        "origin_city": { "type": "string" },
+        "years_in_us": { "type": "number", "minimum": 0 },
+        "contact_preference": { "type": "string" },
+        "old_ecuador_contact_data": { "type": "string" },
+        "emergency_contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "phone": { "type": "string" }
+          }
+        },
+        "address": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["line1", "line2", "city", "county", "state", "zip"],
+          "properties": {
+            "line1": { "type": "string" },
+            "line2": { "type": "string" },
+            "city": { "type": "string" },
+            "county": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" }
+          }
+        }
+      }
+    },
+    "eligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorized_to_work_us", "requires_sponsorship",
+        "drivers_license", "has_vehicle",
+        "willing_to_relocate", "willing_to_travel_pct"
+      ],
+      "properties": {
+        "authorized_to_work_us": { "type": "boolean" },
+        "requires_sponsorship": { "type": "boolean" },
+        "drivers_license": { "type": "boolean" },
+        "has_vehicle": { "type": "boolean" },
+        "willing_to_relocate": { "type": ["boolean", "null"] },
+        "willing_to_travel_pct": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+        "willing_to_travel": { "type": "boolean" },
+        "non_compete": { "type": "boolean" },
+        "background_check_consent": { "type": "boolean" },
+        "drug_screen_consent": { "type": "boolean" },
+        "forklift": { "type": "string" }
+      }
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role_families", "search_zip", "radius_miles",
+        "work_mode", "schedule", "start_availability", "notice_period"
+      ],
+      "properties": {
+        "role_families": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id", "name", "keywords", "cv_version",
+              "salary_floor", "salary_ask", "salary_ceiling"
+            ],
+            "properties": {
+              "id": { "type": "string", "enum": ["hr", "ld", "ta", "warehouse"] },
+              "name": { "type": "string" },
+              "keywords": { "type": "array", "items": { "type": "string" } },
+              "cv_version": { "type": "string", "enum": ["hr", "ld", "ta", "warehouse"] },
+              "salary_floor": { "type": ["number", "null"], "minimum": 0 },
+              "salary_ask": { "type": ["number", "null"], "minimum": 0 },
+              "salary_ceiling": { "type": ["number", "null"], "minimum": 0 }
+            }
+          }
+        },
+        "search_zip": { "type": "string" },
+        "radius_miles": { "type": "number", "minimum": 0 },
+        "max_commute_minutes": { "type": ["number", "null"], "minimum": 0 },
+        "work_mode": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["onsite", "hybrid", "remote"] }
+        },
+        "schedule": { "type": "string" },
+        "start_availability": { "type": "string" },
+        "notice_period": { "type": "string" },
+        "salary_rules": { "type": "array", "items": { "type": "string" } },
+        "salary_bands_market": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "band": { "type": "string" },
+              "ask": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "employer", "employer_context", "employee_count",
+          "address", "country", "city",
+          "title_original", "title_us_equivalent",
+          "start", "end",
+          "reports_to", "direct_reports",
+          "supervisor_name", "may_contact",
+          "reason_for_leaving",
+          "bullets_by_family", "achievements", "show_on_cv"
+        ],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "employer": { "type": "string" },
+          "employer_context": { "type": "string" },
+          "employee_count": { "type": "string" },
+          "address": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["line1", "city", "state", "country", "zip"],
+            "properties": {
+              "line1": { "type": "string" },
+              "city": { "type": "string" },
+              "state": { "type": "string" },
+              "country": { "type": "string" },
+              "zip": { "type": "string" }
+            }
+          },
+          "country": { "type": "string" },
+          "city": { "type": "string" },
+          "title_original": { "type": "string" },
+          "title_us_equivalent": { "type": "string" },
+          "start": { "type": "string", "pattern": "^(\\d{4}-\\d{2})?$" },
+          "end": {
+            "type": "string",
+            "pattern": "^((\\d{4}-\\d{2})|present)?$"
+          },
+          "reports_to": { "type": "string" },
+          "direct_reports": { "type": ["integer", "null"], "minimum": 0 },
+          "supervisor_name": { "type": "string" },
+          "may_contact": { "type": ["boolean", "null"] },
+          "reason_for_leaving": { "type": "string" },
+          "notes": { "type": "string" },
+          "bullets_by_family": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["hr", "ld", "ta", "warehouse"],
+            "properties": {
+              "hr": { "type": "array", "items": { "type": "string" } },
+              "ld": { "type": "array", "items": { "type": "string" } },
+              "ta": { "type": "array", "items": { "type": "string" } },
+              "warehouse": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "achievements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text", "metric", "source", "verified"],
+              "properties": {
+                "text": { "type": "string" },
+                "metric": { "type": "string" },
+                "source": { "type": "string", "enum": ["cv", "candidate"] },
+                "verified": { "type": "boolean" }
+              }
+            }
+          },
+          "show_on_cv": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["hr", "ld", "ta", "warehouse"] }
+          }
+        }
+      }
+    },
+    "us_current_jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["employer", "via_agency", "title", "start", "show_on_cv"],
+        "properties": {
+          "employer": { "type": "string" },
+          "via_agency": { "type": "string" },
+          "title": { "type": "string" },
+          "city": { "type": "string" },
+          "start": { "type": "string", "pattern": "^(\\d{4}-\\d{2})?$" },
+          "bullets": { "type": "array", "items": { "type": "string" } },
+          "show_on_cv": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["hr", "ld", "ta", "warehouse"] }
+          }
+        }
+      }
+    },
+    "us_current_jobs_rules": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "institution", "country", "degree_original", "degree_us_equivalent",
+          "field", "start", "end", "completed", "credential_evaluation"
+        ],
+        "properties": {
+          "institution": { "type": "string" },
+          "country": { "type": "string" },
+          "degree_original": { "type": "string" },
+          "degree_us_equivalent": { "type": "string" },
+          "field": { "type": "string" },
+          "start": { "type": "string", "pattern": "^(\\d{4}-\\d{2})?$" },
+          "end": { "type": "string", "pattern": "^(\\d{4}-\\d{2})?$" },
+          "completed": { "type": "boolean" },
+          "credential_evaluation": {
+            "type": "string",
+            "enum": ["none", "wes", "ece", "other"]
+          }
+        }
+      }
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "issuer", "year", "active"],
+        "properties": {
+          "name": { "type": "string" },
+          "issuer": { "type": "string" },
+          "year": { "type": "string" },
+          "active": { "type": ["boolean", "null"] }
+        }
+      }
+    },
+    "courses": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "extracurricular": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "skills": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["systems", "methodologies", "domains", "soft"],
+      "properties": {
+        "systems": { "type": "array", "items": { "type": "string" } },
+        "methodologies": { "type": "array", "items": { "type": "string" } },
+        "domains": { "type": "array", "items": { "type": "string" } },
+        "soft": { "type": "array", "items": { "type": "string" } },
+        "honesty_rules": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["language", "level"],
+        "properties": {
+          "language": { "type": "string" },
+          "level": {
+            "type": "string",
+            "enum": ["native", "advanced", "intermediate", "basic", ""]
+          }
+        }
+      }
+    },
+    "standard_answers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "years_total_experience", "years_by_area", "eeo", "how_did_you_hear_default"
+      ],
+      "properties": {
+        "years_total_experience": { "type": ["number", "null"], "minimum": 0 },
+        "years_by_area": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["recruiting", "training", "hr_generalist", "people_management"],
+          "properties": {
+            "recruiting": { "type": ["number", "null"], "minimum": 0 },
+            "training": { "type": ["number", "null"], "minimum": 0 },
+            "hr_generalist": { "type": ["number", "null"], "minimum": 0 },
+            "people_management": { "type": ["number", "null"], "minimum": 0 }
+          }
+        },
+        "years_by_area_extra": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "experience_level": { "type": "string" },
+        "text_message_consent": { "type": ["boolean", "null"] },
+        "previously_worked_here": { "type": ["boolean", "null"] },
+        "relatives_at_company": { "type": "string" },
+        "eeo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gender", "hispanic_latino", "race", "veteran", "disability"],
+          "properties": {
+            "gender": { "type": "string" },
+            "hispanic_latino": { "type": ["boolean", "null"] },
+            "race": { "type": "string" },
+            "veteran": { "type": ["boolean", "null"] },
+            "disability": { "type": ["boolean", "null"] }
+          }
+        },
+        "how_did_you_hear_default": { "type": "string" }
+      }
+    },
+    "answer_bank": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "question_pattern", "family",
+          "answer_en", "answer_es", "max_chars", "espanso_trigger"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "question_pattern": { "type": "string" },
+          "family": {
+            "type": "string",
+            "enum": ["hr", "ld", "ta", "warehouse", "general", ""]
+          },
+          "answer_en": { "type": "string" },
+          "answer_es": { "type": "string" },
+          "max_chars": { "type": "integer", "minimum": 0 },
+          "espanso_trigger": { "type": "string" }
+        }
+      }
+    },
+    "profile_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headline_en", "summaries_en"],
+      "properties": {
+        "headline_en": { "type": "string" },
+        "headlines": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "summaries_en": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["family", "text"],
+            "properties": {
+              "family": {
+                "type": "string",
+                "enum": ["hr", "ld", "ta", "warehouse", ""]
+              },
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "competencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "positioning": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "relationship", "phone", "email", "years_known", "country"],
+        "properties": {
+          "name": { "type": "string" },
+          "relationship": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" },
+          "years_known": { "type": ["number", "null"], "minimum": 0 },
+          "years_known_note": { "type": "string" },
+          "country": { "type": "string" }
+        }
+      }
+    },
+    "cv_versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "platforms": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "portal_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["portal", "tips"],
+        "properties": {
+          "portal": { "type": "string" },
+          "tips": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "interview_rules": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "applications_pending_account": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "pending": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "question"],
+        "properties": {
+          "field": { "type": "string", "minLength": 1 },
+          "question": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
