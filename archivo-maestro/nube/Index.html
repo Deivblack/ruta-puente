@@ -509,6 +509,22 @@ $('nav').onclick = function(ev){
   showTab(b.getAttribute('data-tab'));
 };
 
+// ?demo=1 (solo local): carga un perfil de ejemplo sin pegar JSON
+if (LOCAL && /[?&]demo=1\b/.test(location.search)) {
+  localStorage.setItem('am-perfil', JSON.stringify({
+    schema_version:'1.1', updated_at: new Date().toISOString().slice(0,10),
+    personal:{ legal_first_name:'David', preferred_name:'David', email:'demo@example.com', phone_mobile:'7135550100', address:{ city:'Houston', state:'TX', zip:'77001' } },
+    eligibility:{ authorized_to_work_us:true, requires_sponsorship:false },
+    targets:{ search_zip:'77001', radius_miles:25, role_families:[{ id:'ta', name:'Talent Acquisition', salary_ask:70000 },{ id:'hr', name:'HR', salary_ask:65000 },{ id:'ld', name:'L&D', salary_ask:70000 },{ id:'warehouse', name:'Warehouse', salary_ask:45000 }] },
+    experience:[{ employer:'Demo Co', title_us_equivalent:'Recruiter', start:'2020-01', end:'2023-06', show_on_cv:['hr','ta'] }],
+    pending:[{ field:'linkedin_url', question:'Agregar LinkedIn' }],
+    us_current_jobs:[], education:[], certifications:[], skills:{systems:[],methodologies:[],domains:[],soft:[]},
+    languages:[], standard_answers:{}, answer_bank:[], profile_text:{}, references:[], portal_notes:[]
+  }));
+  localStorage.setItem('am-apps', JSON.stringify([
+    { id:'1', fecha: new Date().toISOString().slice(0,10), empresa:'Acme HR', puesto:'Bilingual Recruiter', portal:'LinkedIn', familia:'ta', estado:'enviada', fecha_estado: new Date().toISOString().slice(0,10) }
+  ]));
+}
 cargar();
 </script>
 </body>
