@@ -4,7 +4,8 @@ Una sola fuente de verdad con tu información profesional. Sirve para llenar for
 
 **El JSON es la fuente de verdad.** Todo lo demás se genera desde `data/perfil.json`. No edites a mano los archivos de `salidas/`.
 
-> **Privacidad:** este repo de Ruta Puente es **público**. Tus datos reales viven en `data/perfil.local.json` y `data/aplicaciones.local.json` (están en `.gitignore` y **no se suben a GitHub**). El `perfil.json` del repo es solo la plantilla vacía. Nunca guardes SSN, pasaporte, cuentas bancarias ni contraseñas.
+> **Privacidad:** este repo (`ruta-puente`) es **público**. Aquí solo va la plantilla vacía y el esquema del producto.  
+> **Tus datos reales van en un repo PRIVADO** (`archivo-maestro`). Mientras tanto, en este entorno pueden existir `data/perfil.local.json` (gitignore) solo como copia de trabajo. Nunca guardes SSN, pasaporte, cuentas bancarias ni contraseñas.
 
 ## Requisitos
 
