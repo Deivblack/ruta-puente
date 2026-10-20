@@ -189,7 +189,27 @@ npm run editor
 Abre `salidas/editor.html` con **doble clic en Chrome** (no lo leas como código en Cursor).
 
 1. Edita por pestañas (Personal, Experiencia, Pendientes…).
-2. Opcional: **Abrir archivo JSON** si quieres cargar otro perfil.
-3. Pulsa **Descargar perfil.json**.
-4. Reemplaza `data/perfil.local.json` con ese archivo.
-5. En la terminal: `npm run validar` (y `npm run todo` si quieres regenerar todo).
+2. **Revisar campos vacíos** resalta en rojo lo que falta (no guarda nada).
+3. Opcional: **Abrir archivo JSON** si quieres cargar otro perfil.
+4. Pulsa **Descargar perfil.json** (esto sí “guarda”: baja el archivo).
+5. Reemplaza `data/perfil.local.json` (o `perfil.json` en el repo privado).
+6. En la terminal: `npm run validar` (y `npm run todo` si quieres regenerar todo).
+
+### ¿Se guarda solo?
+**No.** El editor vive en el navegador. Si cierras la pestaña sin descargar, pierdes los cambios de esa sesión.
+
+### ¿Y si lo quiero desde la nube / GitHub?
+El proyecto “vivo” con tus datos debe estar en el **repo privado** `https://github.com/Deivblack/archivo-maestro` (no en `ruta-puente`, que es público).
+
+En cualquier PC:
+
+```bash
+git clone https://github.com/Deivblack/archivo-maestro.git
+cd archivo-maestro
+npm install
+npm run editor
+```
+
+Abres `salidas/editor.html`, editas, descargas, reemplazas `data/perfil.json`, haces `git add` + `git commit` + `git push`.
+
+Si solo abres el HTML desde Cursor Agent Store, es una **copia de esa sesión**. La fuente de verdad a largo plazo es el JSON en el repo privado + `git push`.

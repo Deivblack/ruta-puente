@@ -63,6 +63,11 @@ textarea{min-height:88px;resize:vertical}
 .toast.show{opacity:1}
 .danger{color:#8a2b2b}
 .list-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+input.campo-vacio,select.campo-vacio,textarea.campo-vacio{border-color:#c45c5c;background:#fff5f5;box-shadow:0 0 0 3px rgba(196,92,92,.18)}
+label.f.campo-vacio-label span{color:#a33;font-weight:700}
+.banner-vacios{display:none;background:#fde8e8;border:1px solid #e3a0a0;color:#7a2222;border-radius:12px;padding:12px;margin:10px 0;font-size:.9rem;font-weight:700}
+.banner-vacios.on{display:block}
+.nav button.tiene-vacios{box-shadow:inset 0 -3px 0 #c45c5c}
 </style>
 </head>
 <body>
@@ -82,10 +87,11 @@ textarea{min-height:88px;resize:vertical}
   </div>
 
   <div class="note">
-    Edita por secciones. Al terminar pulsa <strong>Descargar perfil.json</strong> y reemplaza
-    <code>data/perfil.local.json</code> (o <code>perfil.json</code> en tu repo privado).
-    Luego, en la terminal: <code>npm run validar</code> y si quieres <code>npm run todo</code>.
+    <strong>No se guarda solo.</strong> Los cambios viven en esta página hasta que pulses
+    <strong>Descargar perfil.json</strong> y reemplaces el archivo en <code>data/</code>.
+    Luego: <code>npm run validar</code> (y <code>npm run todo</code> si quieres regenerar CVs/exports).
   </div>
+  <div class="banner-vacios" id="bannerVacios"></div>
 
   <nav class="nav" id="nav">
     <button type="button" data-sec="personal" class="on">Personal</button>
@@ -538,14 +544,93 @@ document.getElementById('btnDl').addEventListener('click',function(){
   toast('Descargado perfil.json');
 });
 
-document.getElementById('btnValidar').addEventListener('click',function(){
+function clearVacios(){
+  document.querySelectorAll('.campo-vacio').forEach(function(el){ el.classList.remove('campo-vacio'); });
+  document.querySelectorAll('.campo-vacio-label').forEach(function(el){ el.classList.remove('campo-vacio-label'); });
+  document.querySelectorAll('#nav button.tiene-vacios').forEach(function(el){ el.classList.remove('tiene-vacios'); });
+  const b=document.getElementById('bannerVacios');
+  b.classList.remove('on'); b.textContent='';
+}
+function marcarVacio(id){
+  const el=document.getElementById(id);
+  if(!el) return false;
+  const v=(el.type==='checkbox') ? false : String(el.value||'').trim();
+  if(el.type==='checkbox') return false;
+  if(v!=='') return false;
+  el.classList.add('campo-vacio');
+  const lab=el.closest('label.f');
+  if(lab) lab.classList.add('campo-vacio-label');
+  const sec=el.closest('.sec');
+  if(sec){
+    const sid=sec.id.replace('sec-','');
+    const btn=document.querySelector('#nav button[data-sec="'+sid+'"]');
+    if(btn) btn.classList.add('tiene-vacios');
+  }
+  return true;
+}
+function revisarVacios(){
   collectFromDom();
-  const faltan=[];
-  if(!perfil.personal.email) faltan.push('email');
-  if(!perfil.personal.phone_mobile) faltan.push('teléfono');
-  if(!(perfil.experience||[]).length) faltan.push('experiencia');
-  if((perfil.pending||[]).length) faltan.push(perfil.pending.length+' pendientes abiertos');
-  alert(faltan.length?('Revisa: '+faltan.join(', ')):'Campos clave OK. Igual corre npm run validar en la terminal.');
+  clearVacios();
+  const ids=[
+    'p_fn','p_ln','p_pref','p_email','p_phone','p_li','p_l1','p_city','p_state','p_zip',
+    't_zip','t_start','t_notice',
+    'rf_ask_ta','rf_ask_hr','rf_ask_ld',
+    'pt_head','pt_sum_hr','pt_sum_ld',
+    'sa_years','sa_y_recruiting','sa_y_people_management'
+  ];
+  // experiencia
+  (perfil.experience||[]).forEach(function(_,i){
+    ids.push('ex_emp_'+i,'ex_tu_'+i,'ex_start_'+i,'ex_end_'+i);
+  });
+  (perfil.education||[]).forEach(function(_,i){
+    ids.push('edu_inst_'+i,'edu_du_'+i,'edu_end_'+i);
+  });
+  (perfil.languages||[]).forEach(function(_,i){
+    ids.push('lang_n_'+i);
+  });
+  let n=0;
+  const first=[];
+  ids.forEach(function(id){
+    if(marcarVacio(id)){ n++; if(first.length<8) first.push(id); }
+  });
+  const pend=(perfil.pending||[]).length;
+  const banner=document.getElementById('bannerVacios');
+  if(n===0 && pend===0){
+    banner.classList.add('on');
+    banner.style.background='#e1efe7';
+    banner.style.borderColor='#2e7d5b';
+    banner.style.color='#1f2a26';
+    banner.textContent='No hay campos clave vacíos. Si quieres, corre npm run validar en la terminal.';
+    toast('Todo completo en campos clave');
+    return;
+  }
+  banner.style.background='';
+  banner.style.borderColor='';
+  banner.style.color='';
+  banner.classList.add('on');
+  banner.textContent=n+' campo(s) vacío(s) resaltados en rojo'+(pend?(' · '+pend+' pendiente(s) en la pestaña Pendientes'):'')+'. Las pestañas con subrayado rojo tienen vacíos.';
+  // ir al primer vacío
+  if(first[0]){
+    const el=document.getElementById(first[0]);
+    const sec=el&&el.closest('.sec');
+    if(sec){
+      const sid=sec.id.replace('sec-','');
+      document.querySelectorAll('#nav button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-sec')===sid); });
+      document.querySelectorAll('.sec').forEach(function(s){ s.classList.toggle('on', s.id==='sec-'+sid); });
+    }
+    if(el){ el.focus({preventScroll:false}); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }
+  toast(n+' vacíos marcados');
+}
+document.getElementById('btnValidar').addEventListener('click', revisarVacios);
+document.addEventListener('input', function(ev){
+  const t=ev.target;
+  if(!t||!t.classList||!t.classList.contains('campo-vacio')) return;
+  if(String(t.value||'').trim()!==''){
+    t.classList.remove('campo-vacio');
+    const lab=t.closest('label.f');
+    if(lab) lab.classList.remove('campo-vacio-label');
+  }
 });
 
 renderAll();
