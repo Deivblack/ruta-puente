@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.1",
+  "updated_at": "2026-10-20",
+  "personal": {
+    "legal_first_name": "",
+    "middle_name": "",
+    "legal_last_name": "",
+    "preferred_name": "",
+    "email": "",
+    "phone_mobile": "",
+    "linkedin_url": "",
+    "date_of_birth": "",
+    "nationality": "",
+    "address": {
+      "line1": "",
+      "line2": "",
+      "city": "",
+      "county": "",
+      "state": "",
+      "zip": ""
+    },
+    "origin_country": ""
+  },
+  "eligibility": {
+    "authorized_to_work_us": true,
+    "requires_sponsorship": false,
+    "drivers_license": true,
+    "has_vehicle": true,
+    "willing_to_relocate": null,
+    "willing_to_travel_pct": null
+  },
+  "targets": {
+    "role_families": [
+      {
+        "id": "hr",
+        "name": "",
+        "keywords": [],
+        "cv_version": "hr",
+        "salary_floor": 0,
+        "salary_ask": 0,
+        "salary_ceiling": 0
+      },
+      {
+        "id": "ld",
+        "name": "",
+        "keywords": [],
+        "cv_version": "ld",
+        "salary_floor": 0,
+        "salary_ask": 0,
+        "salary_ceiling": 0
+      },
+      {
+        "id": "ta",
+        "name": "",
+        "keywords": [],
+        "cv_version": "ta",
+        "salary_floor": 0,
+        "salary_ask": 0,
+        "salary_ceiling": 0
+      },
+      {
+        "id": "warehouse",
+        "name": "",
+        "keywords": [],
+        "cv_version": "warehouse",
+        "salary_floor": 0,
+        "salary_ask": 0,
+        "salary_ceiling": 0
+      }
+    ],
+    "search_zip": "",
+    "radius_miles": 25,
+    "work_mode": ["onsite", "hybrid", "remote"],
+    "schedule": "",
+    "start_availability": "",
+    "notice_period": ""
+  },
+  "experience": [],
+  "us_current_jobs": [],
+  "education": [],
+  "certifications": [],
+  "skills": {
+    "systems": [],
+    "methodologies": [],
+    "domains": [],
+    "soft": []
+  },
+  "languages": [],
+  "standard_answers": {
+    "years_total_experience": null,
+    "years_by_area": {
+      "recruiting": null,
+      "training": null,
+      "hr_generalist": null,
+      "people_management": null
+    },
+    "eeo": {
+      "gender": "",
+      "hispanic_latino": null,
+      "race": "",
+      "veteran": null,
+      "disability": null
+    },
+    "how_did_you_hear_default": "LinkedIn"
+  },
+  "answer_bank": [],
+  "profile_text": {
+    "headline_en": "",
+    "summaries_en": []
+  },
+  "references": [],
+  "portal_notes": [],
+  "pending": [
+    { "field": "personal.legal_first_name", "question": "¿Cuál es tu nombre legal (first name)?" },
+    { "field": "personal.legal_last_name", "question": "¿Cuál es tu apellido legal?" },
+    { "field": "personal.preferred_name", "question": "¿Cómo quieres que te llamen en el CV?" },
+    { "field": "personal.email", "question": "¿Cuál es tu correo profesional?" },
+    { "field": "personal.phone_mobile", "question": "¿Cuál es tu celular (con código de país o formato US)?" },
+    { "field": "personal.linkedin_url", "question": "¿Cuál es la URL completa de tu LinkedIn?" },
+    { "field": "personal.date_of_birth", "question": "¿Fecha de nacimiento (YYYY-MM-DD)? Solo si la usas en formularios." },
+    { "field": "personal.nationality", "question": "¿Nacionalidad?" },
+    { "field": "personal.origin_country", "question": "¿País de origen?" },
+    { "field": "personal.address", "question": "¿Dirección completa en Houston (calle, ciudad, county, estado, ZIP)?" },
+    { "field": "eligibility.willing_to_relocate", "question": "¿Estás dispuesto a mudarte? (sí/no)" },
+    { "field": "eligibility.willing_to_travel_pct", "question": "¿Hasta qué % de viaje aceptas? (0–100)" },
+    { "field": "targets.role_families", "question": "¿Nombre, palabras clave y rango salarial de cada familia (hr, ld, ta, warehouse)?" },
+    { "field": "targets.search_zip", "question": "¿ZIP desde el que buscas vacantes?" },
+    { "field": "targets.schedule", "question": "¿Qué horario buscas (full-time, turnos, etc.)?" },
+    { "field": "targets.start_availability", "question": "¿Cuándo puedes empezar?" },
+    { "field": "targets.notice_period", "question": "¿Periodo de aviso en tu trabajo actual?" },
+    { "field": "experience", "question": "¿Pegar el historial laboral del Archivo Maestro actual (empleos, fechas, bullets por familia)?" },
+    { "field": "us_current_jobs", "question": "¿Trabajos actuales en EE. UU. (empleador, agencia, título, inicio)?" },
+    { "field": "education", "question": "¿Estudios (institución, título original, equivalente US, fechas)?" },
+    { "field": "certifications", "question": "¿Certificaciones (nombre, emisor, año)?" },
+    { "field": "skills", "question": "¿Sistemas, metodologías, dominios y soft skills?" },
+    { "field": "languages", "question": "¿Idiomas y nivel (native/advanced/intermediate/basic)?" },
+    { "field": "standard_answers.years_total_experience", "question": "¿Años totales de experiencia profesional?" },
+    { "field": "standard_answers.years_by_area", "question": "¿Años en recruiting, training, HR generalist y people management?" },
+    { "field": "standard_answers.eeo", "question": "¿Respuestas EEO que quieras guardar (opcionales; puedes dejarlas vacías)?" },
+    { "field": "answer_bank", "question": "¿Respuestas frecuentes (por qué este rol, etc.) en inglés y español?" },
+    { "field": "profile_text", "question": "¿Headline y resumen en inglés por familia de rol?" },
+    { "field": "references", "question": "¿Referencias (nombre, relación, contacto, años de conocerse)?" },
+    { "field": "portal_notes", "question": "¿Notas por portal (SuccessFactors, Workday, etc.)?" }
+  ]
+}
