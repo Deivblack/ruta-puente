@@ -1,0 +1,8 @@
+node_modules/
+salidas/*
+!salidas/.gitkeep
+
+# Copias locales con datos reales (no subir al repo público)
+data/perfil.local.json
+data/aplicaciones.local.json
+*.local.json
