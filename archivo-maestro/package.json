@@ -11,6 +11,8 @@
     "hoja": "node scripts/hoja.js",
     "simplify": "node scripts/simplify.js",
     "claude": "node scripts/claude.js",
+    "aplicacion": "node scripts/aplicacion.js",
+    "embudo": "node scripts/embudo.js",
     "todo": "node scripts/validar.js && node scripts/cv.js all && node scripts/espanso.js && node scripts/hoja.js && node scripts/simplify.js && node scripts/claude.js"
   },
   "engines": {

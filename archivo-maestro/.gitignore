@@ -6,3 +6,7 @@ salidas/*
 data/perfil.local.json
 data/aplicaciones.local.json
 *.local.json
+
+# Archivo de prueba de la Fase 5 (no es el historial real)
+data/aplicaciones.prueba.json
+*.prueba.json
