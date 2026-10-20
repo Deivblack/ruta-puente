@@ -7,7 +7,11 @@
     "validar": "node scripts/validar.js",
     "importar": "node scripts/importar-desde-upload.js",
     "cv": "node scripts/cv.js",
-    "todo": "node scripts/validar.js && node scripts/cv.js all"
+    "espanso": "node scripts/espanso.js",
+    "hoja": "node scripts/hoja.js",
+    "simplify": "node scripts/simplify.js",
+    "claude": "node scripts/claude.js",
+    "todo": "node scripts/validar.js && node scripts/cv.js all && node scripts/espanso.js && node scripts/hoja.js && node scripts/simplify.js && node scripts/claude.js"
   },
   "engines": {
     "node": ">=18"

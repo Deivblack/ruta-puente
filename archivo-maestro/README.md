@@ -26,13 +26,13 @@ npm install
 | `npm run validar` | Valida el perfil (usa `perfil.local.json` si existe; si no, la plantilla), revisa fechas y campos prohibidos, lista pendientes | 1–2 ✅ |
 | `npm run importar -- ruta.json` | Importa un JSON de Archivo Maestro a los archivos `.local.json` (sin subirlos a git) | 2 ✅ |
 | `npm run cv -- hr` | Genera CV `.docx` por familia (`hr`, `ld`, `ta`, `warehouse` o `all`) | 3 ✅ |
-| `npm run espanso` | Genera atajos de Espanso | 4 (pendiente) |
-| `npm run hoja` | Genera página HTML de respuestas rápidas | 4 (pendiente) |
-| `npm run simplify` | Genera checklist para Simplify Copilot | 4 (pendiente) |
-| `npm run claude` | Genera resumen Markdown para Claude | 4 (pendiente) |
+| `npm run espanso` | Genera `salidas/espanso/ruta-puente.yml` (atajos; incluye `;dir`) | 4 ✅ |
+| `npm run hoja` | Genera `salidas/respuestas-rapidas.html` (buscable + botón Copiar) | 4 ✅ |
+| `npm run simplify` | Genera `salidas/simplify-checklist.md` para pegar en Simplify | 4 ✅ |
+| `npm run claude` | Genera `salidas/archivo-maestro-claude.md` para tu proyecto Claude | 4 ✅ |
 | `npm run aplicacion` | Registra o actualiza aplicaciones | 5 (pendiente) |
 | `npm run embudo` | Resume métricas del embudo | 5 (pendiente) |
-| `npm run todo` | Corre `validar` + genera los 4 CVs | 3 ✅ |
+| `npm run todo` | validar + cv (todas) + espanso + hoja + simplify + claude | 4 ✅ |
 
 ## Cómo actualizar un dato
 
@@ -45,12 +45,12 @@ npm install
 npm run todo
 ```
 
-## Rutina semanal (cuando existan los demás comandos)
+## Rutina semanal
 
-1. Registra cada aplicación (`npm run aplicacion -- add`).
-2. Corre `npm run claude`.
-3. Sube `salidas/archivo-maestro-claude.md` a tu proyecto de Claude.
-4. Revisa el embudo (`npm run embudo`) y da seguimiento a las que llevan más de 10 días sin respuesta.
+1. Edita `perfil.local.json` si cambió algo → `npm run todo`.
+2. Registra aplicaciones (Fase 5: `npm run aplicacion -- add`; mientras tanto puedes editar `aplicaciones.local.json`).
+3. Corre `npm run claude` y sube `salidas/archivo-maestro-claude.md` a tu proyecto de Claude.
+4. Cuando exista: `npm run embudo` para seguimiento (+10 días sin respuesta).
 
 ## Estructura
 
@@ -94,6 +94,45 @@ Salida: `salidas/CV_hr.docx`, `CV_ld.docx`, `CV_ta.docx`, `CV_warehouse.docx`.
 - `ta` usa la base de empleos de `hr` (según `cv_version` en el perfil) y el resumen de TA del answer bank.  
 - Ábrelos en Word y revisa 1–2 páginas.
 
+## Fase 4 — Espanso, hoja, Simplify, Claude
+
+```bash
+npm run espanso
+npm run hoja
+npm run simplify
+npm run claude
+# o todo: npm run todo
+```
+
+### Instalar atajos Espanso en Windows (criterio: `;dir` en Chrome)
+
+1. Instala Espanso gratis: https://espanso.org/install/
+2. Genera el archivo: `npm run espanso`
+3. Copia `salidas\espanso\ruta-puente.yml` a:
+
+```text
+%APPDATA%\espanso\match\ruta-puente.yml
+```
+
+Truco: pulsa `Win + R`, escribe `%APPDATA%\espanso\match` y Enter.
+4. Reinicia Espanso (ícono en la bandeja → Restart), o en terminal: `espanso restart`
+5. Abre Chrome, enfoca cualquier campo de texto y escribe: `;dir`  
+   Debe expandir tu dirección completa.
+
+Otros atajos útiles: `;email`, `;phone`, `;name`, `;salta`, `;sumta`, `;auth`, `;spons`.
+
+### Hoja de respuestas
+
+Abre `salidas/respuestas-rapidas.html` con doble clic (no necesita internet). Usa el buscador y el botón **Copiar**.
+
+### Simplify
+
+Abre `salidas/simplify-checklist.md` y pega los valores en tu perfil de Simplify una sola vez.
+
+### Claude
+
+Sube `salidas/archivo-maestro-claude.md` a tu proyecto de Claude (reemplaza el anterior cuando regeneres).
+
 ## Próxima fase
 
-**Fase 4:** `espanso`, `hoja`, `simplify`, `claude`.
+**Fase 5:** `aplicacion` y `embudo`.
