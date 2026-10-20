@@ -34,7 +34,8 @@ npm install
 | `npm run aplicacion -- estado <id> <estado>` | Cambia estado (`enviada\|vista\|entrevista\|rechazada\|cerrada\|oferta`) | 5 ✅ |
 | `npm run embudo` | Totales, % respuesta, familia/portal/bilingüe, +10 días sin respuesta | 5 ✅ |
 | `npm run panel` | Genera `salidas/panel.html` — pantalla visual para revisar y actualizar | panel ✅ |
-| `npm run todo` | validar + cv + espanso + hoja + simplify + claude + panel | 4–5 ✅ |
+| `npm run editor` | Genera `salidas/editor.html` — formularios para editar todo el perfil | 6 ✅ |
+| `npm run todo` | validar + exports + panel + editor | ✅ |
 
 ## Cómo actualizar un dato
 
@@ -179,6 +180,16 @@ Abre `salidas/panel.html` con doble clic. Ahí ves:
 
 **Flujo de actualización:** editas en el panel → **Descargar perfil.json** o **aplicaciones.json** → reemplazas el archivo en `data/` (p. ej. `perfil.local.json`) → `npm run todo` si quieres regenerar CVs/exports.
 
-## Próxima fase (opcional)
+## Fase 6 — Editor completo
 
-**Fase 6:** `editor.html` — editor más completo del perfil (formularios por sección).
+```bash
+npm run editor
+```
+
+Abre `salidas/editor.html` con **doble clic en Chrome** (no lo leas como código en Cursor).
+
+1. Edita por pestañas (Personal, Experiencia, Pendientes…).
+2. Opcional: **Abrir archivo JSON** si quieres cargar otro perfil.
+3. Pulsa **Descargar perfil.json**.
+4. Reemplaza `data/perfil.local.json` con ese archivo.
+5. En la terminal: `npm run validar` (y `npm run todo` si quieres regenerar todo).

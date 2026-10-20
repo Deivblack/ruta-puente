@@ -14,7 +14,8 @@
     "aplicacion": "node scripts/aplicacion.js",
     "embudo": "node scripts/embudo.js",
     "panel": "node scripts/panel.js",
-    "todo": "node scripts/validar.js && node scripts/cv.js all && node scripts/espanso.js && node scripts/hoja.js && node scripts/simplify.js && node scripts/claude.js && node scripts/panel.js"
+    "editor": "node scripts/editor.js",
+    "todo": "node scripts/validar.js && node scripts/cv.js all && node scripts/espanso.js && node scripts/hoja.js && node scripts/simplify.js && node scripts/claude.js && node scripts/panel.js && node scripts/editor.js"
   },
   "engines": {
     "node": ">=18"
