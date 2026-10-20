@@ -7,22 +7,30 @@ const Ajv2020 = require("ajv/dist/2020");
 const addFormats = require("ajv-formats");
 
 const ROOT = path.join(__dirname, "..");
-const PERFIL_PATH = path.join(ROOT, "data", "perfil.json");
+const PERFIL_PUBLICO = path.join(ROOT, "data", "perfil.json");
+const PERFIL_LOCAL = path.join(ROOT, "data", "perfil.local.json");
 const SCHEMA_PATH = path.join(ROOT, "schema", "perfil.schema.json");
 
-const CAMPOS_PROHIBIDOS = [
+// Si existe el archivo local (datos reales, gitignored), se usa ese.
+const PERFIL_PATH = fs.existsSync(PERFIL_LOCAL) ? PERFIL_LOCAL : PERFIL_PUBLICO;
+
+// Coincidencia exacta del nombre de campo (normalizado). Evita falsos positivos
+// como "applications_pending_account" al buscar "account".
+const CAMPOS_PROHIBIDOS_EXACTOS = [
   "ssn",
-  "social_security",
+  "socialsecurity",
+  "socialsecuritynumber",
   "passport",
   "pasaporte",
-  "account_number",
+  "passportnumber",
   "account",
-  "bank_account",
+  "accountnumber",
+  "bankaccount",
   "routing",
-  "credit_card",
-  "card_number",
+  "routingnumber",
+  "creditcard",
+  "cardnumber",
   "password",
-  "contraseña",
   "contrasena",
   "pin",
   "cvv"
@@ -83,22 +91,20 @@ function buscarClavesProhibidas(obj, ruta = "") {
 
   for (const [clave, valor] of Object.entries(obj)) {
     const rutaClave = ruta ? `${ruta}.${clave}` : clave;
-    const claveNorm = clave.toLowerCase().replace(/[^a-z0-9_]/g, "");
-    for (const prohibido of CAMPOS_PROHIBIDOS) {
-      if (claveNorm === prohibido || claveNorm.includes(prohibido)) {
-        hallazgos.push({
-          ruta: rutaClave,
-          motivo: `Campo prohibido por privacidad (coincide con "${prohibido}"). No lo guardes.`
-        });
-        break;
-      }
+    const claveNorm = clave.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (CAMPOS_PROHIBIDOS_EXACTOS.includes(claveNorm)) {
+      hallazgos.push({
+        ruta: rutaClave,
+        motivo: `Campo prohibido por privacidad ("${clave}"). No lo guardes.`
+      });
     }
     if (typeof valor === "string") {
       const v = valor.toLowerCase();
-      if (/\bssn\b/.test(v) || /social security/.test(v)) {
+      // Solo marca si parece un número de SSN (xxx-xx-xxxx), no la palabra suelta.
+      if (/\b\d{3}-\d{2}-\d{4}\b/.test(v)) {
         hallazgos.push({
           ruta: rutaClave,
-          motivo: "El valor parece mencionar SSN. Revísalo y quítalo si es un número real."
+          motivo: "El valor parece un número de SSN. Quítalo; no lo guardamos."
         });
       }
     }
@@ -194,7 +200,10 @@ function main() {
   const erroresFechas = validarFechas(perfil);
   const pendientes = Array.isArray(perfil.pending) ? perfil.pending : [];
 
-  console.log(`Archivo: data/perfil.json`);
+  const etiquetaArchivo = PERFIL_PATH === PERFIL_LOCAL
+    ? "data/perfil.local.json (datos reales, no van a GitHub)"
+    : "data/perfil.json (plantilla pública)";
+  console.log(`Archivo: ${etiquetaArchivo}`);
   console.log(`Versión del esquema: ${perfil.schema_version || "(sin versión)"}`);
   console.log(`Actualizado: ${perfil.updated_at || "(sin fecha)"}\n`);
 

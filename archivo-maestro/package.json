@@ -5,6 +5,7 @@
   "description": "Archivo Maestro vivo de David — fuente de verdad profesional (Ruta Puente)",
   "scripts": {
     "validar": "node scripts/validar.js",
+    "importar": "node scripts/importar-desde-upload.js",
     "todo": "node scripts/validar.js"
   },
   "engines": {
