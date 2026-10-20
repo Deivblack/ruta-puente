@@ -30,9 +30,10 @@ npm install
 | `npm run hoja` | Genera `salidas/respuestas-rapidas.html` (buscable + botón Copiar) | 4 ✅ |
 | `npm run simplify` | Genera `salidas/simplify-checklist.md` para pegar en Simplify | 4 ✅ |
 | `npm run claude` | Genera `salidas/archivo-maestro-claude.md` para tu proyecto Claude | 4 ✅ |
-| `npm run aplicacion` | Registra o actualiza aplicaciones | 5 (pendiente) |
-| `npm run embudo` | Resume métricas del embudo | 5 (pendiente) |
-| `npm run todo` | validar + cv (todas) + espanso + hoja + simplify + claude | 4 ✅ |
+| `npm run aplicacion -- add` | Pregunta empresa/puesto/portal/… y agrega a `aplicaciones.local.json` | 5 ✅ |
+| `npm run aplicacion -- estado <id> <estado>` | Cambia estado (`enviada\|vista\|entrevista\|rechazada\|cerrada\|oferta`) | 5 ✅ |
+| `npm run embudo` | Totales, % respuesta, familia/portal/bilingüe, +10 días sin respuesta | 5 ✅ |
+| `npm run todo` | validar + cv + espanso + hoja + simplify + claude | 4–5 ✅ |
 
 ## Cómo actualizar un dato
 
@@ -48,9 +49,10 @@ npm run todo
 ## Rutina semanal
 
 1. Edita `perfil.local.json` si cambió algo → `npm run todo`.
-2. Registra aplicaciones (Fase 5: `npm run aplicacion -- add`; mientras tanto puedes editar `aplicaciones.local.json`).
-3. Corre `npm run claude` y sube `salidas/archivo-maestro-claude.md` a tu proyecto de Claude.
-4. Cuando exista: `npm run embudo` para seguimiento (+10 días sin respuesta).
+2. Registra cada aplicación: `npm run aplicacion -- add`.
+3. Actualiza estados: `npm run aplicacion -- estado 12 vista` (ejemplo).
+4. Corre `npm run claude` y sube `salidas/archivo-maestro-claude.md` a Claude.
+5. Corre `npm run embudo` y da seguimiento a las de +10 días sin respuesta.
 
 ## Estructura
 
@@ -133,6 +135,33 @@ Abre `salidas/simplify-checklist.md` y pega los valores en tu perfil de Simplify
 
 Sube `salidas/archivo-maestro-claude.md` a tu proyecto de Claude (reemplaza el anterior cuando regeneres).
 
-## Próxima fase
+## Fase 5 — Aplicaciones y embudo
 
-**Fase 5:** `aplicacion` y `embudo`.
+```bash
+# Registrar (interactivo)
+npm run aplicacion -- add
+
+# O con flags (útil para scripts)
+npm run aplicacion -- add --empresa "Acme" --puesto "Recruiter" --portal LinkedIn --familia ta --salario 70000
+
+# Cambiar estado
+npm run aplicacion -- estado 3 entrevista
+
+# Ver embudo
+npm run embudo
+```
+
+Estados válidos: `enviada` · `vista` · `entrevista` · `rechazada` · `cerrada` · `oferta`.
+
+### Prueba sin tocar el historial real
+
+```bash
+npm run aplicacion -- add --prueba --empresa "Demo" --puesto "Bilingual Recruiter" --portal LinkedIn --familia ta --salario 70000
+npm run embudo -- --prueba
+```
+
+Eso usa `data/aplicaciones.prueba.json` (gitignore), no tu lista real.
+
+## Próxima fase (opcional)
+
+**Fase 6:** `editor.html` — editar el perfil con formularios en el navegador.
