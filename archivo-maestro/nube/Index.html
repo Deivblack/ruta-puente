@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--verde:#2e7d5b;--sol:#e8b04b;--fondo:#f5f7f4;--texto:#1f2a26;--gris:#5d6c66;--linea:#dde5e0;--suave:#e1efe7}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;background:linear-gradient(165deg,#f5f7f4,#e8f0ea 55%,#fbf0d9);color:var(--texto)}
+.wrap{max-width:920px;margin:0 auto;padding:14px 14px 96px}
+h1{font-family:"Bricolage Grotesque",Nunito,sans-serif;font-size:1.45rem;margin:0;color:var(--verde)}
+.sub{color:var(--gris);font-size:.88rem;margin-top:4px}
+.top{position:sticky;top:0;z-index:5;background:rgba(245,247,244,.95);backdrop-filter:blur(8px);padding:10px 0;border-bottom:1px solid var(--linea);margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--linea);background:#fff;border-radius:12px;padding:11px 14px;font-weight:700;font-size:.9rem;min-height:44px;cursor:pointer}
+.btn.primary{background:var(--verde);color:#fff;border-color:var(--verde)}
+.btn.sol{background:var(--sol);border-color:#d4a043}
+.btn:disabled{opacity:.5;cursor:wait}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.nav button{border:1px solid var(--linea);background:#fff;border-radius:999px;padding:8px 12px;font-size:.8rem;font-weight:700;cursor:pointer}
+.nav button.on{background:var(--verde);color:#fff;border-color:var(--verde)}
+.card{background:#fff;border:1px solid var(--linea);border-radius:16px;padding:14px;margin-bottom:12px}
+.grid{display:grid;gap:10px}
+@media(min-width:700px){.grid.two{grid-template-columns:1fr 1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.8rem;font-weight:700}
+label.f span{color:var(--gris);font-weight:600}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--linea);border-radius:10px;font:inherit}
+textarea{min-height:90px}
+.note{background:var(--suave);border-radius:12px;padding:12px;font-size:.9rem;margin:8px 0}
+.ok{color:var(--verde);font-weight:700}
+.warn{color:#8a5a10}
+.hidden{display:none!important}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi .box{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:12px}
+.kpi .n{font-size:1.5rem;font-weight:800;color:var(--verde)}
+.pill{display:inline-block;background:var(--suave);color:var(--verde);border-radius:8px;padding:2px 8px;font-size:.75rem;font-weight:700;margin:2px}
+.app{border:1px solid var(--linea);border-radius:12px;padding:10px;margin:8px 0;background:#fafcfb}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1f2a26;color:#fff;padding:10px 16px;border-radius:999px;opacity:0;transition:.2s;z-index:9;pointer-events:none}
+.toast.show{opacity:1}
+.check{display:flex;gap:8px;align-items:center;font-weight:700;font-size:.9rem}
+.check input{width:18px;height:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Archivo Maestro</h1>
+    <p class="sub" id="status">Cargando desde tu Drive…</p>
+    <div class="row" style="margin-top:8px">
+      <button type="button" class="btn primary" id="btnGuardar">Guardar en Drive</button>
+      <button type="button" class="btn" id="btnRecargar">Recargar</button>
+      <span class="sub" id="saveHint"></span>
+    </div>
+  </div>
+
+  <div id="primeraVez" class="card hidden">
+    <h2 style="margin:0 0 8px;font-size:1.1rem">Primera vez</h2>
+    <p class="note">Pega aquí <strong>una sola vez</strong> el contenido de tu <code>perfil.json</code>. Se guarda en tu Drive; después solo editas y pulsas Guardar.</p>
+    <textarea id="importBox" placeholder='{ "schema_version": "1.1", ... }'></textarea>
+    <p class="sub" style="margin-top:10px">Opcional: si también tienes <code>aplicaciones.json</code>, pégalo abajo.</p>
+    <textarea id="importAppsBox" placeholder='[ { "id": "1", "empresa": "...", ... } ]' style="min-height:70px"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button type="button" class="btn sol" id="btnImportar">Importar y guardar en Drive</button>
+    </div>
+  </div>
+
+  <nav class="nav" id="nav">
+    <button type="button" data-tab="inicio" class="on">Inicio</button>
+    <button type="button" data-tab="personal">Personal</button>
+    <button type="button" data-tab="busqueda">Búsqueda</button>
+    <button type="button" data-tab="pendientes">Pendientes</button>
+    <button type="button" data-tab="experiencia">Experiencia</button>
+    <button type="button" data-tab="apps">Aplicaciones</button>
+  </nav>
+
+  <section id="tab-inicio" class="card">
+    <div class="kpi" id="kpis"></div>
+    <p class="note" id="driveNote">Tus datos están en una carpeta de tu Google Drive llamada <strong>Archivo Maestro (privado)</strong>. Solo tú (con tu cuenta de Google) puedes abrir este enlace.</p>
+    <p class="sub" id="linkDrive"></p>
+  </section>
+
+  <section id="tab-personal" class="card hidden">
+    <div class="grid two" id="formPersonal"></div>
+  </section>
+
+  <section id="tab-busqueda" class="card hidden">
+    <div class="grid two" id="formBusqueda"></div>
+    <h3 style="margin:14px 0 8px;font-size:1rem">Salario (ask) por familia</h3>
+    <div class="grid two" id="formSalario"></div>
+  </section>
+
+  <section id="tab-pendientes" class="card hidden">
+    <p class="sub">Marca los que ya resolviste y pulsa Guardar. Se quitan de la lista.</p>
+    <div id="listaPendientes"></div>
+  </section>
+
+  <section id="tab-experiencia" class="card hidden">
+    <div id="listaExp"></div>
+  </section>
+
+  <section id="tab-apps" class="card hidden">
+    <div class="row" style="margin-bottom:10px">
+      <button type="button" class="btn sol" id="btnAddApp">+ Aplicación</button>
+      <button type="button" class="btn primary" id="btnGuardarApps">Guardar aplicaciones</button>
+    </div>
+    <div id="listaApps"></div>
+  </section>
+</div>
+<div class="toast" id="toast">Listo</div>
+<script>
+var perfil = null;
+var apps = [];
+var dirty = false;
+var saveTimer = null;
+var removedPending = {};
+var LOCAL = typeof google === 'undefined' || !google.script || !google.script.run;
+
+/** En Apps Script usa el servidor; en Chrome local usa localStorage (solo para probar la pantalla). */
+function run(fnName, arg, ok, fail){
+  if (!LOCAL) {
+    var r = google.script.run.withSuccessHandler(ok).withFailureHandler(fail || function(){});
+    if (fnName === 'apiCargar' || fnName === 'apiCargarApps') r[fnName]();
+    else r[fnName](arg);
+    return;
+  }
+  try {
+    var res;
+    if (fnName === 'apiCargar') {
+      var raw = localStorage.getItem('am-perfil');
+      if (!raw) res = { ok:true, primeraVez:true, perfil:{ schema_version:'1.1', updated_at:'', personal:{ preferred_name:'', address:{} }, eligibility:{}, targets:{ role_families:[], work_mode:[] }, experience:[], pending:[] }, actualizado:null };
+      else res = { ok:true, primeraVez:false, perfil:JSON.parse(raw), actualizado:(JSON.parse(raw).updated_at||null), urlDrive:'#' };
+    } else if (fnName === 'apiGuardar') {
+      arg.updated_at = new Date().toISOString().slice(0,10);
+      localStorage.setItem('am-perfil', JSON.stringify(arg));
+      res = { ok:true, actualizado:arg.updated_at, urlDrive:'#' };
+    } else if (fnName === 'apiCargarApps') {
+      res = { ok:true, apps: JSON.parse(localStorage.getItem('am-apps')||'[]') };
+    } else if (fnName === 'apiGuardarApps') {
+      localStorage.setItem('am-apps', JSON.stringify(arg||[]));
+      res = { ok:true, total:(arg||[]).length };
+    } else if (fnName === 'apiImportarTexto') {
+      var p = JSON.parse(arg);
+      p.updated_at = new Date().toISOString().slice(0,10);
+      localStorage.setItem('am-perfil', JSON.stringify(p));
+      res = { ok:true, actualizado:p.updated_at, urlDrive:'#' };
+    } else res = { ok:false, error:'fn' };
+    setTimeout(function(){ ok(res); }, 80);
+  } catch (e) {
+    setTimeout(function(){ (fail||function(){})(e); }, 80);
+  }
+}
+
+function $(id){ return document.getElementById(id); }
+function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },1400); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function setStatus(msg, ok){ $('status').innerHTML = ok ? '<span class="ok">'+esc(msg)+'</span>' : esc(msg); }
+function markDirty(){
+  dirty = true;
+  $('saveHint').textContent = 'Cambios sin guardar…';
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){ guardar(true); }, 2500);
+}
+
+function field(id, label, value, type){
+  type = type || 'text';
+  return '<label class="f"><span>'+esc(label)+'</span><input id="'+id+'" type="'+type+'" value="'+esc(value==null?'':value)+'"></label>';
+}
+
+function ensure(){
+  if (!perfil.personal) perfil.personal = {};
+  if (!perfil.personal.address) perfil.personal.address = {};
+  if (!perfil.eligibility) perfil.eligibility = {};
+  if (!perfil.targets) perfil.targets = { role_families: [], work_mode: [] };
+  if (!Array.isArray(perfil.targets.role_families)) perfil.targets.role_families = [];
+  ['ta','hr','ld','warehouse'].forEach(function(id){
+    if (!perfil.targets.role_families.find(function(f){ return f.id===id; })) {
+      perfil.targets.role_families.push({ id:id, name:'', keywords:[], cv_version:id==='ta'?'hr':id, salary_floor:null, salary_ask:null, salary_ceiling:null });
+    }
+  });
+  if (!Array.isArray(perfil.pending)) perfil.pending = [];
+  if (!Array.isArray(perfil.experience)) perfil.experience = [];
+}
+
+function collectPersonal(){
+  ensure();
+  var p = perfil.personal, a = p.address;
+  p.legal_first_name = $('p_fn').value.trim();
+  p.middle_name = $('p_mn').value.trim();
+  p.legal_last_name = $('p_ln').value.trim();
+  p.preferred_name = $('p_pref').value.trim();
+  p.email = $('p_email').value.trim();
+  p.phone_mobile = $('p_phone').value.trim();
+  p.linkedin_url = $('p_li').value.trim();
+  p.date_of_birth = $('p_dob').value.trim();
+  p.nationality = $('p_nat').value.trim();
+  p.origin_country = $('p_origin').value.trim();
+  a.line1 = $('p_l1').value.trim();
+  a.line2 = $('p_l2').value.trim();
+  a.city = $('p_city').value.trim();
+  a.county = $('p_county').value.trim();
+  a.state = $('p_state').value.trim();
+  a.zip = $('p_zip').value.trim();
+  perfil.eligibility.authorized_to_work_us = $('e_auth').checked;
+  perfil.eligibility.requires_sponsorship = $('e_spons').checked;
+  var reloc = $('e_reloc').value;
+  perfil.eligibility.willing_to_relocate = reloc==='' ? null : reloc==='yes';
+}
+
+function collectBusqueda(){
+  ensure();
+  var t = perfil.targets;
+  t.search_zip = $('t_zip').value.trim();
+  t.radius_miles = Number($('t_radius').value||0);
+  t.schedule = $('t_sched').value.trim();
+  t.start_availability = $('t_start').value.trim();
+  t.notice_period = $('t_notice').value.trim();
+  t.role_families.forEach(function(f){
+    var el = $('sal_'+f.id);
+    if (!el) return;
+    var v = el.value.trim();
+    f.salary_ask = v==='' ? null : Number(v);
+  });
+}
+
+function collectPendientes(){
+  ensure();
+  perfil.pending = (perfil.pending||[]).filter(function(item, i){
+    return !removedPending[i];
+  });
+  removedPending = {};
+}
+
+function collectAll(){
+  if ($('p_fn')) collectPersonal();
+  if ($('t_zip')) collectBusqueda();
+  collectPendientes();
+}
+
+function renderInicio(meta){
+  var name = (perfil.personal && perfil.personal.preferred_name) || 'Sin nombre';
+  var pend = (perfil.pending||[]).length;
+  var exp = (perfil.experience||[]).length;
+  $('kpis').innerHTML =
+    '<div class="box"><div class="n">'+esc(String(apps.length))+'</div><div>Aplicaciones</div></div>'+
+    '<div class="box"><div class="n">'+esc(String(pend))+'</div><div>Pendientes</div></div>'+
+    '<div class="box"><div class="n">'+esc(String(exp))+'</div><div>Empleos</div></div>'+
+    '<div class="box"><div class="n">'+esc(perfil.updated_at||'—')+'</div><div>Actualizado</div></div>';
+  setStatus(name + (meta && meta.urlDrive ? ' · guardado en Drive' : ''), true);
+  if (meta && meta.urlDrive) {
+    $('linkDrive').innerHTML = 'Archivo en Drive: <a href="'+esc(meta.urlDrive)+'" target="_blank" rel="noopener">abrir perfil.json</a>';
+  }
+}
+
+function renderPersonal(){
+  ensure();
+  var p = perfil.personal, a = p.address || {}, e = perfil.eligibility || {};
+  $('formPersonal').innerHTML =
+    field('p_fn','Nombre legal',p.legal_first_name)+
+    field('p_mn','Segundo nombre',p.middle_name)+
+    field('p_ln','Apellidos',p.legal_last_name)+
+    field('p_pref','Nombre preferido',p.preferred_name)+
+    field('p_email','Email',p.email,'email')+
+    field('p_phone','Teléfono',p.phone_mobile)+
+    field('p_li','LinkedIn',p.linkedin_url)+
+    field('p_dob','Fecha nacimiento',p.date_of_birth)+
+    field('p_nat','Nacionalidad',p.nationality)+
+    field('p_origin','País origen',p.origin_country)+
+    field('p_l1','Calle',a.line1)+
+    field('p_l2','Apt',a.line2)+
+    field('p_city','Ciudad',a.city)+
+    field('p_county','County',a.county)+
+    field('p_state','Estado',a.state)+
+    field('p_zip','ZIP',a.zip)+
+    '<label class="check"><input type="checkbox" id="e_auth"'+(e.authorized_to_work_us?' checked':'')+'> Autorizado a trabajar en EE. UU.</label>'+
+    '<label class="check"><input type="checkbox" id="e_spons"'+(e.requires_sponsorship?' checked':'')+'> Requiere sponsorship</label>'+
+    '<label class="f"><span>¿Dispuesto a mudarte?</span><select id="e_reloc"><option value="">(vacío)</option><option value="yes"'+(e.willing_to_relocate===true?' selected':'')+'>Sí</option><option value="no"'+(e.willing_to_relocate===false?' selected':'')+'>No</option></select></label>';
+  $('formPersonal').querySelectorAll('input,select,textarea').forEach(function(el){
+    el.addEventListener('input', markDirty);
+    el.addEventListener('change', markDirty);
+  });
+}
+
+function renderBusqueda(){
+  ensure();
+  var t = perfil.targets;
+  $('formBusqueda').innerHTML =
+    field('t_zip','ZIP búsqueda',t.search_zip)+
+    field('t_radius','Radio (millas)',t.radius_miles,'number')+
+    field('t_sched','Horario',t.schedule||'')+
+    field('t_start','Disponibilidad',t.start_availability||'')+
+    field('t_notice','Aviso',t.notice_period||'');
+  $('formSalario').innerHTML = t.role_families.map(function(f){
+    return field('sal_'+f.id, f.id + ' — ask', f.salary_ask==null?'':f.salary_ask, 'number');
+  }).join('');
+  $('tab-busqueda').querySelectorAll('input,select,textarea').forEach(function(el){
+    el.addEventListener('input', markDirty);
+    el.addEventListener('change', markDirty);
+  });
+}
+
+function renderPendientes(){
+  ensure();
+  removedPending = {};
+  var list = perfil.pending || [];
+  if (!list.length) {
+    $('listaPendientes').innerHTML = '<p class="ok">No hay pendientes.</p>';
+    return;
+  }
+  $('listaPendientes').innerHTML = list.map(function(item, i){
+    return '<label class="check app"><input type="checkbox" data-pend="'+i+'"> <span><strong>'+esc(item.field)+'</strong><br><span class="sub">'+esc(item.question)+'</span></span></label>';
+  }).join('');
+  $('listaPendientes').querySelectorAll('input[data-pend]').forEach(function(el){
+    el.addEventListener('change', function(){
+      removedPending[el.getAttribute('data-pend')] = el.checked;
+      markDirty();
+    });
+  });
+}
+
+function renderExp(){
+  ensure();
+  $('listaExp').innerHTML = (perfil.experience||[]).map(function(ex){
+    return '<div class="app"><strong>'+esc(ex.title_us_equivalent||ex.title_original||'')+'</strong><div class="sub">'+esc(ex.employer||'')+' · '+esc(ex.start||'')+' → '+esc(ex.end||'')+'</div>'+
+      (ex.show_on_cv||[]).map(function(t){ return '<span class="pill">'+esc(t)+'</span>'; }).join('')+'</div>';
+  }).join('') || '<p class="sub">Sin experiencia cargada. Impórtala en “Primera vez” o edítala luego en una versión ampliada.</p>';
+}
+
+function renderApps(){
+  $('listaApps').innerHTML = (apps||[]).map(function(a, i){
+    return '<div class="app" data-app="'+i+'">'+
+      '<div class="grid two">'+
+      field('app_emp_'+i,'Empresa',a.empresa||'')+
+      field('app_puesto_'+i,'Puesto',a.puesto||'')+
+      field('app_portal_'+i,'Portal',a.portal||'')+
+      field('app_fam_'+i,'Familia',a.familia||'')+
+      '<label class="f"><span>Estado</span><select id="app_est_'+i+'">'+
+      ['enviada','vista','entrevista','rechazada','cerrada','oferta'].map(function(e){
+        return '<option value="'+e+'"'+((a.estado||'')===e?' selected':'')+'>'+e+'</option>';
+      }).join('')+'</select></label>'+
+      field('app_fecha_'+i,'Fecha',a.fecha||'')+
+      '</div></div>';
+  }).join('') || '<p class="sub">Sin aplicaciones aún.</p>';
+  $('listaApps').querySelectorAll('input,select').forEach(function(el){
+    el.addEventListener('input', function(){ dirty=true; $('saveHint').textContent='Apps modificadas — usa “Guardar aplicaciones”'; });
+    el.addEventListener('change', function(){ dirty=true; $('saveHint').textContent='Apps modificadas — usa “Guardar aplicaciones”'; });
+  });
+}
+
+function collectAppsFromDom(){
+  apps = (apps||[]).map(function(a, i){
+    if (!$('app_emp_'+i)) return a;
+    return {
+      id: String(a.id != null ? a.id : i+1),
+      fecha: $('app_fecha_'+i).value.trim() || a.fecha || '',
+      empresa: $('app_emp_'+i).value.trim(),
+      puesto: $('app_puesto_'+i).value.trim(),
+      portal: $('app_portal_'+i).value.trim(),
+      link: a.link || '',
+      familia: $('app_fam_'+i).value.trim(),
+      cv_usado: a.cv_usado || '',
+      salario_pedido: a.salario_pedido != null ? a.salario_pedido : null,
+      estado: $('app_est_'+i).value,
+      fecha_estado: a.fecha_estado || $('app_fecha_'+i).value.trim() || '',
+      notas: a.notas || '',
+      bilingue: a.bilingue
+    };
+  });
+}
+
+function showTab(name){
+  ['inicio','personal','busqueda','pendientes','experiencia','apps'].forEach(function(t){
+    var el = $('tab-'+t);
+    if (el) el.classList.toggle('hidden', t!==name);
+  });
+  document.querySelectorAll('#nav button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-tab')===name);
+  });
+}
+
+function renderAll(meta){
+  ensure();
+  renderInicio(meta||{});
+  renderPersonal();
+  renderBusqueda();
+  renderPendientes();
+  renderExp();
+  renderApps();
+}
+
+function cargar(){
+  setStatus(LOCAL ? 'Cargando (prueba local)…' : 'Cargando desde tu Drive…');
+  run('apiCargar', undefined, function(res){
+    if (!res || !res.ok) { setStatus('No pude cargar'); return; }
+    perfil = res.perfil;
+    if (res.primeraVez) {
+      $('primeraVez').classList.remove('hidden');
+      setStatus('Primera vez: importa tu JSON', false);
+    } else {
+      $('primeraVez').classList.add('hidden');
+    }
+    run('apiCargarApps', undefined, function(r2){
+      apps = (r2 && r2.apps) ? r2.apps : [];
+      renderAll(res);
+      dirty = false;
+      $('saveHint').textContent = res.actualizado ? ('Último guardado: '+res.actualizado) : (LOCAL ? 'Modo prueba local (no es Drive)' : '');
+      toast('Cargado');
+    }, function(){
+      apps = [];
+      renderAll(res);
+    });
+  }, function(err){
+    setStatus('Error al cargar: '+(err && err.message ? err.message : err));
+  });
+}
+
+function guardar(auto){
+  collectAll();
+  $('btnGuardar').disabled = true;
+  if (!auto) setStatus('Guardando…');
+  run('apiGuardar', perfil, function(res){
+    $('btnGuardar').disabled = false;
+    if (!res || !res.ok) { setStatus('Error al guardar'); toast('Error'); return; }
+    dirty = false;
+    perfil.updated_at = res.actualizado;
+    setStatus((LOCAL ? 'Guardado en este navegador · ' : 'Guardado en Drive · ')+res.actualizado, true);
+    $('saveHint').textContent = 'Guardado ✓';
+    if (res.urlDrive && res.urlDrive !== '#') $('linkDrive').innerHTML = 'Archivo en Drive: <a href="'+esc(res.urlDrive)+'" target="_blank" rel="noopener">abrir perfil.json</a>';
+    $('primeraVez').classList.add('hidden');
+    if (!auto) toast(LOCAL ? 'Guardado (local)' : 'Guardado en Drive');
+    renderInicio(res);
+  }, function(err){
+    $('btnGuardar').disabled = false;
+    setStatus('Error: '+(err && err.message ? err.message : err));
+    toast('No se pudo guardar');
+  });
+}
+
+$('btnGuardar').onclick = function(){ guardar(false); };
+$('btnRecargar').onclick = function(){ if (dirty && !confirm('Hay cambios sin guardar. ¿Recargar igual?')) return; cargar(); };
+$('btnImportar').onclick = function(){
+  var texto = $('importBox').value;
+  var appsTexto = ($('importAppsBox').value || '').trim();
+  $('btnImportar').disabled = true;
+  run('apiImportarTexto', texto, function(res){
+    if (!res || !res.ok) {
+      $('btnImportar').disabled = false;
+      alert(res && res.error ? res.error : 'Error');
+      return;
+    }
+    function fin(){
+      $('btnImportar').disabled = false;
+      toast('Importado');
+      cargar();
+    }
+    if (!appsTexto) { fin(); return; }
+    var lista;
+    try { lista = JSON.parse(appsTexto); } catch (e) {
+      $('btnImportar').disabled = false;
+      alert('perfil guardado, pero aplicaciones.json inválido: ' + e.message);
+      cargar();
+      return;
+    }
+    run('apiGuardarApps', lista, fin, function(err){
+      $('btnImportar').disabled = false;
+      alert('perfil ok; apps no: ' + String(err));
+      cargar();
+    });
+  }, function(err){
+    $('btnImportar').disabled = false;
+    alert(String(err));
+  });
+};
+$('btnAddApp').onclick = function(){
+  collectAppsFromDom();
+  var hoy = new Date().toISOString().slice(0,10);
+  var max = 0;
+  apps.forEach(function(a){ var n=Number(a.id); if(!isNaN(n)&&n>max) max=n; });
+  apps.unshift({
+    id: String(max+1), fecha: hoy, empresa:'', puesto:'', portal:'', link:'',
+    familia:'ta', cv_usado:'hr', salario_pedido:null, estado:'enviada', fecha_estado:hoy, notas:''
+  });
+  renderApps();
+  $('saveHint').textContent = 'Apps modificadas — usa “Guardar aplicaciones”';
+};
+$('btnGuardarApps').onclick = function(){
+  collectAppsFromDom();
+  $('btnGuardarApps').disabled = true;
+  run('apiGuardarApps', apps, function(res){
+    $('btnGuardarApps').disabled = false;
+    if (!res || !res.ok) { toast('Error apps'); return; }
+    toast('Apps guardadas ('+res.total+')');
+    $('saveHint').textContent = LOCAL ? 'Apps en este navegador ✓' : 'Apps en Drive ✓';
+    renderInicio({});
+  }, function(){
+    $('btnGuardarApps').disabled = false;
+    toast('Error al guardar apps');
+  });
+};
+$('nav').onclick = function(ev){
+  var b = ev.target.closest('button[data-tab]');
+  if (!b) return;
+  if ($('p_fn')) collectPersonal();
+  if ($('t_zip')) collectBusqueda();
+  showTab(b.getAttribute('data-tab'));
+};
+
+cargar();
+</script>
+</body>
+</html>

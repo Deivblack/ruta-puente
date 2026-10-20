@@ -34,8 +34,9 @@ npm install
 | `npm run aplicacion -- estado <id> <estado>` | Cambia estado (`enviada\|vista\|entrevista\|rechazada\|cerrada\|oferta`) | 5 ✅ |
 | `npm run embudo` | Totales, % respuesta, familia/portal/bilingüe, +10 días sin respuesta | 5 ✅ |
 | `npm run panel` | Genera `salidas/panel.html` — pantalla visual para revisar y actualizar | panel ✅ |
-| `npm run editor` | Genera `salidas/editor.html` — formularios para editar todo el perfil | 6 ✅ |
+| `npm run editor` | Genera `salidas/editor.html` — editor local (opcional) | 6 ✅ |
 | `npm run todo` | validar + exports + panel + editor | ✅ |
+| *(nube)* | `nube/` — editor web en Apps Script + Drive (sin descargar) | nube ✅ |
 
 ## Cómo actualizar un dato
 
@@ -180,36 +181,19 @@ Abre `salidas/panel.html` con doble clic. Ahí ves:
 
 **Flujo de actualización:** editas en el panel → **Descargar perfil.json** o **aplicaciones.json** → reemplazas el archivo en `data/` (p. ej. `perfil.local.json`) → `npm run todo` si quieres regenerar CVs/exports.
 
-## Fase 6 — Editor completo
+## En la nube (recomendado) — sin descargar ni subir
+
+Editas en el navegador y se guarda en **tu Google Drive**. Una sola publicación (~5 min).
+
+→ Instrucciones paso a paso: **[`nube/README.md`](nube/README.md)**  
+→ Código listo para pegar: `nube/Code.gs` + `nube/Index.html`
+
+Resumen: creas un proyecto en https://script.google.com, pegas esos dos archivos, publicas como **Aplicación web → Solo yo**, abres la URL, pegas tu `perfil.json` **una vez**, y listo.
+
+## Fase 6 — Editor local (opcional, si no usas la nube)
 
 ```bash
 npm run editor
 ```
 
-Abre `salidas/editor.html` con **doble clic en Chrome** (no lo leas como código en Cursor).
-
-1. Edita por pestañas (Personal, Experiencia, Pendientes…).
-2. **Revisar campos vacíos** resalta en rojo lo que falta (no guarda nada).
-3. Opcional: **Abrir archivo JSON** si quieres cargar otro perfil.
-4. Pulsa **Descargar perfil.json** (esto sí “guarda”: baja el archivo).
-5. Reemplaza `data/perfil.local.json` (o `perfil.json` en el repo privado).
-6. En la terminal: `npm run validar` (y `npm run todo` si quieres regenerar todo).
-
-### ¿Se guarda solo?
-**No.** El editor vive en el navegador. Si cierras la pestaña sin descargar, pierdes los cambios de esa sesión.
-
-### ¿Y si lo quiero desde la nube / GitHub?
-El proyecto “vivo” con tus datos debe estar en el **repo privado** `https://github.com/Deivblack/archivo-maestro` (no en `ruta-puente`, que es público).
-
-En cualquier PC:
-
-```bash
-git clone https://github.com/Deivblack/archivo-maestro.git
-cd archivo-maestro
-npm install
-npm run editor
-```
-
-Abres `salidas/editor.html`, editas, descargas, reemplazas `data/perfil.json`, haces `git add` + `git commit` + `git push`.
-
-Si solo abres el HTML desde Cursor Agent Store, es una **copia de esa sesión**. La fuente de verdad a largo plazo es el JSON en el repo privado + `git push`.
+Abre `salidas/editor.html` con **doble clic en Chrome**. Sirve si quieres trabajar offline; el flujo de la nube es más simple para el día a día.
