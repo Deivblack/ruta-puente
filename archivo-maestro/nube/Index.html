@@ -248,9 +248,11 @@ function renderInicio(meta){
     '<div class="box"><div class="n">'+esc(String(pend))+'</div><div>Pendientes</div></div>'+
     '<div class="box"><div class="n">'+esc(String(exp))+'</div><div>Empleos</div></div>'+
     '<div class="box"><div class="n">'+esc(perfil.updated_at||'—')+'</div><div>Actualizado</div></div>';
-  setStatus(name + (meta && meta.urlDrive ? ' · guardado en Drive' : ''), true);
-  if (meta && meta.urlDrive) {
+  setStatus(name + (LOCAL ? ' · prueba local' : (meta && meta.urlDrive ? ' · en Drive' : '')), true);
+  if (meta && meta.urlDrive && meta.urlDrive !== '#') {
     $('linkDrive').innerHTML = 'Archivo en Drive: <a href="'+esc(meta.urlDrive)+'" target="_blank" rel="noopener">abrir perfil.json</a>';
+  } else if (LOCAL) {
+    $('linkDrive').textContent = 'Modo prueba: los datos están en este navegador. Al publicar en Apps Script, irán a tu Drive.';
   }
 }
 
