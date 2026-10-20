@@ -25,14 +25,14 @@ npm install
 |---------|----------|------|
 | `npm run validar` | Valida el perfil (usa `perfil.local.json` si existe; si no, la plantilla), revisa fechas y campos prohibidos, lista pendientes | 1–2 ✅ |
 | `npm run importar -- ruta.json` | Importa un JSON de Archivo Maestro a los archivos `.local.json` (sin subirlos a git) | 2 ✅ |
-| `npm run cv -- hr` | Genera CV `.docx` por familia (`hr`, `ld`, `ta`, `warehouse`) | 3 (pendiente) |
+| `npm run cv -- hr` | Genera CV `.docx` por familia (`hr`, `ld`, `ta`, `warehouse` o `all`) | 3 ✅ |
 | `npm run espanso` | Genera atajos de Espanso | 4 (pendiente) |
 | `npm run hoja` | Genera página HTML de respuestas rápidas | 4 (pendiente) |
 | `npm run simplify` | Genera checklist para Simplify Copilot | 4 (pendiente) |
 | `npm run claude` | Genera resumen Markdown para Claude | 4 (pendiente) |
 | `npm run aplicacion` | Registra o actualiza aplicaciones | 5 (pendiente) |
 | `npm run embudo` | Resume métricas del embudo | 5 (pendiente) |
-| `npm run todo` | Por ahora solo corre `validar`. Más adelante: todo junto | 1–2 ✅ |
+| `npm run todo` | Corre `validar` + genera los 4 CVs | 3 ✅ |
 
 ## Cómo actualizar un dato
 
@@ -82,6 +82,18 @@ npm run importar -- /ruta/a/tu-perfil.json
 npm run validar
 ```
 
+## Fase 3 — CVs
+
+```bash
+npm run cv -- all
+# o uno: npm run cv -- hr
+```
+
+Salida: `salidas/CV_hr.docx`, `CV_ld.docx`, `CV_ta.docx`, `CV_warehouse.docx`.  
+- Inglés, ATS (sin tablas ni columnas).  
+- `ta` usa la base de empleos de `hr` (según `cv_version` en el perfil) y el resumen de TA del answer bank.  
+- Ábrelos en Word y revisa 1–2 páginas.
+
 ## Próxima fase
 
-**Fase 3:** `npm run cv -- hr` (también `ld`, `ta`, `warehouse`) → abre los `.docx` en Word y revisa que se vean bien.
+**Fase 4:** `espanso`, `hoja`, `simplify`, `claude`.
