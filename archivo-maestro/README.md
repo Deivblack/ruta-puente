@@ -33,7 +33,8 @@ npm install
 | `npm run aplicacion -- add` | Pregunta empresa/puesto/portal/… y agrega a `aplicaciones.local.json` | 5 ✅ |
 | `npm run aplicacion -- estado <id> <estado>` | Cambia estado (`enviada\|vista\|entrevista\|rechazada\|cerrada\|oferta`) | 5 ✅ |
 | `npm run embudo` | Totales, % respuesta, familia/portal/bilingüe, +10 días sin respuesta | 5 ✅ |
-| `npm run todo` | validar + cv + espanso + hoja + simplify + claude | 4–5 ✅ |
+| `npm run panel` | Genera `salidas/panel.html` — pantalla visual para revisar y actualizar | panel ✅ |
+| `npm run todo` | validar + cv + espanso + hoja + simplify + claude + panel | 4–5 ✅ |
 
 ## Cómo actualizar un dato
 
@@ -162,6 +163,22 @@ npm run embudo -- --prueba
 
 Eso usa `data/aplicaciones.prueba.json` (gitignore), no tu lista real.
 
+## Panel visual (revisar y actualizar)
+
+```bash
+npm run panel
+```
+
+Abre `salidas/panel.html` con doble clic. Ahí ves:
+
+- KPIs y aplicaciones con +10 días sin respuesta  
+- Embudo (estado, familia, portal, bilingüe)  
+- Tabla de aplicaciones (cambiar estado y descargar JSON)  
+- Pendientes (marcar resueltos)  
+- Datos personales y salarios (editar y descargar)
+
+**Flujo de actualización:** editas en el panel → **Descargar perfil.json** o **aplicaciones.json** → reemplazas el archivo en `data/` (p. ej. `perfil.local.json`) → `npm run todo` si quieres regenerar CVs/exports.
+
 ## Próxima fase (opcional)
 
-**Fase 6:** `editor.html` — editar el perfil con formularios en el navegador.
+**Fase 6:** `editor.html` — editor más completo del perfil (formularios por sección).
