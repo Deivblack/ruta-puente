@@ -80,7 +80,11 @@ function reenviarFicha() {
   enviarFicha(d);
 }
 
-function configurarTodo() { activarResumenSemanal(); activarSeguimientoEmpleo(); } // ejecutar una vez
+function configurarTodo() {
+  activarResumenSemanal();
+  activarSeguimientoEmpleo();
+  activarOnEditEstado();
+} // ejecutar una vez (pide autorización de triggers; Tarea B agrega correo diario)
 
 /**
  * Ruta Puente — recibe las respuestas del formulario, las guarda en esta hoja
@@ -89,15 +93,39 @@ function configurarTodo() { activarResumenSemanal(); activarSeguimientoEmpleo();
  * y cada día te avisa del seguimiento 7/30/60/90 (activarSeguimientoEmpleo).
  */
 const HOJA = 'Respuestas';
-const ESTADOS = ['Nuevo', 'Contactado', 'Agendado', 'Entrevistado', 'No responde', 'Descartado'];
+const ESTADOS = [
+  'Nuevo', 'Contactado', 'Agendado', 'Entrevistado',
+  'CV recibido', 'CV revisado', 'Plan enviado', 'Aplicando',
+  'Entrevista laboral', 'Empleado',
+  'No responde', 'Descartado', 'Pausa'
+];
 const HITOS_EMPLEO = [7, 30, 60, 90];
+
+// Texto corto de próximo paso y días a sumar (null = no auto-fecha; Agendado usa fecha_entrevista)
+const PROXIMO_POR_ESTADO = {
+  'Nuevo': { paso: 'Contactar por WhatsApp', dias: 0 },
+  'Contactado': { paso: 'Enviar enlace personal + pedir CV', dias: 3 },
+  'Agendado': { paso: 'Hacer la entrevista de diagnóstico', dias: null },
+  'Entrevistado': { paso: 'Pedir CV y revisar en 48 h', dias: 1 },
+  'CV recibido': { paso: 'Revisar CV y anotar puntaje', dias: 1 },
+  'CV revisado': { paso: 'Enviar plan por WhatsApp', dias: 1 },
+  'Plan enviado': { paso: 'Revisar si ya empezó a aplicar', dias: 7 },
+  'Aplicando': { paso: 'Revisar avance de aplicaciones', dias: 7 },
+  'Entrevista laboral': { paso: 'Preparar / debrief de entrevista laboral', dias: 2 },
+  'Empleado': { paso: 'Seguimiento post-empleo', dias: null },
+  'No responde': { paso: 'Reintentar contacto o descartar', dias: 7 },
+  'Descartado': { paso: '—', dias: null },
+  'Pausa': { paso: 'Retomar cuando la persona avise', dias: 14 }
+};
 
 const COLUMNAS = [
   'fecha', 'prioridad', 'nombre', 'whatsapp', 'ciudad', 'pais', 'fuente',
   'profesion', 'titulo', 'anios_exp', 'tiempo_eeuu', 'autorizado',
   'trabajo_actual', 'horas_trabajo', 'busco_12m', 'aplicaciones', 'respuestas',
   'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado', 'codigo', 'enlace',
-  'fecha_empleo', 'seguimiento_7', 'seguimiento_30', 'seguimiento_60', 'seguimiento_90'
+  'fecha_empleo', 'seguimiento_7', 'seguimiento_30', 'seguimiento_60', 'seguimiento_90',
+  'fecha_contacto', 'fecha_entrevista', 'cv_puntaje_antes', 'cv_puntaje_despues',
+  'plan_enviado', 'proximo_paso', 'proximo_fecha', 'notas_david'
 ];
 
 /* ---------- Recepción del formulario ---------- */
@@ -310,10 +338,13 @@ function activarResumenSemanal() {
     .filter(t => t.getHandlerFunction() === 'resumenSemanal')
     .forEach(t => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('resumenSemanal').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
-  const hoja = obtenerHoja();
-  const col = COLUMNAS.indexOf('estado') + 1;
-  const regla = SpreadsheetApp.newDataValidation().requireValueInList(ESTADOS, true).build();
-  hoja.getRange(2, col, 1000, 1).setDataValidation(regla);
+  const hoja = asegurarColumnas();
+  const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0].map(String);
+  const col = cab.indexOf('estado') + 1;
+  if (col > 0) {
+    const regla = SpreadsheetApp.newDataValidation().requireValueInList(ESTADOS, true).build();
+    hoja.getRange(2, col, Math.max(hoja.getMaxRows() - 1, 1), 1).setDataValidation(regla);
+  }
   resumenSemanal(); // envía uno ahora para que veas cómo llega
 }
 
@@ -475,6 +506,7 @@ function bitacora(txt) {
   if (!clave || !b || b.clave !== clave) { Utilities.sleep(800); return salida({ ok: false, error: 'clave' }); }
   if (b.accion === 'listar') return salida(listarBitacora());
   if (b.accion === 'guardar') return salida(guardarEntrevista(b.datos || {}));
+  if (b.accion === 'guardar_estado') return salida(guardarEstado(b.datos || {}));
   return salida({ ok: false, error: 'accion' });
 }
 
@@ -508,20 +540,26 @@ function contarGate(mapa) {
 }
 
 function listarBitacora() {
+  asegurarColumnas();
   const datos = obtenerHoja().getDataRange().getValues();
   const cab = datos.shift();
   const i = n => cab.indexOf(n);
   const mapa = leerEntrevistas();
   const campos = ['nombre', 'pais', 'profesion', 'anios_exp', 'trabajo_actual', 'horas_trabajo', 'busco_12m',
-    'aplicaciones', 'respuestas', 'barrera', 'comentario', 'prioridad', 'estado'];
+    'aplicaciones', 'respuestas', 'barrera', 'comentario', 'prioridad', 'estado', 'whatsapp', 'enlace',
+    'fecha_contacto', 'fecha_entrevista', 'cv_puntaje_antes', 'cv_puntaje_despues', 'plan_enviado',
+    'proximo_paso', 'proximo_fecha', 'notas_david', 'fecha_empleo'];
   const personas = datos.filter(r => r[i('nombre')] && r[i('codigo')]).map(r => {
     const p = { codigo: String(r[i('codigo')]) };
-    campos.forEach(c => p[c] = r[i(c)] instanceof Date ? r[i(c)].toISOString() : r[i(c)]);
+    campos.forEach(c => {
+      if (i(c) < 0) { p[c] = ''; return; }
+      p[c] = r[i(c)] instanceof Date ? r[i(c)].toISOString() : r[i(c)];
+    });
     const ent = mapa[p.codigo];
     if (ent) { delete ent._fila; p.entrevista = ent; }
     return p;
   });
-  return { ok: true, personas: personas, gate: contarGate(mapa) };
+  return { ok: true, personas: personas, gate: contarGate(mapa), estados: ESTADOS };
 }
 
 function guardarEntrevista(d) {
@@ -557,10 +595,180 @@ function guardarEntrevista(d) {
   else h.appendRow(fila);
 
   const est = datos[k][i('estado')];
-  if (['Nuevo', 'Contactado', 'Agendado', 'No responde', ''].indexOf(est) >= 0) {
-    resp.getRange(k + 2, i('estado') + 1).setValue('Entrevistado');
+  if (['Nuevo', 'Contactado', 'Agendado', 'No responde', 'Pausa', ''].indexOf(est) >= 0) {
+    aplicarEstadoFila(resp, k + 2, cab, 'Entrevistado', {});
   }
   return { ok: true, confirma: o.confirma, compromiso: o.compromiso, gate: contarGate(leerEntrevistas()) };
+}
+
+/* ---------- Flujo de estados (próximo paso / fecha) ---------- */
+
+function hoySinHora() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function sumarDias(base, n) {
+  const d = new Date(base.getTime());
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function proximoHitoEmpleo(fechaEmpleo, r, idx) {
+  const dias = diasDesde(fechaEmpleo);
+  if (dias === null) return { fecha: sumarDias(hoySinHora(), 7), paso: 'Anotar fecha_empleo' };
+  for (let i = 0; i < HITOS_EMPLEO.length; i++) {
+    const h = HITOS_EMPLEO[i];
+    const hecho = String(r[idx('seguimiento_' + h)] || '').trim();
+    if (!hecho) {
+      const fecha = sumarDias(fechaEmpleo instanceof Date ? fechaEmpleo : hoySinHora(), h);
+      return { fecha: fecha, paso: 'Seguimiento día ' + h };
+    }
+  }
+  return { fecha: null, paso: 'Ciclo 90 días completo' };
+}
+
+/** Calcula proximo_paso / proximo_fecha y fechas derivadas al cambiar estado. */
+function valoresProximo(estado, r, idx) {
+  const conf = PROXIMO_POR_ESTADO[estado] || { paso: '', dias: null };
+  let paso = conf.paso;
+  let fecha = null;
+  const base = hoySinHora();
+
+  if (estado === 'Agendado') {
+    const cita = r[idx('fecha_entrevista')];
+    fecha = cita instanceof Date && !isNaN(cita.getTime()) ? cita : base;
+  } else if (estado === 'Empleado') {
+    const fe = r[idx('fecha_empleo')];
+    const h = proximoHitoEmpleo(fe instanceof Date ? fe : null, r, idx);
+    fecha = h.fecha;
+    paso = h.paso;
+  } else if (conf.dias !== null && conf.dias !== undefined) {
+    fecha = sumarDias(base, conf.dias);
+  }
+
+  const extra = {};
+  if (estado === 'Contactado' && !(r[idx('fecha_contacto')] instanceof Date)) extra.fecha_contacto = base;
+  if (estado === 'Entrevistado' && !(r[idx('fecha_entrevista')] instanceof Date)) extra.fecha_entrevista = base;
+  if (estado === 'Plan enviado' && !String(r[idx('plan_enviado')] || '').trim()) extra.plan_enviado = 'Sí';
+  return { proximo_paso: paso, proximo_fecha: fecha, extra: extra };
+}
+
+function aplicarEstadoFila(hoja, fila, cab, estado, overrides) {
+  const idx = n => cab.indexOf(n);
+  if (idx('estado') < 0 || ESTADOS.indexOf(estado) < 0) return false;
+  const ancho = Math.max(hoja.getLastColumn(), cab.length);
+  const r = hoja.getRange(fila, 1, 1, ancho).getValues()[0];
+  while (r.length < cab.length) r.push('');
+  const calc = valoresProximo(estado, r, idx);
+  hoja.getRange(fila, idx('estado') + 1).setValue(estado);
+  if (idx('proximo_paso') >= 0) {
+    const paso = overrides.proximo_paso !== undefined ? overrides.proximo_paso : calc.proximo_paso;
+    hoja.getRange(fila, idx('proximo_paso') + 1).setValue(limpiar(paso));
+  }
+  if (idx('proximo_fecha') >= 0) {
+    let f = overrides.proximo_fecha !== undefined ? overrides.proximo_fecha : calc.proximo_fecha;
+    if (typeof f === 'string' && f) f = new Date(f);
+    if (f instanceof Date && !isNaN(f.getTime())) hoja.getRange(fila, idx('proximo_fecha') + 1).setValue(f);
+    else if (overrides.proximo_fecha === null || (calc.proximo_fecha === null && overrides.proximo_fecha === undefined)) {
+      hoja.getRange(fila, idx('proximo_fecha') + 1).setValue('');
+    }
+  }
+  Object.keys(calc.extra).forEach(c => {
+    if (idx(c) >= 0 && overrides[c] === undefined) hoja.getRange(fila, idx(c) + 1).setValue(calc.extra[c]);
+  });
+  ['fecha_contacto', 'fecha_entrevista', 'fecha_empleo', 'cv_puntaje_antes', 'cv_puntaje_despues',
+    'plan_enviado', 'notas_david'].forEach(c => {
+    if (overrides[c] === undefined || idx(c) < 0) return;
+    let v = overrides[c];
+    if ((c.indexOf('fecha') === 0) && typeof v === 'string' && v) v = new Date(v);
+    hoja.getRange(fila, idx(c) + 1).setValue(c === 'notas_david' || c.indexOf('puntaje') >= 0 || c === 'plan_enviado' ? limpiar(v) : v);
+  });
+  return true;
+}
+
+function guardarEstado(d) {
+  asegurarColumnas();
+  const codigo = String(d.codigo || '');
+  if (!/^[a-f0-9]{10}$/.test(codigo)) return { ok: false, error: 'codigo' };
+  const estado = String(d.estado || '');
+  if (ESTADOS.indexOf(estado) < 0) return { ok: false, error: 'estado' };
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const k = datos.findIndex(r => String(r[i('codigo')]) === codigo);
+  if (k < 0) return { ok: false, error: 'persona' };
+  const overrides = {};
+  ['proximo_paso', 'proximo_fecha', 'notas_david', 'cv_puntaje_antes', 'cv_puntaje_despues',
+    'plan_enviado', 'fecha_contacto', 'fecha_entrevista', 'fecha_empleo'].forEach(c => {
+    if (d[c] !== undefined && d[c] !== '') overrides[c] = d[c];
+  });
+  aplicarEstadoFila(hoja, k + 2, cab, estado, overrides);
+  return { ok: true };
+}
+
+/**
+ * Trigger instalable: al cambiar la columna estado, recalcula proximo_paso / proximo_fecha.
+ * Actívalo con activarOnEditEstado() (una vez).
+ */
+function onEditEstado(e) {
+  if (!e || !e.range) return;
+  const hoja = e.range.getSheet();
+  if (hoja.getName() !== HOJA) return;
+  if (e.range.getRow() < 2 || e.range.getNumColumns() !== 1) return;
+  const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0].map(String);
+  const colEstado = cab.indexOf('estado') + 1;
+  if (e.range.getColumn() !== colEstado) return;
+  const estado = String(e.range.getValue() || '');
+  if (ESTADOS.indexOf(estado) < 0) return;
+  aplicarEstadoFila(hoja, e.range.getRow(), cab, estado, {});
+}
+
+function activarOnEditEstado() {
+  asegurarColumnas();
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'onEditEstado')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('onEditEstado').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
+  const hoja = obtenerHoja();
+  const col = (hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0].map(String).indexOf('estado')) + 1;
+  if (col > 0) {
+    const regla = SpreadsheetApp.newDataValidation().requireValueInList(ESTADOS, true).build();
+    hoja.getRange(2, col, Math.max(hoja.getMaxRows() - 1, 1), 1).setDataValidation(regla);
+  }
+  Logger.log('Trigger onEditEstado activo y lista de estados actualizada.');
+}
+
+/**
+ * Pone Entrevistado a quien ya tenga fila en Entrevistas (si aún está en Nuevo/Contactado/Agendado/No responde/Pausa).
+ * Por defecto SOLO simula. Para aplicar: migrarEstados(false) — hazlo tú a mano tras revisar el log.
+ */
+function migrarEstados(simular) {
+  if (simular === undefined || simular === null) simular = true;
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const mapa = leerEntrevistas();
+  const previos = ['Nuevo', 'Contactado', 'Agendado', 'No responde', 'Pausa', ''];
+  const cambios = [];
+  datos.forEach((r, k) => {
+    const codigo = String(r[i('codigo')] || '');
+    if (!codigo || !mapa[codigo]) return;
+    const est = String(r[i('estado')] || '');
+    if (previos.indexOf(est) < 0) return;
+    cambios.push({ fila: k + 2, codigo: codigo, nombre: String(r[i('nombre')] || ''), de: est || '(vacío)', a: 'Entrevistado' });
+  });
+  if (!simular) {
+    cambios.forEach(c => aplicarEstadoFila(hoja, c.fila, cab, 'Entrevistado', {}));
+  }
+  const msg = (simular ? 'SIMULACIÓN (no se escribió nada). ' : 'APLICADO. ') +
+    cambios.length + ' fila(s): ' + cambios.map(c => c.nombre + ' [' + c.de + '→' + c.a + ']').join('; ');
+  Logger.log(msg);
+  return { ok: true, simular: !!simular, cambios: cambios, mensaje: msg };
 }
 
 /* ---------- Utilidades ---------- */

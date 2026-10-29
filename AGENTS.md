@@ -56,13 +56,15 @@ URLs públicas:
 
 ## 5. Contratos de datos
 ### Hoja "Respuestas" (columnas, en orden)
-`fecha, prioridad, nombre, whatsapp, ciudad, pais, fuente, profesion, titulo, anios_exp, tiempo_eeuu, autorizado, trabajo_actual, horas_trabajo, busco_12m, aplicaciones, respuestas, barrera, horas_disponibles, horario, comentario, consentimiento, estado, codigo, enlace, fecha_empleo, seguimiento_7, seguimiento_30, seguimiento_60, seguimiento_90`
+`fecha, prioridad, nombre, whatsapp, ciudad, pais, fuente, profesion, titulo, anios_exp, tiempo_eeuu, autorizado, trabajo_actual, horas_trabajo, busco_12m, aplicaciones, respuestas, barrera, horas_disponibles, horario, comentario, consentimiento, estado, codigo, enlace, fecha_empleo, seguimiento_7, seguimiento_30, seguimiento_60, seguimiento_90, fecha_contacto, fecha_entrevista, cv_puntaje_antes, cv_puntaje_despues, plan_enviado, proximo_paso, proximo_fecha, notas_david`
 - `prioridad` se calcula en el servidor: `autorizado = No` → "Fuera de perfil"; si no, 1 punto por título, 1 por buscar en 12 meses, 1 por autorizado → 3 = Alta, 2 = Media, menos = Baja.
-- `estado` (lista desplegable): Nuevo, Contactado, Agendado, Entrevistado, No responde, Descartado.
+- `estado` (lista desplegable, en orden): Nuevo → Contactado → Agendado → Entrevistado → CV recibido → CV revisado → Plan enviado → Aplicando → Entrevista laboral → Empleado; salidas: No responde, Descartado, Pausa.
 - `codigo`: 10 caracteres hex (`Utilities.getUuid()` sin guiones, recortado). `enlace` = URL de la app + `?c=` + código.
 - Campos con opción "Otro/Otra": se guardan como `"Otro: texto"`.
 - `fecha_empleo`: la llena David cuando la persona empieza a trabajar (fase 7).
 - `seguimiento_7` / `_30` / `_60` / `_90`: David pone `Sí` cuando ya contactó ese hito. El correo diario avisa si ya pasaron esos días y la celda sigue vacía (así no se pierde si se salta el día exacto).
+- `proximo_paso` / `proximo_fecha`: se recalculan al cambiar `estado` (trigger instalable `onEditEstado` o API `guardar_estado`). David puede sobrescribirlas. Contactado +3 días, Entrevistado/CV recibido/CV revisado +1, Plan enviado/Aplicando +7, Agendado usa `fecha_entrevista` si existe, Empleado usa el próximo hito 7/30/60/90.
+- `migrarEstados()` (por defecto simulación): propone `Entrevistado` a quien ya tenga fila en "Entrevistas". Ejecutar `migrarEstados(false)` solo a mano tras revisar el log.
 
 ### Hoja "Entrevistas" (una fila por persona, por `codigo`)
 `actualizado, codigo, nombre, dentro_perfil, p1_ultima_busqueda, p2_desanimo, lo_intento, p3_ejemplo_barrera, p4_que_intento, gasto, monto_usd, barrera_clara, p5_una_cosa, p6_avance, p7_sirve_sobra, p8_falta, p9_usara, p10_referidos, compromiso, frase_clave, sorpresa, confirma`
@@ -73,8 +75,9 @@ URLs públicas:
 ### API del Apps Script
 - `GET ?codigo=<10 hex>` → `{ok, persona:{nombre (solo primer nombre), pais, profesion, anios_exp, ciudad, barrera}}`. Solo lectura y datos mínimos: **no agregues campos sensibles aquí** (la URL es pública).
 - `POST` form-urlencoded (formulario) → guarda fila, envía ficha. Ignora envíos con `website` (honeypot) o sin `nombre`.
-- `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}}`.
+- `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
+- `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
 - Clave incorrecta → `{ok:false, error:"clave"}` con 800 ms de espera.
 
 ### App personal (app/index.html)
@@ -87,6 +90,8 @@ URLs públicas:
 ### Bitácora (bitacora/index.html)
 - Pide la clave una vez y la guarda en el celular (`rp-bit-clave`). Borradores por persona en `rp-bit-draft-<codigo>`.
 - 6 bloques del guion + "Tus notas" + decisión calculada en vivo.
+- Filtros: Para hoy (`proximo_fecha` ≤ hoy), Sin contactar (`estado` = Nuevo), Todos.
+- Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
 
 ## 6. Cómo trabajar y publicar
 ### Sitio (GitHub Pages)
@@ -111,7 +116,9 @@ Publicar un cambio del script:
 ### Funciones de mantenimiento en el script
 - `crearClaveBitacora()` → crea la clave si no existe y la muestra en el registro (no la copies a ningún archivo).
 - `actualizarHoja()` → rellena códigos y enlaces faltantes, agrega columnas nuevas si faltan y regenera la pestaña "Enlaces".
-- `activarResumenSemanal()` / `configurarTodo()` → trigger de los lunes y validación de estados (`configurarTodo` también activa el seguimiento diario).
+- `activarResumenSemanal()` / `configurarTodo()` → trigger de los lunes y validación de estados (`configurarTodo` también activa seguimiento diario y `onEditEstado`).
+- `activarOnEditEstado()` → trigger instalable al editar `estado` + lista desplegable ampliada.
+- `migrarEstados()` / `migrarEstados(false)` → simulación (default) o aplica Entrevistado a quienes ya tienen fila en Entrevistas.
 - `seguimientoEmpleo()` → correo diario a David con hitos 7/30/60/90 pendientes y mensaje sugerido de WhatsApp (no escribe a usuarios).
 - `activarSeguimientoEmpleo()` → crea el trigger diario (8 a. m.) y asegura las columnas de empleo/seguimiento.
 - `pruebaSeguimientoEmpleo()` → manda un correo de ejemplo sin usar filas reales.
