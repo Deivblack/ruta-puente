@@ -83,8 +83,9 @@ function reenviarFicha() {
 function configurarTodo() {
   activarResumenSemanal();
   activarSeguimientoEmpleo();
+  activarCorreoDiario();
   activarOnEditEstado();
-} // ejecutar una vez (pide autorización de triggers; Tarea B agrega correo diario)
+} // ejecutar una vez (pide autorización de triggers)
 
 /**
  * Ruta Puente — recibe las respuestas del formulario, las guarda en esta hoja
@@ -289,6 +290,7 @@ function enviarFicha(d) {
 /* ---------- Resumen semanal (lunes) ---------- */
 
 function resumenSemanal() {
+  asegurarColumnas();
   const hoja = obtenerHoja();
   const datos = hoja.getDataRange().getValues();
   const cab = datos.shift();
@@ -302,6 +304,20 @@ function resumenSemanal() {
     .filter(r => ['Nuevo', 'Contactado', 'Agendado'].indexOf(r[idx('estado')]) >= 0 && r[idx('prioridad')] !== 'Fuera de perfil')
     .sort((a, b) => (orden[a[idx('prioridad')]] - orden[b[idx('prioridad')]]));
   const entrevistados = filas.filter(r => r[idx('estado')] === 'Entrevistado').length;
+  const hoy = hoySinHora();
+  const porEstado = {};
+  ESTADOS.forEach(e => { porEstado[e] = 0; });
+  let atrasados = 0;
+  filas.forEach(r => {
+    const est = String(r[idx('estado')] || 'Nuevo');
+    if (porEstado[est] === undefined) porEstado[est] = 0;
+    porEstado[est]++;
+    const pf = r[idx('proximo_fecha')];
+    if (pf instanceof Date && !isNaN(pf.getTime()) && pf <= hoy &&
+        ['Descartado', 'Empleado', ''].indexOf(est) < 0) atrasados++;
+  });
+  const conteoEstados = ESTADOS.filter(e => porEstado[e] > 0)
+    .map(e => e + ': <b>' + porEstado[e] + '</b>').join(' · ');
 
   const filasHtml = pendientes.map(r => {
     const wa = linkWhatsApp(r[idx('whatsapp')]);
@@ -318,6 +334,8 @@ function resumenSemanal() {
     '<p><b>' + nuevas.length + '</b> respuestas nuevas esta semana: ' + contar(nuevas, 'Alta') + ' Alta, ' + contar(nuevas, 'Media') + ' Media, ' +
     contar(nuevas, 'Baja') + ' Baja, ' + contar(nuevas, 'Fuera de perfil') + ' fuera de perfil.<br>' +
     'Total: <b>' + filas.length + '</b> respuestas · <b>' + entrevistados + '</b> entrevistadas · meta Sprint 0: 5.</p>' +
+    '<p><b>Por estado:</b> ' + (conteoEstados || '—') + '<br>' +
+    '<b>Atrasados</b> (próxima fecha ≤ hoy): <b>' + atrasados + '</b>.</p>' +
     (pendientes.length
       ? '<h3>Te falta contactar o entrevistar (' + pendientes.length + ')</h3><table style="border-collapse:collapse;width:100%;font-size:14px"><tr style="background:#e1efe7"><th align="left" style="padding:6px">Nombre</th><th align="left" style="padding:6px">Prioridad</th><th align="left" style="padding:6px">Profesión</th><th align="left" style="padding:6px">Estado</th><th align="left" style="padding:6px">Contacto</th></tr>' + filasHtml + '</table>'
       : '<p>No tienes personas pendientes. Buen momento para publicar otra vez.</p>') +
@@ -325,8 +343,8 @@ function resumenSemanal() {
 
   MailApp.sendEmail({
     to: Session.getEffectiveUser().getEmail(),
-    subject: 'Ruta Puente · Resumen semanal: ' + nuevas.length + ' nuevas, ' + pendientes.length + ' pendientes',
-    body: nuevas.length + ' respuestas nuevas esta semana. ' + pendientes.length + ' pendientes.',
+    subject: 'Ruta Puente · Resumen semanal: ' + nuevas.length + ' nuevas, ' + atrasados + ' atrasados',
+    body: nuevas.length + ' respuestas nuevas esta semana. ' + atrasados + ' atrasados.',
     htmlBody: html,
     name: 'Ruta Puente'
   });
@@ -483,6 +501,123 @@ function pruebaSeguimientoEmpleo() {
       filasHtml + '</table></div>',
     name: 'Ruta Puente'
   });
+}
+
+/* ---------- Correo diario: a quién escribir hoy ---------- */
+// Solo te sugiere mensajes. Nunca envía WhatsApp automático a las personas.
+
+const PLANTILLAS = {
+  'Nuevo': 'Hola {nombre}, soy David de Ruta Puente. Vi tu formulario y me gustaría conocerte 15 minutos para entender tu camino y ver cómo ayudarte a volver a tu profesión. ¿Te viene bien esta semana?',
+  'Contactado': 'Hola {nombre}, te dejo tu enlace personal de Ruta Puente: {enlace}. Ábrelo en el celular y, cuando puedas, mándame tu CV (PDF) por aquí para revisarlo juntos.',
+  'Agendado': 'Hola {nombre}, te confirmo nuestra llamada. Si algo se complica, avísame y la movemos. Nos vemos pronto.',
+  'Entrevistado': 'Hola {nombre}, gracias por la conversación. Cuando tengas listo tu CV en PDF, mándamelo por WhatsApp y en máximo 48 horas te digo qué ajustar.',
+  'CV recibido': 'Hola {nombre}, ya tengo tu CV. Lo estoy revisando y te escribo con comentarios concretos en las próximas 48 horas.',
+  'CV revisado': 'Hola {nombre}, ya revisé tu CV. Te comparto los cambios prioritarios y el plan de esta semana para aplicar con más claridad.',
+  'Plan enviado': 'Hola {nombre}, ¿pudiste avanzar con el plan? Si te trabaste en algún paso (Indeed, LinkedIn o el mensaje), dime y lo vemos en 10 minutos.',
+  'Aplicando': 'Hola {nombre}, ¿cómo van las aplicaciones esta semana? Cuéntame a cuántas aplicaste y si alguien te respondió; ajustamos la estrategia si hace falta.',
+  'Entrevista laboral': 'Hola {nombre}, ¡felicitaciones por la entrevista! Si quieres, te ayudo a preparar las preguntas difíciles o a repasar lo que vas a decir de tu experiencia.',
+  'Empleado': 'Hola {nombre}, ¿cómo vas en el nuevo trabajo? Si algo se traba (herramientas, equipo o comunicación), aquí estoy para apoyarte.',
+  'No responde': 'Hola {nombre}, te escribo de nuevo por si se te pasó mi mensaje. Si ahora no es buen momento, dime y retomamos cuando te sirva.',
+  'Pausa': 'Hola {nombre}, solo paso a saludar. Cuando quieras retomar la búsqueda, avísame y retomamos desde donde quedamos.',
+  'Descartado': ''
+};
+
+function mensajePlantilla(estado, nombre, enlace) {
+  const n = String(nombre || '').split(' ')[0] || 'hola';
+  const t = PLANTILLAS[estado] || PLANTILLAS['Nuevo'];
+  return String(t || '').replace(/\{nombre\}/g, n).replace(/\{enlace\}/g, enlace || APP_URL);
+}
+
+function pendientesHoy() {
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const idx = n => cab.indexOf(n);
+  const hoy = hoySinHora();
+  const out = [];
+  datos.forEach(r => {
+    if (!r[idx('nombre')]) return;
+    const est = String(r[idx('estado')] || 'Nuevo');
+    if (est === 'Descartado') return;
+    const pf = r[idx('proximo_fecha')];
+    // Sin fecha: solo "Nuevo" cuenta como pendiente de hoy
+    const toca = (pf instanceof Date && !isNaN(pf.getTime()) && pf <= hoy) ||
+      (!(pf instanceof Date) && est === 'Nuevo');
+    if (!toca) return;
+    const enlace = String(r[idx('enlace')] || (APP_URL + '?c=' + r[idx('codigo')]));
+    out.push({
+      nombre: r[idx('nombre')],
+      whatsapp: r[idx('whatsapp')],
+      profesion: r[idx('profesion')],
+      estado: est,
+      proximo_paso: r[idx('proximo_paso')] || '',
+      proximo_fecha: pf instanceof Date ? pf : null,
+      enlace: enlace,
+      mensaje: mensajePlantilla(est, r[idx('nombre')], enlace)
+    });
+  });
+  return out.sort((a, b) => {
+    const ia = ESTADOS.indexOf(a.estado); const ib = ESTADOS.indexOf(b.estado);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || String(a.nombre).localeCompare(String(b.nombre));
+  });
+}
+
+function correoDiario() {
+  const lista = pendientesHoy();
+  if (!lista.length) {
+    Logger.log('Correo diario: nadie para hoy; no se envía.');
+    return;
+  }
+  const grupos = {};
+  lista.forEach(p => {
+    if (!grupos[p.estado]) grupos[p.estado] = [];
+    grupos[p.estado].push(p);
+  });
+  let cuerpo = '';
+  Object.keys(grupos).forEach(est => {
+    cuerpo += '<h3 style="margin:18px 0 8px">' + esc(est) + ' (' + grupos[est].length + ')</h3>';
+    grupos[est].forEach(p => {
+      const wa = linkWhatsApp(p.whatsapp);
+      cuerpo += '<div style="margin:0 0 14px;padding:12px;border:1px solid #d7e0db;border-radius:8px">' +
+        '<div><b>' + esc(p.nombre) + '</b> · ' + esc(p.profesion || '') + '</div>' +
+        '<div style="font-size:13px;color:#5d6c66;margin:4px 0">' + esc(p.proximo_paso || '—') +
+        (p.proximo_fecha ? ' · ' + Utilities.formatDate(p.proximo_fecha, Session.getScriptTimeZone(), 'yyyy-MM-dd') : '') + '</div>' +
+        '<div style="margin:6px 0">' + (wa ? '<a href="' + wa + '">Abrir WhatsApp</a>' : esc(p.whatsapp || '')) + '</div>' +
+        '<div style="font-size:13px;background:#f5f7f4;padding:10px;border-radius:6px">' + esc(p.mensaje) + '</div></div>';
+    });
+  });
+  const html =
+    '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26;line-height:1.5">' +
+    '<div style="font-size:22px;font-weight:bold">Ruta Puente · A quién escribir hoy</div>' +
+    '<p>Hoy tienes <b>' + lista.length + '</b> persona' + (lista.length === 1 ? '' : 's') +
+    ' con próximo paso vencido o para hoy. Copia el mensaje y mándalo tú por WhatsApp (nada se envía solo).</p>' +
+    cuerpo +
+    '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja</a> · ' +
+    '<a href="https://deivblack.github.io/ruta-puente/bitacora/">Abrir la Bitácora</a></p></div>';
+
+  MailApp.sendEmail({
+    to: Session.getEffectiveUser().getEmail(),
+    subject: 'Ruta Puente · ' + lista.length + ' para escribir hoy',
+    body: lista.map(p => p.nombre + ' · ' + p.estado + '\n' + p.mensaje).join('\n\n'),
+    htmlBody: html,
+    name: 'Ruta Puente'
+  });
+}
+
+// Ejecutar UNA vez: correo diario ~7:30 a. m. (zona del script; pon America/Chicago en el proyecto)
+function activarCorreoDiario() {
+  asegurarColumnas();
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'correoDiario')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('correoDiario').timeBased().everyDays(1).atHour(7).nearMinute(30).create();
+  Logger.log('Trigger diario correoDiario creado (~7:30). Zona del script: ' + Session.getScriptTimeZone());
+}
+
+// Prueba: manda el correo real de hoy (usa filas con proximo_fecha ≤ hoy; ideal con PRUEBA atrasada)
+function pruebaCorreoDiario() {
+  correoDiario();
 }
 
 /* ---------- Bitácora de entrevistas (página privada /bitacora/) ---------- */
