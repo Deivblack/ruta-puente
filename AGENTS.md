@@ -44,7 +44,8 @@ URLs públicas:
                                                         └--> Correo a David con la ficha de entrevista
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
-[Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David
+[Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David (conteo por estado + atrasados)
+[Trigger diario ~7:30 a. m.] --> correoDiario() --> correo a David (proximo_fecha ≤ hoy + plantillas WhatsApp)
 [Trigger diario 8 a. m.] --> seguimientoEmpleo() --> correo a David (hitos 7/30/60/90)
 ```
 - `SCRIPT_URL` (igual en las 3 páginas): `https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec`
@@ -119,6 +120,7 @@ Publicar un cambio del script:
 - `activarResumenSemanal()` / `configurarTodo()` → trigger de los lunes y validación de estados (`configurarTodo` también activa seguimiento diario y `onEditEstado`).
 - `activarOnEditEstado()` → trigger instalable al editar `estado` + lista desplegable ampliada.
 - `migrarEstados()` / `migrarEstados(false)` → simulación (default) o aplica Entrevistado a quienes ya tienen fila en Entrevistas.
+- `correoDiario()` / `activarCorreoDiario()` / `pruebaCorreoDiario()` → “a quién escribir hoy” (~7:30 a. m., plantillas `PLANTILLAS`; no manda nada a usuarios).
 - `seguimientoEmpleo()` → correo diario a David con hitos 7/30/60/90 pendientes y mensaje sugerido de WhatsApp (no escribe a usuarios).
 - `activarSeguimientoEmpleo()` → crea el trigger diario (8 a. m.) y asegura las columnas de empleo/seguimiento.
 - `pruebaSeguimientoEmpleo()` → manda un correo de ejemplo sin usar filas reales.

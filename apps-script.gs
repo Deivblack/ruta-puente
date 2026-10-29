@@ -637,6 +637,8 @@ const TEXTOS_ENT = ['p1_ultima_busqueda', 'p2_desanimo', 'p3_ejemplo_barrera', '
 function bitacora(txt) {
   let b;
   try { b = JSON.parse(txt); } catch (err) { return salida({ ok: false, error: 'formato' }); }
+  // Subida de CV: autentica por código personal (sin clave de Bitácora)
+  if (b && b.accion === 'subir_cv') return salida(subirCv(b));
   const clave = PropertiesService.getScriptProperties().getProperty('BITACORA_CLAVE');
   if (!clave || !b || b.clave !== clave) { Utilities.sleep(800); return salida({ ok: false, error: 'clave' }); }
   if (b.accion === 'listar') return salida(listarBitacora());
