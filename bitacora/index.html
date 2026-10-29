@@ -102,6 +102,13 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
 .login p{margin:0;color:var(--muted);font-size:.9rem}
 .err-msg{color:var(--red);font-weight:700;font-size:.88rem}
 .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:20px;text-align:center;color:var(--muted)}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.filtros button{font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:8px 14px;cursor:pointer}
+.filtros button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.estado-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.estado-box h2{margin:0;font-family:var(--display);font-size:1.05rem}
+.estado-box select{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.estado-box .meta{font-size:.85rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:420px){.facts{grid-template-columns:1fr}.row2{grid-template-columns:1fr}}
 </style>
@@ -136,6 +143,11 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
 
   <section>
     <p class="label">1 · Escoge a la persona</p>
+    <div class="filtros" role="group" aria-label="Filtros">
+      <button type="button" data-filtro="hoy" aria-pressed="false">Para hoy</button>
+      <button type="button" data-filtro="sin" aria-pressed="false">Sin contactar</button>
+      <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
+    </div>
     <div class="people" id="people" role="group" aria-label="Personas del formulario"></div>
     <div class="empty" id="no-people" hidden>Todavía no hay respuestas del formulario. Cuando alguien lo llene, aparecerá aquí.</div>
   </section>
@@ -152,6 +164,19 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
       <div><dt>Lo que más le frena</dt><dd id="f-bar"></dd></div>
     </dl>
     <p class="quote" id="f-com"></p>
+  </section>
+
+  <section class="estado-box" aria-label="Estado y próximo paso">
+    <h2>Estado y próximo paso</h2>
+    <div class="q"><label for="f-estado">Estado</label>
+      <select id="f-estado"></select></div>
+    <div class="row2">
+      <div class="q"><label for="f-proximo-paso">Próximo paso</label><input type="text" id="f-proximo-paso" maxlength="200"></div>
+      <div class="q"><label for="f-proximo-fecha">Próxima fecha</label><input type="date" id="f-proximo-fecha"></div>
+    </div>
+    <div class="q"><label for="f-notas">Notas (solo tú)</label><textarea id="f-notas" rows="2"></textarea></div>
+    <p class="meta" id="f-estado-meta"></p>
+    <button class="btn" id="save-estado" type="button">Guardar estado</button>
   </section>
 
   <p class="label" style="margin:0">2 · Durante la llamada · 6 bloques, 10 preguntas</p>
@@ -255,6 +280,29 @@ const store = {
 };
 let clave = store.get('rp-bit-clave') || '';
 let personas = [], gate = {dentro:0, confirman:0}, actual = null;
+let filtro = 'todos';
+let ESTADOS_UI = ['Nuevo','Contactado','Agendado','Entrevistado','CV recibido','CV revisado','Plan enviado','Aplicando','Entrevista laboral','Empleado','No responde','Descartado','Pausa'];
+
+function fechaSolo(v){
+  if (!v) return '';
+  const d = v instanceof Date ? v : new Date(v);
+  if (isNaN(d.getTime())) return '';
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return y + '-' + m + '-' + day;
+}
+function hoyISO(){ return fechaSolo(new Date()); }
+function pasaFiltro(p){
+  if (filtro === 'todos') return true;
+  const est = String(p.estado || '');
+  if (filtro === 'sin') return est === 'Nuevo' || est === '';
+  if (filtro === 'hoy'){
+    const pf = fechaSolo(p.proximo_fecha);
+    if (!pf) return false;
+    if (['Descartado','Empleado'].indexOf(est) >= 0) return false;
+    return pf <= hoyISO();
+  }
+  return true;
+}
 
 async function api(body){
   const r = await fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify(Object.assign({clave}, body))});
@@ -289,11 +337,22 @@ async function cargar(desdeLogin){
   if (!r.ok){ store.del('rp-bit-clave'); return mostrarLogin(r.error === 'clave' ? 'Esa clave no es correcta.' : 'La hoja respondió con un error.'); }
   store.set('rp-bit-clave', clave);
   personas = r.personas || []; gate = r.gate || gate;
+  if (r.estados && r.estados.length) ESTADOS_UI = r.estados;
   $('#login').hidden = true; $('#main').hidden = false;
   pintarGate(); pintarPersonas();
   if (actual){ const p = personas.find(x => x.codigo === actual.codigo); if (p) elegir(p.codigo, true); }
-  else if (personas.length){ const pend = personas.find(p => !p.entrevista && p.prioridad !== 'Fuera de perfil') || personas[0]; elegir(pend.codigo); }
+  else if (personas.length){
+    const lista = personas.filter(pasaFiltro);
+    const pend = lista.find(p => !p.entrevista && p.prioridad !== 'Fuera de perfil') || lista[0];
+    if (pend) elegir(pend.codigo);
+  }
 }
+
+document.querySelectorAll('.filtros button').forEach(btn => btn.addEventListener('click', () => {
+  filtro = btn.dataset.filtro;
+  document.querySelectorAll('.filtros button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+  pintarPersonas();
+}));
 
 /* ---------- Contador y personas ---------- */
 function dots(el,n,t){ el.innerHTML=''; for(let i=0;i<t;i++){ const d=document.createElement('i'); if(i<n) d.className='on'; el.appendChild(d); } }
@@ -304,15 +363,27 @@ function pintarGate(){
   if (gate.dentro >= 5 && gate.confirman >= 3) $('#g-msg').textContent = '¡Listo! Cumpliste la regla de paso: arranca el Sprint 1.';
 }
 function estadoPill(p){
+  const est = String(p.estado || '');
+  if (est === 'Descartado' || p.prioridad === 'Fuera de perfil') return ['out', est || 'Fuera de perfil'];
+  if (est && est !== 'Nuevo') return ['done', est];
   if (p.entrevista) return p.entrevista.dentro_perfil !== 'Sí' ? ['out','Fuera de perfil'] : p.entrevista.confirma === 'Sí' ? ['done','Confirma'] : ['done','Entrevistada'];
-  if (p.prioridad === 'Fuera de perfil') return ['out','Fuera de perfil'];
-  return ['todo', 'Por entrevistar · ' + (p.prioridad || '')];
+  return ['todo', 'Nuevo · ' + (p.prioridad || '')];
 }
 function pintarPersonas(){
   const box = $('#people'); box.innerHTML = '';
-  $('#no-people').hidden = personas.length > 0;
   const orden = {'Alta':0,'Media':1,'Baja':2,'Fuera de perfil':3};
-  personas.slice().sort((a,b) => (!!a.entrevista - !!b.entrevista) || ((orden[a.prioridad]??4) - (orden[b.prioridad]??4))).forEach(p => {
+  const lista = personas.filter(pasaFiltro).slice().sort((a,b) => {
+    const fa = fechaSolo(a.proximo_fecha) || '9999';
+    const fb = fechaSolo(b.proximo_fecha) || '9999';
+    if (filtro === 'hoy') return fa.localeCompare(fb) || String(a.nombre).localeCompare(String(b.nombre));
+    return (!!a.entrevista - !!b.entrevista) || ((orden[a.prioridad]??4) - (orden[b.prioridad]??4));
+  });
+  $('#no-people').hidden = lista.length > 0;
+  if (!lista.length){
+    $('#no-people').hidden = false;
+    $('#no-people').textContent = filtro === 'hoy' ? 'Nadie con próximo paso para hoy.' : filtro === 'sin' ? 'Nadie sin contactar.' : 'Todavía no hay respuestas del formulario.';
+  }
+  lista.forEach(p => {
     const b = document.createElement('button'); b.type='button'; b.className='person'; b.dataset.c = p.codigo;
     b.setAttribute('aria-pressed', String(!!actual && actual.codigo === p.codigo));
     const [cls, txt] = estadoPill(p);
@@ -324,6 +395,15 @@ function pintarPersonas(){
     b.querySelector('em').textContent = txt;
     b.addEventListener('click', () => elegir(p.codigo));
     box.appendChild(b);
+  });
+}
+function llenarSelectEstado(sel, valor){
+  sel.innerHTML = '';
+  ESTADOS_UI.forEach(e => {
+    const o = document.createElement('option');
+    o.value = e; o.textContent = e;
+    if (e === valor) o.selected = true;
+    sel.appendChild(o);
   });
 }
 
@@ -355,6 +435,14 @@ function elegir(codigo, conservar){
   $('#f-apps').textContent = p.busco_12m === 'Sí' ? (p.aplicaciones||0) + ' / ' + (p.respuestas||0) : 'No buscó en 12 meses';
   $('#f-bar').textContent = p.barrera || '—';
   $('#f-com').textContent = p.comentario ? '"' + p.comentario + '"' : 'No dejó comentario.';
+  llenarSelectEstado($('#f-estado'), p.estado || 'Nuevo');
+  $('#f-proximo-paso').value = p.proximo_paso || '';
+  $('#f-proximo-fecha').value = fechaSolo(p.proximo_fecha);
+  $('#f-notas').value = p.notas_david || '';
+  const meta = [];
+  if (p.proximo_paso) meta.push('Siguiente: ' + p.proximo_paso);
+  if (fechaSolo(p.proximo_fecha)) meta.push('para el ' + fechaSolo(p.proximo_fecha));
+  $('#f-estado-meta').textContent = meta.join(' · ') || 'Al cambiar el estado se calcula solo la próxima fecha (puedes editarla).';
   $('#apertura').textContent = '"Gracias por llenar el formulario y por tu tiempo. Leí que en ' + (p.pais||'tu país') + ' eras ' + (p.profesion||'profesional') +
     ' y que hoy trabajas en ' + (p.trabajo_actual||'otra cosa') + '. No te voy a vender nada; quiero entender tu experiencia. ¿Te molesta si tomo notas?"';
   $('#p1-label').innerHTML = p.busco_12m === 'Sí'
@@ -413,6 +501,26 @@ $('#save').addEventListener('click', async () => {
   } catch(e){
     toast(String(e.message) === 'clave' ? 'Tu clave ya no es válida. Sal y vuelve a entrar.' : 'No se pudo guardar. Tu borrador sigue en este celular; intenta de nuevo.', true);
   } finally { btn.disabled = false; btn.textContent = 'Guardar en la hoja'; }
+});
+
+$('#save-estado').addEventListener('click', async () => {
+  if (!actual) return;
+  const btn = $('#save-estado'); btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const datos = {
+      codigo: actual.codigo,
+      estado: $('#f-estado').value,
+      proximo_paso: $('#f-proximo-paso').value.trim(),
+      proximo_fecha: $('#f-proximo-fecha').value || undefined,
+      notas_david: $('#f-notas').value.trim()
+    };
+    const r = await api({accion:'guardar_estado', datos});
+    if (!r.ok) throw new Error(r.error || 'error');
+    toast('Estado guardado: ' + datos.estado);
+    await cargar(false);
+  } catch(e){
+    toast(String(e.message) === 'clave' ? 'Tu clave ya no es válida. Sal y vuelve a entrar.' : 'No se pudo guardar el estado. Intenta de nuevo.', true);
+  } finally { btn.disabled = false; btn.textContent = 'Guardar estado'; }
 });
 
 cargar(true);
