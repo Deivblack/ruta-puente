@@ -534,6 +534,13 @@ $('#save').addEventListener('click', async () => {
   } finally { btn.disabled = false; btn.textContent = 'Guardar en la hoja'; }
 });
 
+$('#f-estado').addEventListener('change', () => {
+  // Al cambiar estado, deja que el servidor recalcule paso/fecha
+  $('#f-proximo-paso').value = '';
+  $('#f-proximo-fecha').value = '';
+  $('#f-estado-meta').textContent = 'Al guardar se calculará el próximo paso según el nuevo estado (puedes editarlo después).';
+});
+
 $('#save-estado').addEventListener('click', async () => {
   if (!actual) return;
   const btn = $('#save-estado'); btn.disabled = true; btn.textContent = 'Guardando…';

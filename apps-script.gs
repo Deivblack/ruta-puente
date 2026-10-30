@@ -155,6 +155,10 @@ function doPost(e) {
     d.codigo = nuevoCodigo();
     d.enlace = APP_URL + '?c=' + d.codigo;
     hoja.appendRow(COLUMNAS.map(c => limpiar(d[c])));
+    try {
+      const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+      aplicarEstadoFila(hoja, hoja.getLastRow(), cab, 'Nuevo', {});
+    } catch (err) { console.error(err); }
     try { enviarFicha(d); } catch (err) { console.error(err); }
     return salida({ ok: true });
   } finally {
@@ -794,9 +798,8 @@ function subirCv(b) {
   const fechaTag = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd-HHmm');
   const nombreArchivo = codigo + '_' + fechaTag + '.' + ext;
   const blob = Utilities.newBlob(bytes, mime, nombreArchivo);
+  // createFile queda privado para la cuenta del script (no publicar ni compartir)
   const archivo = carpetaCvs().createFile(blob);
-  // Privado: solo el dueño del Drive del script (no compartir)
-  try { archivo.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE); } catch (err) {}
 
   hojaCvs().appendRow([
     new Date(), codigo, limpiar(nombre), archivo.getId(), 'recibido', '', '', '', ''

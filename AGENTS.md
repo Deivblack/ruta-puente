@@ -27,7 +27,7 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 /                     → GitHub Pages publica la rama main desde la raíz
 ├── index.html        → Landing + formulario de 4 pasos (pre-entrevista)
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
-├── app/app-body.html → Copia de la app sin <head> (vista previa; mantener igual que app/index.html o borrar si David lo aprueba)
+├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
@@ -51,7 +51,7 @@ URLs públicas:
 ```
 - `SCRIPT_URL` (igual en las 3 páginas): `https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec`
 - ID del proyecto Apps Script: `1mLZVH8IdSfyc2K1nPj3mF4LBEZHnw9rP9SNvHg2bXxYNSod4txkl1Wad`
-- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). Versión actual: 5 ("v5 - bitacora").
+- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). Versión en producción todavía v5 hasta que David despliegue v6 (flujo, CV, agenda, ZIP).
 - El script está **vinculado a la hoja** "Ruta Puente - Respuestas" (`SpreadsheetApp.getActiveSpreadsheet()`).
 - Nota técnica: Google reserva el parámetro `c` en `/exec`; por eso la app llama con `?codigo=` y `doGet` acepta `codigo` (y `c` por compatibilidad).
 - La Bitácora manda `fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify(...)})` sin cabeceras (queda `text/plain`, sin preflight CORS). El formulario manda `URLSearchParams` con `mode:'no-cors'`. `doPost` distingue los dos por `e.postData.type`.

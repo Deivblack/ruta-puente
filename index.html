@@ -114,6 +114,8 @@ textarea{min-height:96px;resize:vertical}
 .hp{position:absolute;left:-9999px}
 .done{text-align:center;align-items:center;padding-block:30px}
 .done .big{font:800 30px var(--f-display)}
+.done-agenda{display:flex;flex-direction:column;gap:12px;align-items:stretch;width:100%;max-width:360px;margin:12px auto 0}
+.done-agenda .btn{width:100%}
 .done p{max-width:46ch;color:var(--muted)}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:10}
 
@@ -328,9 +330,9 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
         <img src="logo-icon.svg" width="72" height="72" alt="">
         <div class="big" id="done-title">¡Gracias!</div>
         <p id="done-text"></p>
-        <div id="done-agenda" hidden style="display:flex;flex-direction:column;gap:12px;align-items:stretch;width:100%;max-width:360px;margin:0 auto">
+        <div id="done-agenda" class="done-agenda" hidden>
           <a class="btn" id="btn-agenda" href="#" target="_blank" rel="noopener">Agenda tu llamada</a>
-          <p style="margin:0;font-size:.85rem;color:var(--muted)">¿Ningún horario te sirve? <a id="btn-wa-alt" href="https://wa.me/18322533555" target="_blank" rel="noopener">Escríbeme por WhatsApp</a></p>
+          <p class="hint" style="margin:0;text-align:center">¿Ningún horario te sirve? <a id="btn-wa-alt" href="https://wa.me/18322533555" target="_blank" rel="noopener">Escríbeme por WhatsApp</a></p>
         </div>
       </div>
     </section>
@@ -443,7 +445,6 @@ function finish(d){
     document.getElementById('done-text').textContent = 'El siguiente paso es una llamada de 15 minutos conmigo para armar tu ruta. Elige el viernes y la hora que te quede mejor:';
     document.getElementById('btn-agenda').href = AGENDA_URL;
     agenda.hidden = false;
-    agenda.style.display = 'flex';
     confetti();
   }
   done.scrollIntoView({block:'center'});
