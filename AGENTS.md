@@ -44,8 +44,10 @@ URLs públicas:
                                                         └--> Correo a David con la ficha de entrevista
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
-[Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David
+[Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David (conteo por estado + atrasados)
+[Trigger diario ~7:30 a. m.] --> correoDiario() --> correo a David (proximo_fecha ≤ hoy + plantillas WhatsApp)
 [Trigger diario 8 a. m.] --> seguimientoEmpleo() --> correo a David (hitos 7/30/60/90)
+[App / Bitácora] --POST JSON accion subir_cv--> Drive "Ruta Puente - CVs" + hoja "CVs"
 ```
 - `SCRIPT_URL` (igual en las 3 páginas): `https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec`
 - ID del proyecto Apps Script: `1mLZVH8IdSfyc2K1nPj3mF4LBEZHnw9rP9SNvHg2bXxYNSod4txkl1Wad`
@@ -78,13 +80,18 @@ URLs públicas:
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
+- `POST` text/plain JSON `{accion:"subir_cv", codigo, mime, contenido_b64}` → guarda PDF/DOCX (≤5 MB) en Drive privado "Ruta Puente - CVs", fila en pestaña "CVs", estado `CV recibido`, correo a David. Autentica por `codigo` (sin clave).
 - Clave incorrecta → `{ok:false, error:"clave"}` con 800 ms de espera.
+
+### Hoja "CVs"
+`fecha, codigo, nombre, archivo_id, estado_cv, puntaje_antes, puntaje_despues, resultado_doc, aprobado` — el archivo nunca es público.
 
 ### App personal (app/index.html)
 - 6 pasos: `Perfil, Tu cargo, Carril, Vacantes, Contacto, Aplicaciones`. Pantalla de inicio con la ruta y barra de progreso.
+- Paso 3 (Carril) incluye "Mi CV": botón subir PDF/DOCX ≤5 MB → `subir_cv`. Tras éxito: "Recibido. David lo revisa…".
 - Un paso tiene ✓ solo si la persona lo confirmó **y** cumple su requisito: paso 1 → escribió sus logros; paso 4 → ZIP de 5 dígitos; paso 5 → copió su mensaje; paso 6 → al menos 1 aplicación anotada.
 - Sin código válido, muestra el ejemplo `EJEMPLO` (María) con la etiqueta "Ejemplo".
-- Estado local (localStorage, siempre dentro de try/catch): `rp-wins`, `rp-apps`, `rp-ok-<codigo>`, `rp-ok-<codigo>-copy`.
+- Estado local (localStorage, siempre dentro de try/catch): `rp-wins`, `rp-apps`, `rp-ok-<codigo>`, `rp-ok-<codigo>-copy`, `rp-cv-<codigo>`.
 - Diccionario `TITLES`: cargo en español → cargo en EE. UU., alternativas, palabras clave y "carriles".
 
 ### Bitácora (bitacora/index.html)
@@ -119,6 +126,8 @@ Publicar un cambio del script:
 - `activarResumenSemanal()` / `configurarTodo()` → trigger de los lunes y validación de estados (`configurarTodo` también activa seguimiento diario y `onEditEstado`).
 - `activarOnEditEstado()` → trigger instalable al editar `estado` + lista desplegable ampliada.
 - `migrarEstados()` / `migrarEstados(false)` → simulación (default) o aplica Entrevistado a quienes ya tienen fila en Entrevistas.
+- `correoDiario()` / `activarCorreoDiario()` / `pruebaCorreoDiario()` → “a quién escribir hoy” (~7:30 a. m., plantillas `PLANTILLAS`; no manda nada a usuarios).
+- `subirCv()` → recepción de CV (pide permiso Drive la primera vez).
 - `seguimientoEmpleo()` → correo diario a David con hitos 7/30/60/90 pendientes y mensaje sugerido de WhatsApp (no escribe a usuarios).
 - `activarSeguimientoEmpleo()` → crea el trigger diario (8 a. m.) y asegura las columnas de empleo/seguimiento.
 - `pruebaSeguimientoEmpleo()` → manda un correo de ejemplo sin usar filas reales.

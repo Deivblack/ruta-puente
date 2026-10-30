@@ -120,6 +120,12 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
 .nivel-foot{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .nivel-foot .btn[disabled]{opacity:.45;cursor:not-allowed}
 .linkish{all:unset;cursor:pointer;font-weight:800;color:var(--hope);font-size:14px;padding:4px 0}
+.cv-box{display:flex;flex-direction:column;gap:10px;padding:14px;border:2px dashed var(--line);border-radius:14px;background:var(--bg)}
+.cv-box.ok{border-style:solid;border-color:var(--hope);background:var(--hope-soft)}
+.cv-box .btn{align-self:flex-start}
+.cv-msg{font-size:15px;font-weight:700;color:var(--muted);min-height:1.3em}
+.cv-msg.ok{color:var(--hope)}
+.cv-msg.err{color:#b4533e}
 </style>
 </head>
 <body>
@@ -186,13 +192,20 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
     <div class="tip" id="tip-titulo"><span class="dot" aria-hidden="true"></span><p>Para que tu título cuente aquí, existe la evaluación de credenciales (por ejemplo WES o ECE): traduce tu grado a su equivalente en EE.UU. Ruta Puente orienta; no da asesoría legal.</p></div>
   </section>
 
-  <!-- 3 Carril -->
+  <!-- 3 Carril + Mi CV -->
   <section class="card view" data-step="2" hidden>
     <h2>Tu carril principal</h2>
     <p class="hint">Aplicar a todo diluye tu perfil. Elige uno principal (80% de tu esfuerzo) y uno de respaldo (20%).</p>
     <div class="lanes" id="lanes"></div>
     <div class="split" aria-hidden="true"><div class="a" id="lane-a"></div><div class="b" id="lane-b"></div></div>
     <p id="lane-plan"></p>
+    <h2 style="margin-top:8px">Mi CV</h2>
+    <p class="hint">Sube tu CV en PDF o Word (máx. 5 MB). David lo revisa y te escribe por WhatsApp en 48 h.</p>
+    <div class="cv-box" id="cv-box">
+      <input type="file" id="cv-file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+      <button class="btn" id="cv-btn" type="button">Subir mi CV</button>
+      <span class="cv-msg" id="cv-msg" aria-live="polite"></span>
+    </div>
   </section>
 
   <!-- 4 Vacantes -->
@@ -290,6 +303,9 @@ const TIPS = {
 };
 
 let P = {...EJEMPLO};
+const CODIGO = (new URLSearchParams(location.search).get("c") || "").trim();
+const KEY_CV = "rp-cv-" + (CODIGO || "demo");
+let cvListo = false; try{ cvListo = localStorage.getItem(KEY_CV) === "1"; }catch(e){}
 const state = {step:0, primary:null, backup:null};
 
 async function cargar(){
@@ -492,7 +508,66 @@ document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",(
   try{ navigator.clipboard.writeText(el.textContent).then(ok).catch(sel); }catch(e){ sel(); }
 }));
 
-cargar();
+/* ---------- Subir CV (paso 3) ---------- */
+function pintarCv(){
+  const box = $("#cv-box"), msg = $("#cv-msg"), btn = $("#cv-btn");
+  if(!CODIGO || !/^[a-f0-9]{10}$/.test(CODIGO)){
+    msg.textContent = "Abre tu enlace personal para subir el CV (este es solo un ejemplo).";
+    msg.className = "cv-msg"; btn.disabled = true; return;
+  }
+  if(cvListo){
+    box.classList.add("ok");
+    msg.textContent = "Recibido. David lo revisa y te escribe por WhatsApp en 48 h.";
+    msg.className = "cv-msg ok";
+    btn.textContent = "Subir otro archivo";
+  }
+}
+$("#cv-btn").addEventListener("click", () => $("#cv-file").click());
+$("#cv-file").addEventListener("change", async () => {
+  const f = $("#cv-file").files && $("#cv-file").files[0];
+  $("#cv-file").value = "";
+  if(!f) return;
+  const msg = $("#cv-msg"), btn = $("#cv-btn");
+  const okMime = f.type === "application/pdf" ||
+    f.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    /\.pdf$/i.test(f.name) || /\.docx$/i.test(f.name);
+  if(!okMime){ msg.textContent = "Solo PDF o Word (.docx)."; msg.className = "cv-msg err"; return; }
+  if(f.size > 5 * 1024 * 1024){ msg.textContent = "El archivo pesa más de 5 MB. Comprímelo o usa PDF."; msg.className = "cv-msg err"; return; }
+  btn.disabled = true; btn.textContent = "Subiendo…"; msg.textContent = "Enviando tu CV…"; msg.className = "cv-msg";
+  try{
+    const b64 = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const s = String(r.result || "");
+        const i = s.indexOf(",");
+        resolve(i >= 0 ? s.slice(i + 1) : s);
+      };
+      r.onerror = () => reject(r.error || new Error("read"));
+      r.readAsDataURL(f);
+    });
+    const mime = /\.docx$/i.test(f.name)
+      ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      : (f.type || "application/pdf");
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({ accion: "subir_cv", codigo: CODIGO, mime: mime, contenido_b64: b64, nombre_archivo: f.name })
+    });
+    const d = await res.json();
+    if(!d || !d.ok){
+      const err = { tipo: "Solo PDF o Word (.docx).", tamano: "Máximo 5 MB.", codigo: "Enlace no válido.", persona: "No encontramos tu perfil." };
+      throw new Error(err[d && d.error] || "No se pudo subir. Intenta de nuevo.");
+    }
+    cvListo = true;
+    try{ localStorage.setItem(KEY_CV, "1"); }catch(e){}
+    pintarCv();
+  }catch(e){
+    msg.textContent = e.message || "No se pudo subir. Revisa tu internet.";
+    msg.className = "cv-msg err";
+    btn.disabled = false; btn.textContent = "Subir mi CV";
+  }
+});
+
+cargar().finally(pintarCv);
 </script>
 
 </body>

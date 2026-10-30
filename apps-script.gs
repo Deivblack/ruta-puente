@@ -637,12 +637,109 @@ const TEXTOS_ENT = ['p1_ultima_busqueda', 'p2_desanimo', 'p3_ejemplo_barrera', '
 function bitacora(txt) {
   let b;
   try { b = JSON.parse(txt); } catch (err) { return salida({ ok: false, error: 'formato' }); }
+  // Subida de CV: autentica por código personal (sin clave de Bitácora)
+  if (b && b.accion === 'subir_cv') return salida(subirCv(b));
   const clave = PropertiesService.getScriptProperties().getProperty('BITACORA_CLAVE');
   if (!clave || !b || b.clave !== clave) { Utilities.sleep(800); return salida({ ok: false, error: 'clave' }); }
   if (b.accion === 'listar') return salida(listarBitacora());
   if (b.accion === 'guardar') return salida(guardarEntrevista(b.datos || {}));
   if (b.accion === 'guardar_estado') return salida(guardarEstado(b.datos || {}));
   return salida({ ok: false, error: 'accion' });
+}
+
+/* ---------- Recepción de CV (sin IA; carpeta privada en Drive) ---------- */
+
+const HOJA_CVS = 'CVs';
+const COL_CVS = ['fecha', 'codigo', 'nombre', 'archivo_id', 'estado_cv', 'puntaje_antes', 'puntaje_despues', 'resultado_doc', 'aprobado'];
+const CV_MAX_BYTES = 5 * 1024 * 1024;
+const CV_MIME = {
+  'application/pdf': 'pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'
+};
+
+function carpetaCvs() {
+  const nombre = 'Ruta Puente - CVs';
+  const it = DriveApp.getFoldersByName(nombre);
+  if (it.hasNext()) return it.next();
+  return DriveApp.createFolder(nombre);
+}
+
+function hojaCvs() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName(HOJA_CVS);
+  if (!h) h = libro.insertSheet(HOJA_CVS);
+  if (h.getLastRow() === 0) {
+    h.appendRow(COL_CVS);
+    h.setFrozenRows(1);
+    h.getRange(1, 1, 1, COL_CVS.length).setFontWeight('bold').setBackground('#e1efe7');
+  } else {
+    const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    COL_CVS.forEach(c => {
+      if (cab.indexOf(c) < 0) {
+        const col = h.getLastColumn() + 1;
+        h.getRange(1, col).setValue(c).setFontWeight('bold').setBackground('#e1efe7');
+        cab.push(c);
+      }
+    });
+  }
+  return h;
+}
+
+function subirCv(b) {
+  const codigo = String((b && b.codigo) || '').trim();
+  if (!/^[a-f0-9]{10}$/.test(codigo)) return { ok: false, error: 'codigo' };
+  const mime = String((b && b.mime) || '').trim();
+  const ext = CV_MIME[mime];
+  if (!ext) return { ok: false, error: 'tipo' };
+  const b64 = String((b && b.contenido_b64) || '').replace(/\s/g, '');
+  if (!b64) return { ok: false, error: 'vacio' };
+  const approx = Math.floor(b64.length * 3 / 4);
+  if (approx > CV_MAX_BYTES) return { ok: false, error: 'tamano' };
+
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const k = datos.findIndex(r => String(r[i('codigo')]) === codigo);
+  if (k < 0) return { ok: false, error: 'persona' };
+  const nombre = String(datos[k][i('nombre')] || '');
+
+  let bytes;
+  try { bytes = Utilities.base64Decode(b64); }
+  catch (err) { return { ok: false, error: 'base64' }; }
+  if (bytes.length > CV_MAX_BYTES) return { ok: false, error: 'tamano' };
+
+  const fechaTag = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd-HHmm');
+  const nombreArchivo = codigo + '_' + fechaTag + '.' + ext;
+  const blob = Utilities.newBlob(bytes, mime, nombreArchivo);
+  const archivo = carpetaCvs().createFile(blob);
+  // Privado: solo el dueño del Drive del script (no compartir)
+  try { archivo.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE); } catch (err) {}
+
+  hojaCvs().appendRow([
+    new Date(), codigo, limpiar(nombre), archivo.getId(), 'recibido', '', '', '', ''
+  ]);
+
+  aplicarEstadoFila(hoja, k + 2, cab, 'CV recibido', {});
+
+  const link = 'https://drive.google.com/file/d/' + archivo.getId() + '/view';
+  try {
+    MailApp.sendEmail({
+      to: Session.getEffectiveUser().getEmail(),
+      subject: 'Ruta Puente · Nuevo CV de ' + nombre,
+      body: 'Nuevo CV de ' + nombre + ' (código ' + codigo + ').\n\nAbrir archivo:\n' + link +
+        '\n\nEstado: CV recibido. Revísalo y escribe por WhatsApp en 48 h.',
+      htmlBody: '<div style="font-family:Arial,sans-serif;color:#1d2b26">' +
+        '<div style="font-size:20px;font-weight:bold">Nuevo CV de ' + esc(nombre) + '</div>' +
+        '<p>Código: <code>' + esc(codigo) + '</code></p>' +
+        '<p><a href="' + link + '">Abrir archivo en Drive</a> (privado; solo tú)</p>' +
+        '<p>Estado actualizado a <b>CV recibido</b>. Escríbele por WhatsApp en 48 h.</p></div>',
+      name: 'Ruta Puente'
+    });
+  } catch (err) { console.error(err); }
+
+  return { ok: true };
 }
 
 function hojaEntrevistas() {
