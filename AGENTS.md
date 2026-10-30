@@ -51,7 +51,7 @@ URLs públicas:
 ```
 - `SCRIPT_URL` (igual en las 3 páginas): `https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec`
 - ID del proyecto Apps Script: `1mLZVH8IdSfyc2K1nPj3mF4LBEZHnw9rP9SNvHg2bXxYNSod4txkl1Wad`
-- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). **Producción sigue en v5** hasta que David pegue `apps-script.gs` y despliegue v6 (pasos en la sección 6, “Desplegar v6 ahora”). No marcar v6 aquí hasta que David confirme.
+- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). Versión actual: **v6** (flujo, CV, agenda, ZIP). David pegó el código, autorizó Drive/Calendar y activó triggers el 30 oct 2026 (zona Chicago).
 - El script está **vinculado a la hoja** "Ruta Puente - Respuestas" (`SpreadsheetApp.getActiveSpreadsheet()`).
 - Nota técnica: Google reserva el parámetro `c` en `/exec`; por eso la app llama con `?codigo=` y `doGet` acepta `codigo` (y `c` por compatibilidad).
 - La Bitácora manda `fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify(...)})` sin cabeceras (queda `text/plain`, sin preflight CORS). El formulario manda `URLSearchParams` con `mode:'no-cors'`. `doPost` distingue los dos por `e.postData.type`.
@@ -60,7 +60,7 @@ URLs públicas:
 ### Hoja "Respuestas" (columnas, en orden)
 `fecha, prioridad, nombre, whatsapp, ciudad, pais, fuente, profesion, titulo, anios_exp, tiempo_eeuu, autorizado, trabajo_actual, horas_trabajo, busco_12m, aplicaciones, respuestas, barrera, horas_disponibles, horario, comentario, consentimiento, estado, codigo, enlace, fecha_empleo, seguimiento_7, seguimiento_30, seguimiento_60, seguimiento_90, fecha_contacto, fecha_entrevista, cv_puntaje_antes, cv_puntaje_despues, plan_enviado, proximo_paso, proximo_fecha, notas_david, cita_id, zip`
 - `ciudad`: nombre de la ciudad (texto). `zip`: 5 dígitos, columna al final. Nunca deducir ubicación por el código de área del teléfono.
-- `migrarCiudad()` (simulación por defecto): si `ciudad` contiene 5 dígitos y `zip` está vacío, los copia a `zip`.
+- `migrarCiudad()` (simulación por defecto): si `ciudad` contiene 5 dígitos y `zip` está vacío, los copia a `zip`. El 30 oct 2026 David revisó la simulación (8 filas) y aplicó `migrarCiudad(false)`. `migrarEstados()` simuló 0 filas: no se aplicó.
 - `prioridad` se calcula en el servidor: `autorizado = No` → "Fuera de perfil"; si no, 1 punto por título, 1 por buscar en 12 meses, 1 por autorizado → 3 = Alta, 2 = Media, menos = Baja.
 - `estado` (lista desplegable, en orden): Nuevo → Contactado → Agendado → Entrevistado → CV recibido → CV revisado → Plan enviado → Aplicando → Entrevista laboral → Empleado; salidas: No responde, Descartado, Pausa.
 - `codigo`: 10 caracteres hex (`Utilities.getUuid()` sin guiones, recortado). `enlace` = URL de la app + `?c=` + código.
@@ -125,11 +125,11 @@ Publicar un cambio del script (cuando haya clasp):
 3. Si el cambio pide permisos nuevos (por ejemplo Drive), David debe autorizar ejecutando una función desde el editor.
 4. Verifica: formulario de prueba (o `pruebaFicha()` desde el editor) y, para la Bitácora, una llamada `listar`.
 
-Hoy **no hay clasp** en este repo (no existe `apps-script/`, ni `.clasp.json`, ni sesión `.clasprc.json`). Un agente no puede `clasp push` ni `clasp deploy`. El despliegue v6 lo hace David a mano, abajo.
+Hoy **no hay clasp** en este repo (no existe `apps-script/`, ni `.clasp.json`, ni sesión `.clasprc.json`). Un agente no puede `clasp push` ni `clasp deploy`. El despliegue v6 lo hizo David a mano (30 oct 2026).
 
-### Desplegar v6 ahora (David, sin clasp)
+### Desplegar una versión nueva (sin clasp)
 
-Hazlo con tu cuenta de Google. No crea implementación nueva. La URL `/exec` debe seguir igual.
+Hazlo con tu cuenta de Google. No crees implementación nueva. La URL `/exec` debe seguir igual. Pasos que ya se usaron para v6:
 
 1. Abre el proyecto: https://script.google.com/home/projects/1mLZVH8IdSfyc2K1nPj3mF4LBEZHnw9rP9SNvHg2bXxYNSod4txkl1Wad/edit
 2. El código de v6 **ya está en GitHub** (`apps-script.gs` de `main`). Ábrelo en bruto y copia todo:  
@@ -159,14 +159,16 @@ Orden sugerido:
 
 Atajo: `configurarTodo()` hace los pasos 2–4 más el resumen semanal y el seguimiento 7/30/60/90. Igual hay que ejecutar `revisarAgenda()` y `carpetaCvs()` una vez para que Google pida Calendar y Drive.
 
-No ejecutes `crearClaveBitacora()` (la clave ya existe). No ejecutes `migrarEstados(false)` ni `migrarCiudad(false)` todavía.
+No ejecutes `crearClaveBitacora()` (la clave ya existe). No vuelvas a aplicar migraciones sin simular primero.
 
-### Simulación: migrarEstados y migrarCiudad (no escribe en la hoja)
+### Simulación: migrarEstados y migrarCiudad
 
-1. En el editor ejecuta `migrarEstados()` (sin escribir `false`).
-2. Abre **Ejecución** / **Execution log**. Copia el texto que empieza por `SIMULACIÓN`.
-3. Ejecuta `migrarCiudad()` igual. Copia el log.
-4. Pégaselo al agente o revísalo tú. Solo si dices **ok** se podrá ejecutar `migrarEstados(false)` y `migrarCiudad(false)`.
+1. En el editor ejecuta `migrarEstados()` (sin `false`).
+2. Abre **Registro de ejecución**. Debe decir **SIMULACIÓN**.
+3. Ejecuta `migrarCiudad()` igual.
+4. Solo con el **ok** de David se aplica (`migrarEstados(false)` / `migrarCiudad(false)`), con una función auxiliar en el editor, porque el menú ▶ siempre simula.
+
+Hecho el 30 oct 2026: `migrarEstados` → 0 filas (no se aplicó). `migrarCiudad` → 8 filas, David dijo sí y se aplicó.
 
 ### Pruebas con la persona PRUEBA (celular, ~400 px)
 
@@ -179,7 +181,7 @@ Usa solo el nombre **PRUEBA**. Si ya hay una fila PRUEBA en la hoja, no llenes e
    Elige PRUEBA. Cambia estado (por ejemplo Contactado) → **Guardar estado**. Pulsa **Revisar agenda**. Filtros: Para hoy / Sin contactar / Todos.
 4. **Correo diario.** En el editor ejecuta `pruebaCorreoDiario()`. Revisa tu Gmail. No manda mensajes a usuarios.
 
-Cuando todo eso funcione, dime **“v6 listo”** para actualizar esta guía (línea de versión en la sección 4) a v6.
+v6 quedó autorizada el 30 oct 2026. Para un cambio nuevo del script, vuelve a desplegar **nueva versión de la misma implementación** (sección de arriba).
 
 ### Funciones de mantenimiento en el script
 - `crearClaveBitacora()` → crea la clave si no existe y la muestra en el registro (no la copies a ningún archivo).
