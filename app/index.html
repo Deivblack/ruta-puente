@@ -178,7 +178,7 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
       <label for="p-title">Tu profesión<input id="p-title"></label>
       <label for="p-years">Años de experiencia<select id="p-years"><option>Menos de 2</option><option>2 a 5</option><option>6 a 10</option><option>Más de 10</option></select></label>
       <label for="p-country">País<input id="p-country"></label>
-      <label for="p-zip">Ciudad o ZIP<input id="p-zip"></label>
+      <label for="p-zip">ZIP (5 dígitos)<input id="p-zip" inputmode="numeric" maxlength="5" placeholder="77095"></label>
     </div>
     <label for="p-wins">Tus 3 logros más importantes <span class="hint">(uno por línea, con números si puedes)</span>
       <textarea id="p-wins" placeholder="Ej.: Reduje errores de conciliación en 40%"></textarea></label>
@@ -343,7 +343,9 @@ function pintarSaludo(){
   }
 }
 function llenarPerfil(){
-  $("#p-title").value = P.profesion||""; $("#p-country").value = P.pais||""; $("#p-zip").value = P.ciudad||"";
+  $("#p-title").value = P.profesion||""; $("#p-country").value = P.pais||"";
+  $("#p-zip").value = (P.zip && String(P.zip).match(/\d{5}/)) ? String(P.zip).match(/\d{5}/)[0]
+    : ((String(P.ciudad||"").match(/\d{5}/)||[])[0] || "");
   if(P.anios_exp) $("#p-years").value = P.anios_exp;
   try{ const w = localStorage.getItem("rp-wins"); if(w) $("#p-wins").value = w; }catch(e){}
 }

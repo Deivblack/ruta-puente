@@ -198,9 +198,20 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
         <fieldset data-step="0">
           <legend>Sobre ti</legend>
           <div class="field"><label for="nombre">Nombre</label><input type="text" id="nombre" name="nombre" autocomplete="given-name" required></div>
+          <div class="field"><label for="whatsapp">WhatsApp</label><input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(832) 000-0000" required></div>
           <div class="grid2">
-            <div class="field"><label for="whatsapp">WhatsApp</label><input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(832) 000-0000" required></div>
-            <div class="field"><label for="ciudad">Ciudad o ZIP</label><input type="text" id="ciudad" name="ciudad" placeholder="Houston, 77095" required></div>
+            <div class="field"><label for="ciudad">Ciudad donde vives</label>
+              <input type="text" id="ciudad" name="ciudad" list="ciudades-sugeridas" placeholder="Houston" autocomplete="address-level2" required>
+              <datalist id="ciudades-sugeridas">
+                <option value="Houston"></option><option value="Katy"></option><option value="Cypress"></option>
+                <option value="Spring"></option><option value="The Woodlands"></option><option value="Sugar Land"></option>
+                <option value="Pasadena"></option><option value="Dallas"></option><option value="Austin"></option>
+                <option value="San Antonio"></option><option value="Otra"></option>
+              </datalist>
+            </div>
+            <div class="field"><label for="zip">ZIP code</label>
+              <input type="text" id="zip" name="zip" inputmode="numeric" pattern="\d{5}" maxlength="5" placeholder="77095" required>
+            </div>
           </div>
           <div class="field"><label for="pais">País de origen</label>
             <select id="pais" name="pais" required>
@@ -365,6 +376,14 @@ function valid(i){
 function check(i){
   const bad = valid(i);
   if(bad){ err.textContent = 'Te falta responder una pregunta de este paso.'; (bad.type==='radio'? bad.closest('.field') : bad).scrollIntoView({block:'center'}); bad.focus({preventScroll:true}); return false; }
+  if(i === 0){
+    const z = (document.getElementById('zip').value || '').trim();
+    if(!/^\d{5}$/.test(z)){
+      err.textContent = 'El ZIP debe ser exactamente 5 dígitos.';
+      document.getElementById('zip').focus({preventScroll:true});
+      return false;
+    }
+  }
   return true;
 }
 next.addEventListener('click',()=>{ if(check(cur)){ show(cur+1); form.scrollIntoView({block:'start'}); } });

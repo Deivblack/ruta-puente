@@ -45,7 +45,8 @@ function doGet(e) {
   return salida({ ok: true, persona: {
     nombre: String(r[i('nombre')]).split(' ')[0],
     pais: r[i('pais')], profesion: r[i('profesion')], anios_exp: r[i('anios_exp')],
-    ciudad: r[i('ciudad')], barrera: r[i('barrera')],
+    ciudad: r[i('ciudad')], zip: i('zip') >= 0 ? r[i('zip')] : '',
+    barrera: r[i('barrera')],
     estado: r[i('estado')] || 'Nuevo'
   } });
 }
@@ -128,7 +129,7 @@ const COLUMNAS = [
   'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado', 'codigo', 'enlace',
   'fecha_empleo', 'seguimiento_7', 'seguimiento_30', 'seguimiento_60', 'seguimiento_90',
   'fecha_contacto', 'fecha_entrevista', 'cv_puntaje_antes', 'cv_puntaje_despues',
-  'plan_enviado', 'proximo_paso', 'proximo_fecha', 'notas_david', 'cita_id'
+  'plan_enviado', 'proximo_paso', 'proximo_fecha', 'notas_david', 'cita_id', 'zip'
 ];
 
 // Agenda pública de citas (Google Calendar Appointment Schedule). No cambiar la config desde código.
@@ -1090,6 +1091,40 @@ function migrarEstados(simular) {
   }
   const msg = (simular ? 'SIMULACIÓN (no se escribió nada). ' : 'APLICADO. ') +
     cambios.length + ' fila(s): ' + cambios.map(c => c.nombre + ' [' + c.de + '→' + c.a + ']').join('; ');
+  Logger.log(msg);
+  return { ok: true, simular: !!simular, cambios: cambios, mensaje: msg };
+}
+
+/**
+ * Si "ciudad" tiene 5 dígitos, los copia a "zip" (filas viejas).
+ * Por defecto SOLO simula. Para aplicar: migrarCiudad(false).
+ */
+function migrarCiudad(simular) {
+  if (simular === undefined || simular === null) simular = true;
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  if (i('zip') < 0 || i('ciudad') < 0) {
+    Logger.log('Faltan columnas ciudad o zip. Ejecuta actualizarHoja() primero.');
+    return { ok: false, error: 'columnas' };
+  }
+  const cambios = [];
+  datos.forEach((r, k) => {
+    if (!r[i('nombre')]) return;
+    const zipActual = String(r[i('zip')] || '').trim();
+    if (/^\d{5}$/.test(zipActual)) return;
+    const ciudad = String(r[i('ciudad')] || '');
+    const m = ciudad.match(/\b(\d{5})\b/);
+    if (!m) return;
+    cambios.push({ fila: k + 2, nombre: String(r[i('nombre')]), ciudad: ciudad, zip: m[1] });
+  });
+  if (!simular) {
+    cambios.forEach(c => hoja.getRange(c.fila, i('zip') + 1).setValue(c.zip));
+  }
+  const msg = (simular ? 'SIMULACIÓN (no se escribió nada). ' : 'APLICADO. ') +
+    cambios.length + ' fila(s): ' + cambios.map(c => c.nombre + ' → ZIP ' + c.zip).join('; ');
   Logger.log(msg);
   return { ok: true, simular: !!simular, cambios: cambios, mensaje: msg };
 }
