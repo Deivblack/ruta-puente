@@ -154,6 +154,11 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
   <section class="hello" id="ruta-home" aria-live="polite" hidden>
     <h1 id="hello-title">Hola, María</h1>
     <p id="hello-text">Con lo que nos contaste en el formulario ya armamos tu ruta. Abre cada paso, revisa que todo esté bien y confírmalo: se marcará con ✓.</p>
+    <div class="cv-box" id="agenda-card" hidden>
+      <strong>Tu siguiente paso: agenda tu llamada de 15 min</strong>
+      <p class="hint" style="margin:0">Elige un viernes y la hora que te quede mejor. Si ningún horario te sirve, escríbeme por WhatsApp.</p>
+      <a class="btn" id="agenda-btn" href="#" target="_blank" rel="noopener">Agenda tu llamada</a>
+    </div>
     <div class="facts" id="facts"></div>
     <div class="progress"><div class="track"><div class="fill" id="progress-bar"></div></div><span id="progress-text">0 de 6 pasos listos</span></div>
     <ol class="route" id="route" aria-label="Tu ruta en 6 pasos"></ol>
@@ -264,6 +269,8 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
 <script>
 // En la web: URL de Apps Script; si no hay código o falla, la app abre con datos de ejemplo
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
+// Misma URL en landing y app (agenda pública de Google Calendar; no tocar la config desde código)
+const AGENDA_URL = "https://calendar.google.com/calendar/appointments/schedules/AcZssZ07-Uw7dChoUKfgYNbB5l1sVsBlV-U5R2u2lDJyaiYa_XqejfohlGI-IIi84Xa_auVxALOLy1zf";
 const $ = s => document.querySelector(s);
 const STEPS = ["Perfil","Tu cargo","Carril","Vacantes","Contacto","Aplicaciones"];
 
@@ -327,6 +334,13 @@ function pintarSaludo(){
   const m = findTitle(P.profesion);
   const f = [P.profesion, P.anios_exp ? P.anios_exp + " años" : "", P.pais, m ? "→ " + m.en : ""].filter(Boolean);
   $("#facts").innerHTML = f.map(x=>`<span class="fact">${esc(x)}</span>`).join("");
+  const est = String(P.estado || "Nuevo");
+  const mostrarAgenda = ["Nuevo", "Contactado"].indexOf(est) >= 0;
+  const card = $("#agenda-card");
+  card.hidden = !mostrarAgenda;
+  if (mostrarAgenda) {
+    $("#agenda-btn").href = AGENDA_URL;
+  }
 }
 function llenarPerfil(){
   $("#p-title").value = P.profesion||""; $("#p-country").value = P.pais||""; $("#p-zip").value = P.ciudad||"";

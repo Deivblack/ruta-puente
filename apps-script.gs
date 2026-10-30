@@ -45,7 +45,8 @@ function doGet(e) {
   return salida({ ok: true, persona: {
     nombre: String(r[i('nombre')]).split(' ')[0],
     pais: r[i('pais')], profesion: r[i('profesion')], anios_exp: r[i('anios_exp')],
-    ciudad: r[i('ciudad')], barrera: r[i('barrera')]
+    ciudad: r[i('ciudad')], barrera: r[i('barrera')],
+    estado: r[i('estado')] || 'Nuevo'
   } });
 }
 
@@ -85,7 +86,8 @@ function configurarTodo() {
   activarSeguimientoEmpleo();
   activarCorreoDiario();
   activarOnEditEstado();
-} // ejecutar una vez (pide autorización de triggers)
+  activarRevisarAgenda();
+} // ejecutar una vez (pide autorización de triggers + Calendar/Drive)
 
 /**
  * Ruta Puente — recibe las respuestas del formulario, las guarda en esta hoja
@@ -126,8 +128,13 @@ const COLUMNAS = [
   'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado', 'codigo', 'enlace',
   'fecha_empleo', 'seguimiento_7', 'seguimiento_30', 'seguimiento_60', 'seguimiento_90',
   'fecha_contacto', 'fecha_entrevista', 'cv_puntaje_antes', 'cv_puntaje_despues',
-  'plan_enviado', 'proximo_paso', 'proximo_fecha', 'notas_david'
+  'plan_enviado', 'proximo_paso', 'proximo_fecha', 'notas_david', 'cita_id'
 ];
+
+// Agenda pública de citas (Google Calendar Appointment Schedule). No cambiar la config desde código.
+const AGENDA_URL = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ07-Uw7dChoUKfgYNbB5l1sVsBlV-U5R2u2lDJyaiYa_XqejfohlGI-IIi84Xa_auVxALOLy1zf';
+const BITACORA_URL = 'https://deivblack.github.io/ruta-puente/bitacora/';
+const TITULO_CITA = 'Llamada Ruta Puente';
 
 /* ---------- Recepción del formulario ---------- */
 
@@ -229,6 +236,7 @@ function enviarFicha(d) {
 
   const resumen = [
     prof + ' de ' + pais + ' · ' + esc(d.anios_exp || '?') + ' años de experiencia · ' + esc(d.titulo || '') + '.',
+    'Vive en ' + esc(d.ciudad || '—') + (d.zip ? ' · ZIP ' + esc(d.zip) : '') + '.',
     'Hoy trabaja en ' + trabajo + ' (' + esc(d.horas_trabajo || '?') + ' h/sem) · ' + esc(d.tiempo_eeuu || '?') + ' en EE.UU.',
     d.busco_12m === 'Sí'
       ? 'Buscó en su profesión: aplicó a ' + apps + ', le respondieron ' + resp + ' (' + tasa(apps, resp) + '). Barrera: ' + barrera + '.'
@@ -550,6 +558,7 @@ function pendientesHoy() {
       nombre: r[idx('nombre')],
       whatsapp: r[idx('whatsapp')],
       profesion: r[idx('profesion')],
+      ciudad: r[idx('ciudad')],
       estado: est,
       proximo_paso: r[idx('proximo_paso')] || '',
       proximo_fecha: pf instanceof Date ? pf : null,
@@ -563,9 +572,50 @@ function pendientesHoy() {
   });
 }
 
+function llamadasHoyDesdeHoja() {
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const idx = n => cab.indexOf(n);
+  const hoy = hoySinHora();
+  const out = [];
+  datos.forEach(r => {
+    if (!r[idx('nombre')]) return;
+    if (String(r[idx('estado')] || '') !== 'Agendado') return;
+    const fe = r[idx('fecha_entrevista')];
+    if (!(fe instanceof Date) || isNaN(fe.getTime())) return;
+    const dia = new Date(fe.getFullYear(), fe.getMonth(), fe.getDate());
+    if (dia.getTime() !== hoy.getTime()) return;
+    out.push({
+      nombre: r[idx('nombre')],
+      profesion: r[idx('profesion')],
+      barrera: r[idx('barrera')],
+      ciudad: r[idx('ciudad')],
+      whatsapp: r[idx('whatsapp')],
+      codigo: r[idx('codigo')],
+      hora: Utilities.formatDate(fe, Session.getScriptTimeZone(), 'h:mm a')
+    });
+  });
+  return out.sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
+}
+
+function leerHuerfanosAgenda() {
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty('AGENDA_HUERFANOS') || '[]';
+    return JSON.parse(raw);
+  } catch (err) { return []; }
+}
+
+function guardarHuerfanosAgenda(lista) {
+  PropertiesService.getScriptProperties().setProperty('AGENDA_HUERFANOS', JSON.stringify(lista || []));
+}
+
 function correoDiario() {
   const lista = pendientesHoy();
-  if (!lista.length) {
+  const llamadas = llamadasHoyDesdeHoja();
+  const huerfanos = leerHuerfanosAgenda();
+  if (!lista.length && !llamadas.length && !huerfanos.length) {
     Logger.log('Correo diario: nadie para hoy; no se envía.');
     return;
   }
@@ -575,31 +625,59 @@ function correoDiario() {
     grupos[p.estado].push(p);
   });
   let cuerpo = '';
+  if (llamadas.length) {
+    cuerpo += '<h3 style="margin:18px 0 8px">Llamadas de hoy (' + llamadas.length + ')</h3>';
+    llamadas.forEach(p => {
+      const bit = BITACORA_URL;
+      cuerpo += '<div style="margin:0 0 12px;padding:12px;border:1px solid #e8b04b;border-radius:8px;background:#fbf0d9">' +
+        '<div><b>' + esc(p.hora) + '</b> · ' + esc(p.nombre) + '</div>' +
+        '<div style="font-size:13px;color:#5d6c66">' + esc(p.profesion || '') +
+        (p.ciudad ? ' · ' + esc(p.ciudad) : '') + ' · Barrera: ' + esc(p.barrera || '—') + '</div>' +
+        '<div style="margin-top:6px"><a href="' + bit + '">Abrir Bitácora</a>' +
+        (p.whatsapp ? ' · <a href="' + linkWhatsApp(p.whatsapp) + '">WhatsApp</a>' : '') + '</div></div>';
+    });
+  }
   Object.keys(grupos).forEach(est => {
     cuerpo += '<h3 style="margin:18px 0 8px">' + esc(est) + ' (' + grupos[est].length + ')</h3>';
     grupos[est].forEach(p => {
       const wa = linkWhatsApp(p.whatsapp);
       cuerpo += '<div style="margin:0 0 14px;padding:12px;border:1px solid #d7e0db;border-radius:8px">' +
-        '<div><b>' + esc(p.nombre) + '</b> · ' + esc(p.profesion || '') + '</div>' +
+        '<div><b>' + esc(p.nombre) + '</b> · ' + esc(p.profesion || '') +
+        (p.ciudad ? ' · ' + esc(p.ciudad) : '') + '</div>' +
         '<div style="font-size:13px;color:#5d6c66;margin:4px 0">' + esc(p.proximo_paso || '—') +
         (p.proximo_fecha ? ' · ' + Utilities.formatDate(p.proximo_fecha, Session.getScriptTimeZone(), 'yyyy-MM-dd') : '') + '</div>' +
         '<div style="margin:6px 0">' + (wa ? '<a href="' + wa + '">Abrir WhatsApp</a>' : esc(p.whatsapp || '')) + '</div>' +
         '<div style="font-size:13px;background:#f5f7f4;padding:10px;border-radius:6px">' + esc(p.mensaje) + '</div></div>';
     });
   });
+  if (huerfanos.length) {
+    cuerpo += '<h3 style="margin:18px 0 8px">Reservaron sin llenar el formulario (' + huerfanos.length + ')</h3>';
+    huerfanos.forEach(h => {
+      const wa = linkWhatsApp(h.telefono);
+      const msg = 'Hola' + (h.nombre ? ' ' + String(h.nombre).split(' ')[0] : '') +
+        ', soy David de Ruta Puente. Vi tu reserva de llamada. Antes de vernos, ¿puedes llenar este formulario corto? https://deivblack.github.io/ruta-puente/ Así llego preparado. Gracias.';
+      cuerpo += '<div style="margin:0 0 14px;padding:12px;border:1px solid #d7e0db;border-radius:8px">' +
+        '<div><b>' + esc(h.nombre || 'Sin nombre') + '</b>' +
+        (h.inicio ? ' · ' + esc(h.inicio) : '') + '</div>' +
+        '<div style="margin:6px 0">' + (wa ? '<a href="' + wa + '">WhatsApp ' + esc(h.telefono) + '</a>' : esc(h.telefono || '')) +
+        (h.correo ? ' · ' + esc(h.correo) : '') + '</div>' +
+        '<div style="font-size:13px;background:#f5f7f4;padding:10px;border-radius:6px">' + esc(msg) + '</div></div>';
+    });
+  }
+  const total = lista.length + llamadas.length + huerfanos.length;
   const html =
     '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26;line-height:1.5">' +
     '<div style="font-size:22px;font-weight:bold">Ruta Puente · A quién escribir hoy</div>' +
-    '<p>Hoy tienes <b>' + lista.length + '</b> persona' + (lista.length === 1 ? '' : 's') +
-    ' con próximo paso vencido o para hoy. Copia el mensaje y mándalo tú por WhatsApp (nada se envía solo).</p>' +
+    '<p>Resumen: <b>' + llamadas.length + '</b> llamadas hoy · <b>' + lista.length + '</b> con próximo paso · <b>' +
+    huerfanos.length + '</b> reservas sin formulario. Nada se envía solo a las personas.</p>' +
     cuerpo +
     '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja</a> · ' +
-    '<a href="https://deivblack.github.io/ruta-puente/bitacora/">Abrir la Bitácora</a></p></div>';
+    '<a href="' + BITACORA_URL + '">Abrir la Bitácora</a></p></div>';
 
   MailApp.sendEmail({
     to: Session.getEffectiveUser().getEmail(),
-    subject: 'Ruta Puente · ' + lista.length + ' para escribir hoy',
-    body: lista.map(p => p.nombre + ' · ' + p.estado + '\n' + p.mensaje).join('\n\n'),
+    subject: 'Ruta Puente · ' + total + ' para hoy',
+    body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length,
     htmlBody: html,
     name: 'Ruta Puente'
   });
@@ -629,10 +707,11 @@ const COL_ENT = [
   'p3_ejemplo_barrera', 'p4_que_intento', 'gasto', 'monto_usd', 'barrera_clara',
   'p5_una_cosa', 'p6_avance', 'p7_sirve_sobra', 'p8_falta',
   'p9_usara', 'p10_referidos', 'compromiso',
-  'frase_clave', 'sorpresa', 'confirma'
+  'frase_clave', 'sorpresa', 'confirma',
+  'titulo_evaluado', 'equivalencia_eeuu'
 ];
 const TEXTOS_ENT = ['p1_ultima_busqueda', 'p2_desanimo', 'p3_ejemplo_barrera', 'p4_que_intento',
-  'p5_una_cosa', 'p6_avance', 'p7_sirve_sobra', 'p8_falta', 'frase_clave', 'sorpresa'];
+  'p5_una_cosa', 'p6_avance', 'p7_sirve_sobra', 'p8_falta', 'frase_clave', 'sorpresa', 'equivalencia_eeuu'];
 
 function bitacora(txt) {
   let b;
@@ -644,6 +723,7 @@ function bitacora(txt) {
   if (b.accion === 'listar') return salida(listarBitacora());
   if (b.accion === 'guardar') return salida(guardarEntrevista(b.datos || {}));
   if (b.accion === 'guardar_estado') return salida(guardarEstado(b.datos || {}));
+  if (b.accion === 'revisar_agenda') return salida(revisarAgenda());
   return salida({ ok: false, error: 'accion' });
 }
 
@@ -750,6 +830,15 @@ function hojaEntrevistas() {
     h.appendRow(COL_ENT);
     h.setFrozenRows(1);
     h.getRange(1, 1, 1, COL_ENT.length).setFontWeight('bold').setBackground('#e1efe7');
+  } else {
+    const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    COL_ENT.forEach(c => {
+      if (cab.indexOf(c) < 0) {
+        const col = h.getLastColumn() + 1;
+        h.getRange(1, col).setValue(c).setFontWeight('bold').setBackground('#e1efe7');
+        cab.push(c);
+      }
+    });
   }
   return h;
 }
@@ -777,10 +866,10 @@ function listarBitacora() {
   const cab = datos.shift();
   const i = n => cab.indexOf(n);
   const mapa = leerEntrevistas();
-  const campos = ['nombre', 'pais', 'profesion', 'anios_exp', 'trabajo_actual', 'horas_trabajo', 'busco_12m',
+  const campos = ['nombre', 'pais', 'ciudad', 'zip', 'profesion', 'anios_exp', 'trabajo_actual', 'horas_trabajo', 'busco_12m',
     'aplicaciones', 'respuestas', 'barrera', 'comentario', 'prioridad', 'estado', 'whatsapp', 'enlace',
     'fecha_contacto', 'fecha_entrevista', 'cv_puntaje_antes', 'cv_puntaje_despues', 'plan_enviado',
-    'proximo_paso', 'proximo_fecha', 'notas_david', 'fecha_empleo'];
+    'proximo_paso', 'proximo_fecha', 'notas_david', 'fecha_empleo', 'cita_id'];
   const personas = datos.filter(r => r[i('nombre')] && r[i('codigo')]).map(r => {
     const p = { codigo: String(r[i('codigo')]) };
     campos.forEach(c => {
@@ -819,9 +908,11 @@ function guardarEntrevista(d) {
   o.p10_referidos = Math.max(0, parseInt(d.p10_referidos, 10) || 0);
   o.compromiso = (o.p9_usara === 'Sí' || o.p10_referidos > 0) ? 'Sí' : 'No';
   o.confirma = (o.lo_intento === 'Sí' && o.barrera_clara === 'Sí' && o.compromiso === 'Sí') ? 'Sí' : 'No';
+  o.titulo_evaluado = ['Sí', 'No', 'En trámite'].indexOf(d.titulo_evaluado) >= 0 ? d.titulo_evaluado : '';
+  o.equivalencia_eeuu = o.titulo_evaluado === 'Sí' ? limpiar(d.equivalencia_eeuu) : '';
 
   const h = hojaEntrevistas();
-  const fila = COL_ENT.map(c => o[c]);
+  const fila = COL_ENT.map(c => o[c] !== undefined && o[c] !== null ? o[c] : '');
   const previa = leerEntrevistas()[codigo];
   if (previa) h.getRange(previa._fila, 1, 1, COL_ENT.length).setValues([fila]);
   else h.appendRow(fila);
@@ -1001,6 +1092,149 @@ function migrarEstados(simular) {
     cambios.length + ' fila(s): ' + cambios.map(c => c.nombre + ' [' + c.de + '→' + c.a + ']').join('; ');
   Logger.log(msg);
   return { ok: true, simular: !!simular, cambios: cambios, mensaje: msg };
+}
+
+/* ---------- Agenda (Google Calendar) ---------- */
+
+function digitosTel(s) {
+  return String(s || '').replace(/\D/g, '').slice(-10);
+}
+
+function extraerContactoAgenda(ev) {
+  const desc = String(ev.getDescription() || '');
+  const titulo = String(ev.getTitle() || '');
+  const guests = ev.getGuestList(true) || [];
+  let correo = '';
+  let telefono = '';
+  let nombre = '';
+  guests.forEach(g => {
+    if (g.getEmail() && g.getEmail().indexOf('calendar.google.com') < 0) correo = correo || g.getEmail();
+    if (g.getName()) nombre = nombre || g.getName();
+  });
+  const mails = desc.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/ig);
+  if (mails && mails.length) correo = correo || mails[0];
+  const tels = desc.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g);
+  if (tels && tels.length) telefono = digitosTel(tels[0]);
+  if (!telefono) {
+    const solo = desc.replace(/\D/g, '');
+    if (solo.length >= 10) telefono = solo.slice(-10);
+  }
+  if (!nombre) {
+    const m = desc.match(/Nombre[:\s]+([^\n\r]+)/i) || desc.match(/Name[:\s]+([^\n\r]+)/i);
+    if (m) nombre = m[1].trim();
+  }
+  if (!nombre && titulo.indexOf(TITULO_CITA) >= 0) nombre = '';
+  return { nombre: nombre, correo: correo, telefono: telefono, desc: desc };
+}
+
+function buscarPersonaAgenda(telefono, correo, cab, datos) {
+  const i = n => cab.indexOf(n);
+  const tel = digitosTel(telefono);
+  const mail = String(correo || '').trim().toLowerCase();
+  let k = -1;
+  if (tel.length === 10) {
+    k = datos.findIndex(r => digitosTel(r[i('whatsapp')]) === tel);
+  }
+  if (k < 0 && mail && i('correo') >= 0) {
+    k = datos.findIndex(r => String(r[i('correo')] || '').trim().toLowerCase() === mail);
+  }
+  return k;
+}
+
+/**
+ * Lee citas "Llamada Ruta Puente" del calendario (últimos 2 días + próximos 30).
+ * Empareja por teléfono (últimos 10 dígitos) y actualiza estado a Agendado.
+ * Pide permiso Calendar la primera vez. Activar trigger con activarRevisarAgenda().
+ */
+function revisarAgenda() {
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datosAll = hoja.getDataRange().getValues();
+  const cab = datosAll.shift();
+  const i = n => cab.indexOf(n);
+  const datos = datosAll;
+
+  const ini = new Date(); ini.setDate(ini.getDate() - 2); ini.setHours(0, 0, 0, 0);
+  const fin = new Date(); fin.setDate(fin.getDate() + 30); fin.setHours(23, 59, 59, 999);
+  const cal = CalendarApp.getDefaultCalendar();
+  const eventos = cal.getEvents(ini, fin).filter(ev => String(ev.getTitle() || '').indexOf(TITULO_CITA) >= 0);
+
+  const idsVivos = {};
+  const huerfanos = [];
+  const cambios = [];
+
+  eventos.forEach(ev => {
+    const id = ev.getId();
+    idsVivos[id] = true;
+    const inicio = ev.getStartTime();
+    const contacto = extraerContactoAgenda(ev);
+    const k = buscarPersonaAgenda(contacto.telefono, contacto.correo, cab, datos);
+    if (k < 0) {
+      huerfanos.push({
+        nombre: contacto.nombre || '',
+        telefono: contacto.telefono || '',
+        correo: contacto.correo || '',
+        inicio: Utilities.formatDate(inicio, Session.getScriptTimeZone(), 'yyyy-MM-dd h:mm a'),
+        event_id: id
+      });
+      return;
+    }
+    const est = String(datos[k][i('estado')] || '');
+    const citaPrev = String(datos[k][i('cita_id')] || '');
+    const puedeAgendar = ['Nuevo', 'Contactado', 'No responde', 'Agendado', ''].indexOf(est) >= 0;
+    if (!puedeAgendar && est !== 'Agendado') return;
+
+    if (['Nuevo', 'Contactado', 'No responde', ''].indexOf(est) >= 0) {
+      aplicarEstadoFila(hoja, k + 2, cab, 'Agendado', {
+        fecha_entrevista: inicio,
+        proximo_fecha: inicio,
+        proximo_paso: 'Llamada agendada'
+      });
+      if (i('cita_id') >= 0) hoja.getRange(k + 2, i('cita_id') + 1).setValue(id);
+      if (i('fecha_contacto') >= 0 && !(datos[k][i('fecha_contacto')] instanceof Date)) {
+        hoja.getRange(k + 2, i('fecha_contacto') + 1).setValue(hoySinHora());
+      }
+      cambios.push({ nombre: datos[k][i('nombre')], de: est || '(vacío)', a: 'Agendado' });
+      datos[k][i('estado')] = 'Agendado';
+      datos[k][i('cita_id')] = id;
+    } else if (est === 'Agendado') {
+      // Actualizar fecha si se movió la cita
+      if (i('fecha_entrevista') >= 0) hoja.getRange(k + 2, i('fecha_entrevista') + 1).setValue(inicio);
+      if (i('proximo_fecha') >= 0) hoja.getRange(k + 2, i('proximo_fecha') + 1).setValue(inicio);
+      if (i('cita_id') >= 0 && citaPrev !== id) hoja.getRange(k + 2, i('cita_id') + 1).setValue(id);
+    }
+  });
+
+  // Citas canceladas: tenían cita_id y el evento ya no está
+  datos.forEach((r, k) => {
+    const id = String(r[i('cita_id')] || '');
+    if (!id || idsVivos[id]) return;
+    if (String(r[i('estado')] || '') !== 'Agendado') return;
+    const nota = String(r[i('notas_david')] || '');
+    const marca = 'Cita cancelada o eliminada del calendario (' +
+      Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd') + ').';
+    aplicarEstadoFila(hoja, k + 2, cab, 'Contactado', {
+      proximo_paso: 'Reagendar llamada',
+      notas_david: (nota ? nota + ' ' : '') + marca
+    });
+    if (i('cita_id') >= 0) hoja.getRange(k + 2, i('cita_id') + 1).setValue('');
+    cambios.push({ nombre: r[i('nombre')], de: 'Agendado', a: 'Contactado (cita cancelada)' });
+  });
+
+  guardarHuerfanosAgenda(huerfanos);
+  const msg = 'Agenda: ' + eventos.length + ' evento(s), ' + cambios.length + ' cambio(s), ' +
+    huerfanos.length + ' sin formulario.';
+  Logger.log(msg + ' ' + JSON.stringify(cambios));
+  return { ok: true, eventos: eventos.length, cambios: cambios, huerfanos: huerfanos, mensaje: msg };
+}
+
+function activarRevisarAgenda() {
+  asegurarColumnas();
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'revisarAgenda')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('revisarAgenda').timeBased().everyHours(1).create();
+  Logger.log('Trigger horario revisarAgenda creado. Autoriza Calendar si el editor lo pide.');
 }
 
 /* ---------- Utilidades ---------- */

@@ -317,6 +317,10 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
         <img src="logo-icon.svg" width="72" height="72" alt="">
         <div class="big" id="done-title">¡Gracias!</div>
         <p id="done-text"></p>
+        <div id="done-agenda" hidden style="display:flex;flex-direction:column;gap:12px;align-items:stretch;width:100%;max-width:360px;margin:0 auto">
+          <a class="btn" id="btn-agenda" href="#" target="_blank" rel="noopener">Agenda tu llamada</a>
+          <p style="margin:0;font-size:.85rem;color:var(--muted)">¿Ningún horario te sirve? <a id="btn-wa-alt" href="https://wa.me/18322533555" target="_blank" rel="noopener">Escríbeme por WhatsApp</a></p>
+        </div>
       </div>
     </section>
   </main>
@@ -327,6 +331,8 @@ footer .sun{display:inline-block;width:10px;height:10px;border-radius:50%;backgr
 <script>
 // Pega aquí la URL de tu Apps Script (termina en /exec)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
+// Misma URL en landing y app (agenda pública de Google Calendar; no tocar la config desde código)
+const AGENDA_URL = "https://calendar.google.com/calendar/appointments/schedules/AcZssZ07-Uw7dChoUKfgYNbB5l1sVsBlV-U5R2u2lDJyaiYa_XqejfohlGI-IIi84Xa_auVxALOLy1zf";
 
 const form = document.getElementById('form');
 const steps = [...form.querySelectorAll('fieldset[data-step]')];
@@ -408,12 +414,17 @@ function finish(d){
   form.hidden = true;
   const done = document.getElementById('done'); done.hidden = false;
   const name = (d.nombre||'').split(' ')[0];
+  const agenda = document.getElementById('done-agenda');
   if(d.prioridad==='Fuera de perfil'){
     document.getElementById('done-title').textContent = `Gracias, ${name}`;
     document.getElementById('done-text').textContent = 'Gracias de corazón por compartir tu historia. Por ahora este proyecto está enfocado en personas que ya pueden trabajar legalmente en EE.UU. Guardé tus datos y te escribiré cuando tengamos algo que te sirva.';
+    agenda.hidden = true;
   }else{
-    document.getElementById('done-title').textContent = `¡Gracias, ${name}!`;
-    document.getElementById('done-text').textContent = 'Recibí tu historia. Te escribo por WhatsApp en los próximos 2 días para agendar nuestra llamada de 15 minutos.';
+    document.getElementById('done-title').textContent = `¡Listo, ${name}!`;
+    document.getElementById('done-text').textContent = 'El siguiente paso es una llamada de 15 minutos conmigo para armar tu ruta. Elige el viernes y la hora que te quede mejor:';
+    document.getElementById('btn-agenda').href = AGENDA_URL;
+    agenda.hidden = false;
+    agenda.style.display = 'flex';
     confetti();
   }
   done.scrollIntoView({block:'center'});

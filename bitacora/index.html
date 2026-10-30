@@ -131,7 +131,11 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
       <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="17" r="6" fill="var(--sun)"/><path d="M4 30 Q20 8 36 30" fill="none" stroke="var(--green)" stroke-width="3.2" stroke-linecap="round"/><path d="M3 30h34" stroke="var(--green)" stroke-width="3.2" stroke-linecap="round"/></svg>
       <h1>Bitácora<small>Entrevistas Sprint 0 · solo para David</small></h1>
     </div>
-    <div class="tools"><button class="link" id="reload" type="button">Actualizar</button><button class="link" id="logout" type="button">Salir</button></div>
+    <div class="tools">
+      <button class="link" id="rev-agenda" type="button">Revisar agenda</button>
+      <button class="link" id="reload" type="button">Actualizar</button>
+      <button class="link" id="logout" type="button">Salir</button>
+    </div>
   </header>
 
   <section class="gate" aria-label="Avance hacia el Sprint 1">
@@ -160,6 +164,7 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
     <dl class="facts">
       <div><dt>Profesión en su país</dt><dd id="f-prof"></dd></div>
       <div><dt>Trabajo actual</dt><dd id="f-job"></dd></div>
+      <div><dt>Ciudad / ZIP</dt><dd id="f-ciudad"></dd></div>
       <div><dt>Aplicaciones / respuestas (12 meses)</dt><dd id="f-apps"></dd></div>
       <div><dt>Lo que más le frena</dt><dd id="f-bar"></dd></div>
     </dl>
@@ -243,6 +248,11 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
       <div class="q"><label for="sorpresa">Lo que me sorprendió</label><textarea id="sorpresa"></textarea></div>
       <div class="q"><span class="lbl">¿Está dentro del perfil?</span><div class="seg" data-name="dentro_perfil"><button type="button">Sí</button><button type="button">No</button></div>
         <div class="hint">Dentro del perfil: tiene título, puede trabajar legalmente y no trabaja en su profesión.</div></div>
+      <div class="q"><span class="lbl">¿Tienes tus títulos evaluados en EE. UU. (WES, ECE, SpanTran…)?</span>
+        <div class="seg" data-name="titulo_evaluado"><button type="button">Sí</button><button type="button">No</button><button type="button">En trámite</button></div></div>
+      <div class="q" id="eq-wrap" hidden><label for="equivalencia_eeuu">Equivalencia en EE. UU.</label>
+        <input type="text" id="equivalencia_eeuu" placeholder="Ej.: B.S. Industrial Engineering; Master's in Management" maxlength="200">
+        <div class="hint">Solo el nombre del grado equivalente. Nunca fecha de nacimiento ni números de documento.</div></div>
     </div>
   </details>
 
@@ -268,10 +278,10 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
-const TEXTOS = ['p1_ultima_busqueda','p2_desanimo','p3_ejemplo_barrera','p4_que_intento','p5_una_cosa','p6_avance','p7_sirve_sobra','p8_falta','frase_clave','sorpresa'];
+const TEXTOS = ['p1_ultima_busqueda','p2_desanimo','p3_ejemplo_barrera','p4_que_intento','p5_una_cosa','p6_avance','p7_sirve_sobra','p8_falta','frase_clave','sorpresa','equivalencia_eeuu'];
 const NUMS = ['monto_usd','p10_referidos'];
 const CHECKS = ['lo_intento','barrera_clara'];
-const SEGS = ['gasto','p9_usara','dentro_perfil'];
+const SEGS = ['gasto','p9_usara','dentro_perfil','titulo_evaluado'];
 const $ = s => document.querySelector(s);
 const store = {
   get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
@@ -433,6 +443,7 @@ function elegir(codigo, conservar){
   $('#f-prof').textContent = (p.profesion||'—') + (p.anios_exp ? ', ' + p.anios_exp + ' años' : '');
   $('#f-job').textContent = (p.trabajo_actual||'—') + (p.horas_trabajo ? ' · ' + p.horas_trabajo + ' h' : '');
   $('#f-apps').textContent = p.busco_12m === 'Sí' ? (p.aplicaciones||0) + ' / ' + (p.respuestas||0) : 'No buscó en 12 meses';
+  $('#f-ciudad').textContent = [p.ciudad, p.zip].filter(Boolean).join(' · ') || '—';
   $('#f-bar').textContent = p.barrera || '—';
   $('#f-com').textContent = p.comentario ? '"' + p.comentario + '"' : 'No dejó comentario.';
   llenarSelectEstado($('#f-estado'), p.estado || 'Nuevo');
@@ -456,6 +467,7 @@ function elegir(codigo, conservar){
   if (!d && p.entrevista) d = p.entrevista;
   if (!d) d = {dentro_perfil: p.prioridad === 'Fuera de perfil' ? 'No' : 'Sí'};
   poner(d);
+  syncEquivalencia();
   $('#work').hidden = false; $('#bar').hidden = false;
   calc(!!borrador);
 }
@@ -481,12 +493,31 @@ function calc(hayBorrador){
 function cambio(){ calc.sucio = true; guardarBorrador(); calc(); }
 document.addEventListener('input', e => { if (e.target.closest('#work')) cambio(); });
 document.addEventListener('change', e => { if (e.target.closest('#work')) cambio(); });
+function syncEquivalencia(){
+  const v = getSeg('titulo_evaluado');
+  const wrap = $('#eq-wrap');
+  if (!wrap) return;
+  wrap.hidden = v !== 'Sí';
+  if (v !== 'Sí') $('#equivalencia_eeuu').value = '';
+}
 document.querySelectorAll('.seg').forEach(g => g.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   const on = b.getAttribute('aria-pressed') === 'true';
   g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b && !on)));
+  if (g.dataset.name === 'titulo_evaluado') syncEquivalencia();
   cambio();
 }));
+$('#rev-agenda').addEventListener('click', async () => {
+  const btn = $('#rev-agenda'); btn.disabled = true; btn.textContent = 'Revisando…';
+  try {
+    const r = await api({accion:'revisar_agenda'});
+    if (!r.ok) throw new Error(r.error || 'error');
+    toast(r.mensaje || ('Agenda: ' + (r.cambios||[]).length + ' cambio(s)'));
+    await cargar(false);
+  } catch(e){
+    toast(String(e.message) === 'clave' ? 'Tu clave ya no es válida.' : 'No se pudo revisar la agenda. ¿Autorizaste Calendar?', true);
+  } finally { btn.disabled = false; btn.textContent = 'Revisar agenda'; }
+});
 
 $('#save').addEventListener('click', async () => {
   if (!actual) return;
