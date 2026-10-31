@@ -126,10 +126,52 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
 .cv-msg{font-size:15px;font-weight:700;color:var(--muted);min-height:1.3em}
 .cv-msg.ok{color:var(--hope)}
 .cv-msg.err{color:#b4533e}
+.para-que{margin:0;font-size:15px;font-weight:700;color:var(--hope);background:var(--hope-soft);border-radius:12px;padding:10px 12px}
+.welcome{position:fixed;inset:0;background:rgba(15,26,21,.55);z-index:20;display:flex;align-items:flex-end;padding:16px}
+.welcome .sheet{background:var(--surface);border-radius:22px 22px 0 0;padding:22px 20px 20px;width:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:14px;max-height:92vh;overflow:auto}
+.welcome h2{font-size:24px}
+.w-cards{display:flex;flex-direction:column;gap:10px}
+.w-card{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px}
+.w-card b{display:block;font-family:var(--f-display);font-size:17px;margin-bottom:4px}
+.ask{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.ask p{font-weight:700}
+.ask .seg{display:flex;gap:8px}
+.ask .seg button{flex:1;font:800 15px var(--f-body);border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:10px 12px;cursor:pointer}
+.ask .seg button[aria-pressed="true"]{border-color:var(--hope);background:var(--hope);color:var(--hope-ink)}
+.opt{all:unset;cursor:pointer;background:var(--surface);border:2px solid var(--line);padding:8px 12px;border-radius:999px;font-size:14px;font-weight:800}
+.opt.on{border-color:var(--hope);background:var(--hope-soft);color:var(--hope)}
+.emp{display:flex;flex-direction:column;gap:10px}
+.emp a{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:12px;background:var(--bg);border:2px solid var(--line);color:var(--ink);text-decoration:none}
+.emp a b{font-size:16px}
+.emp a span{font-size:13px;color:var(--muted);font-weight:700}
+.meta-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--hope-soft);border-radius:14px;padding:14px}
+@media (max-width:420px){.meta-box{grid-template-columns:1fr}}
+.meta-box p{font-weight:800}
+.alist{display:flex;flex-direction:column;gap:10px}
+.aitem{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.aitem .who{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.aitem .who b{font-size:16px}
+.aitem .who small{color:var(--muted);font-weight:700}
+.avance{background:var(--sun-soft);border:1px solid var(--sun);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.avance p{font-weight:800}
+.t-libre-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 </style>
 </head>
 <body>
 
+
+<div class="welcome" id="bienvenida" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="bien-title">
+    <h2 id="bien-title">Tu ruta, en 2 minutos</h2>
+    <div class="w-cards">
+      <div class="w-card"><b>Qué es tu ruta</b><p>Seis pasos cortos para armar tu perfil en inglés, elegir un cargo y empezar a aplicar cerca de ti.</p></div>
+      <div class="w-card"><b>Cuánto tiempo toma</b><p>La primera vez: unos 20 minutos. Después, 15 minutos por semana para anotar aplicaciones y escribirle a alguien.</p></div>
+      <div class="w-card"><b>Qué ganas al terminar</b><p>Un resumen listo, un cargo en inglés, vacantes cerca y un mensaje para LinkedIn. David te acompaña por WhatsApp.</p></div>
+    </div>
+    <button class="btn" id="bien-ok" type="button">Empezar</button>
+    <button class="btn ghost" id="bien-skip" type="button">Saltar y ver mi ruta</button>
+  </div>
+</div>
 
 <div class="wrap">
   <header class="top">
@@ -169,9 +211,14 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
     <button class="back" id="to-route" type="button">← Tu ruta</button>
     <span class="count" id="step-count">Paso 1 de 6</span>
   </div>
+  <div class="avance" id="avance" hidden>
+    <p id="avance-text"></p>
+    <a class="btn" id="avance-wa" href="#" target="_blank" rel="noopener">Escríbele a David</a>
+  </div>
 
   <!-- 1 Perfil -->
   <section class="card view" data-step="0">
+    <p class="para-que">Tus logros son la base de tu CV: con ellos un reclutador entiende en 10 segundos lo que sabes hacer.</p>
     <h2>Tu perfil en inglés</h2>
     <p class="hint">Esto ya viene de tu formulario. Corrige lo que haga falta y agrega tus logros: son lo que más pesa en un CV de EE.UU.</p>
     <div class="grid2">
@@ -191,19 +238,39 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
 
   <!-- 2 Traducción -->
   <section class="card view" data-step="1" hidden>
+    <p class="para-que">El nombre de tu cargo en inglés es lo que un reclutador busca. Si no coincide, no te encuentran.</p>
     <h2>Cómo se llama tu trabajo aquí</h2>
     <p class="hint">Un reclutador en EE.UU. busca por cargos y palabras clave. Esto es lo que tienes que poner en tu CV y en LinkedIn.</p>
     <div class="out" id="t-out"></div>
-    <div id="t-libre" hidden>
-      <label for="p-cargo-libre">Escribe tu cargo en español (el trabajo que hacías, no el grado)
-        <input id="p-cargo-libre" placeholder="Ej.: docente, ingeniero electromecánico" autocomplete="off">
-      </label>
+    <div id="t-libre-wrap">
+      <div class="t-libre-head">
+        <span class="hint" id="t-libre-label">¿No es tu cargo? Cámbialo.</span>
+        <button class="btn ghost" id="btn-cambiar-cargo" type="button" hidden>Cambiar</button>
+      </div>
+      <div id="t-libre" hidden>
+        <label for="p-cargo-libre">Escribe tu cargo en español (el trabajo que hacías, no el grado)
+          <input id="p-cargo-libre" placeholder="Ej.: docente, ingeniero electromecánico" autocomplete="off">
+        </label>
+      </div>
     </div>
-    <div class="tip" id="tip-titulo"><span class="dot" aria-hidden="true"></span><p>Para que tu título cuente aquí, existe la evaluación de credenciales (por ejemplo WES o ECE): traduce tu grado a su equivalente en EE.UU. Ruta Puente orienta; no da asesoría legal.</p></div>
+    <div id="t-opciones" class="chips" hidden></div>
+    <div class="card" id="val-titulo" style="padding:16px;border:2px solid var(--line)">
+      <h3>¿Necesito validar mi título?</h3>
+      <p class="hint">Tres preguntas. Al final te decimos si te conviene una evaluación. Confirma la evaluadora antes de pagar. Ruta Puente no da asesoría legal.</p>
+      <div class="ask" data-q="q1"><p>1. ¿Tu cargo meta pide licencia en Texas? (enfermería, medicina, docencia en escuela pública, ingeniería con firma PE, contabilidad CPA, abogacía)</p><div class="seg"><button type="button" data-v="sí">Sí</button><button type="button" data-v="no">No</button></div></div>
+      <div class="ask" data-q="q2"><p>2. ¿Las vacantes que te interesan piden "Bachelor's degree"?</p><div class="seg"><button type="button" data-v="sí">Sí</button><button type="button" data-v="no">No</button></div></div>
+      <div class="ask" data-q="q3"><p>3. ¿Piensas estudiar en una universidad de EE. UU.?</p><div class="seg"><button type="button" data-v="sí">Sí</button><button type="button" data-v="no">No</button></div></div>
+      <div class="out" id="val-out" hidden></div>
+      <details id="val-info">
+        <summary class="linkish">Qué es una evaluación de título</summary>
+        <p class="hint">Hay dos tipos. <b>General</b> (document-by-document): dice a qué grado equivale el tuyo. <b>Materia por materia</b> (course-by-course): lista cada materia; la piden juntas de licencia. Evaluadoras conocidas: WES, ECE, SpanTran/TEC, Josef Silny. Confirma qué evaluadora acepta tu destino antes de pagar. No publicamos precios.</p>
+      </details>
+    </div>
   </section>
 
   <!-- 3 Carril + Mi CV -->
   <section class="card view" data-step="2" hidden>
+    <p class="para-que">Elegir un carril evita que tu perfil se vea diluido. El 80% de tus aplicaciones van a un solo cargo.</p>
     <h2>Tu carril principal</h2>
     <p class="hint">Aplicar a todo diluye tu perfil. Elige uno principal (80% de tu esfuerzo) y uno de respaldo (20%).</p>
     <div class="lanes" id="lanes"></div>
@@ -220,6 +287,7 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
 
   <!-- 4 Vacantes -->
   <section class="card view" data-step="3" hidden>
+    <p class="para-que">Aplicar cerca de ti y directo en la empresa aumenta las chances de que te respondan.</p>
     <h2>Vacantes reales cerca de ti</h2>
     <p class="hint" id="v-note"></p>
     <div class="grid2">
@@ -228,10 +296,14 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
     </div>
     <div class="links" id="v-links"></div>
     <p class="hint">Estos botones abren búsquedas en portales reales. Ruta Puente nunca inventa vacantes.</p>
+    <h2>Empresas objetivo en Houston</h2>
+    <p class="hint">Muchas empresas grandes no publican todo en Indeed. Aplica directo en su página de empleos y busca a alguien de adentro en LinkedIn.</p>
+    <div class="emp" id="v-empresas"></div>
   </section>
 
   <!-- 5 Contacto -->
   <section class="card view" data-step="4" hidden>
+    <p class="para-que">Un mensaje corto a alguien de adentro responde mucho más que una aplicación en frío.</p>
     <h2>Escríbele a una persona antes de aplicar</h2>
     <p class="hint">Un mensaje corto a alguien de la empresa responde mucho más que una aplicación en frío.</p>
     <div class="tip" id="tip-barrera"><span class="dot" aria-hidden="true"></span><p id="tip-barrera-text"></p></div>
@@ -249,17 +321,22 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
 
   <!-- 6 Seguimiento -->
   <section class="card view" data-step="5" hidden>
+    <p class="para-que">Anotar cada aplicación te deja ver si tu semana va bien y cuándo escribir de nuevo.</p>
     <h2>Tus aplicaciones</h2>
-    <p class="hint">Anota cada aplicación. A los 7 días te avisamos para escribirle a la empresa. Esto se guarda solo en tu celular.</p>
+    <p class="hint">Anota cada una. Se guarda en tu celular. Si tienes enlace personal, solo los conteos de la semana llegan a David.</p>
+    <div class="meta-box">
+      <label for="a-meta">Meta de esta semana<input id="a-meta" type="number" min="1" max="30" value="5" inputmode="numeric"></label>
+      <div>
+        <p id="a-semana">0 de 5 esta semana</p>
+        <p id="a-racha" class="hint">Racha: 0 semanas seguidas</p>
+      </div>
+    </div>
     <form class="row" id="add-form">
       <input id="a-company" placeholder="Empresa" style="flex:1 1 150px" required>
       <input id="a-role" placeholder="Puesto" style="flex:1 1 150px" required>
       <button class="btn" type="submit">Agregar</button>
     </form>
-    <div class="tablewrap"><table>
-      <thead><tr><th>Empresa</th><th>Puesto</th><th>Aplicaste</th><th>Seguimiento</th><th>Estado</th><th></th></tr></thead>
-      <tbody id="rows"></tbody>
-    </table></div>
+    <div class="alist" id="app-list"></div>
     <p class="hint" id="stats"></p>
   </section>
 
@@ -287,7 +364,7 @@ const TITLES = {
   "recursos humanos": {en:"HR Generalist", alt:["HR Analyst","HR Coordinator"], kw:["onboarding","HRIS","employee relations","compliance"], lanes:["HR Generalist","HR Coordinator","Recruiting Coordinator"]},
   "ingeniero civil": {en:"Civil Engineer (EIT)", alt:["Project Engineer","Field Engineer"], kw:["AutoCAD","site inspection","scheduling","cost estimating"], lanes:["Project Engineer","Construction Estimator","Field Engineer"]},
   "ingeniero industrial": {en:"Industrial Engineer", alt:["Process Improvement Engineer","Operations Analyst"], kw:["Lean","Six Sigma","process mapping","KPIs"], lanes:["Operations Analyst","Process Improvement Specialist","Production Planner"]},
-  "ingeniero de sistemas": {en:"IT Support Specialist", alt:["Systems Analyst","Implementation Specialist"], kw:["help desk","troubleshooting","SQL","implementation"], lanes:["IT Support Specialist","Implementation Specialist","Systems Analyst"]},
+  "ingeniero de sistemas": {en:"Systems Engineer", alt:["Systems Analyst","Implementation Specialist"], kw:["systems analysis","SQL","implementation","networks"], lanes:["Systems Engineer","Systems Analyst","Implementation Specialist"]},
   "abogado": {en:"Paralegal / Legal Assistant", alt:["Compliance Analyst","Contract Administrator"], kw:["legal research","contracts","compliance","bilingual"], lanes:["Bilingual Paralegal","Compliance Analyst","Contract Administrator"]},
   "medico": {en:"Clinical Research Coordinator", alt:["Medical Assistant","Patient Navigator"], kw:["patient care","EHR","clinical trials","bilingual"], lanes:["Clinical Research Coordinator","Medical Assistant","Patient Navigator"]},
   "enfermero": {en:"Patient Care Technician", alt:["Certified Nursing Assistant","Patient Navigator"], kw:["patient care","vital signs","EHR","bilingual"], lanes:["Patient Care Technician","Patient Navigator","Medical Assistant"]},
@@ -305,40 +382,69 @@ const TITLES = {
   "marketing de destinos": {en:"Destination Marketing Coordinator", alt:["Tourism Marketing Specialist","Communications Coordinator"], kw:["destination marketing","social media","tourism","campaigns"], lanes:["Destination Marketing Coordinator","Tourism Marketing Specialist","Communications Coordinator"]}
 };
 const KEY_CARGO = "rp-cargo-" + (new URLSearchParams(location.search).get("c") || "demo");
+/* TITLES_LOGIC_START */
+const NIVEL_CARGO = {
+  ciberseguridad: 90, "psicologo organizacional": 78, "ingeniero electromecanico": 72,
+  medico: 70, abogado: 70, "ingeniero industrial": 68, "ingeniero civil": 68,
+  contador: 62, "marketing de destinos": 60, "jefe de capacitacion": 60,
+  enfermero: 58, docente: 56, maestro: 56, "recursos humanos": 55, ventas: 55,
+  psicologo: 54, turismo: 52, hoteleria: 52, administrador: 50,
+  "ingeniero de sistemas": 48, bodega: 45
+};
 const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
 function expandir(raw){
-  let t = norm(raw);
-  t = t.replace(/\bing\.?\b/g, "ingeniero");
+  let t = norm(raw).replace(/\./g, " ").replace(/\s+/g, " ").trim();
+  [["ingeniera","ingeniero"],["licenciada","licenciado"],["abogada","abogado"],["enfermera","enfermero"],
+   ["contadora","contador"],["psicologa","psicologo"],["maestra","maestro"],["medica","medico"],
+   ["administradora","administrador"]].forEach(([a,b]) => { t = t.replace(new RegExp("\\b"+a+"\\b","g"), b); });
+  t = t.replace(/\bcontabilidad\b/g, "contador");
+  t = t.replace(/\benfermeria\b/g, "enfermero");
+  t = t.replace(/\bdocencia\b/g, "docente");
+  t = t.replace(/\badministracion\b/g, "administrador");
+  t = t.replace(/\bing\b/g, "ingeniero");
   t = t.replace(/\bingenieria\b/g, "ingeniero");
   t = t.replace(/\bingeniero en\b/g, "ingeniero de");
-  t = t.replace(/\bmaestra\b/g, "maestro");
-  t = t.replace(/\bcontadora\b/g, "contador");
-  t = t.replace(/\bpsicologa\b/g, "psicologo");
-  t = t.replace(/\bdocencia\b/g, "docente");
+  if (/\bsistemas\b/.test(t) && !/\bingeniero de sistemas\b/.test(t)) t = t.replace(/\bsistemas\b/g, "ingeniero de sistemas");
   return t.replace(/\s+/g, " ").trim();
 }
 function esGrado(raw){
   const t = expandir(raw);
-  if (/\b(maestro|maestra|docente)\b/.test(t)) return false;
-  return /\b(maestria|master|licenciatura|doctorado|diplomado|bachelor|mba)\b/.test(t);
+  if (/\b(maestro|docente)\b/.test(t)) return false;
+  return /\b(maestria|master|licenciatura|licenciado|doctorado|diplomado|bachelor|mba)\b/.test(t);
 }
-function partesProfesion(raw){
-  return expandir(raw).split(/\s*(?:\/|,|;|\s+y\s+)\s*/).map(s => s.trim()).filter(s => s.length >= 3);
+function matchKey(n, k){
+  const v = [n, n.replace(/a\b/g,"o"), n.replace(/ra\b/g,"r"), n.replace(/a\b/g,"")];
+  return v.some(x => x===k || x.includes(k) || (x.length>=5 && k.includes(x)));
 }
-function findTitle(raw){
-  const chunks = [];
+function findTitles(raw){
   const full = expandir(raw);
+  const chunks = [];
   if (full) chunks.push(full);
-  partesProfesion(raw).forEach(p => { if (chunks.indexOf(p) < 0) chunks.push(p); });
-  const keys = Object.keys(TITLES).sort((a,b) => b.length - a.length);
-  for (const n of chunks){
-    if (esGrado(n) && n.split(/\s+/).length <= 3 && !keys.some(k => n.includes(k))) continue;
-    const v = [n, n.replace(/a\b/g,"o"), n.replace(/ra\b/g,"r"), n.replace(/a\b/g,"")];
-    for (const k of keys){
-      if (v.some(x => x===k || x.includes(k) || (x.length>=5 && k.includes(x)))) return {key:k, ...TITLES[k]};
-    }
+  full.split(/\s*(?:\/|,|;|\s+y\s+)\s*/).forEach(p => {
+    p = p.trim();
+    if (p.length >= 3 && chunks.indexOf(p) < 0) chunks.push(p);
+  });
+  const keys = Object.keys(TITLES);
+  const seen = {}, found = [];
+  chunks.forEach(n => {
+    if (esGrado(n) && n.split(/\s+/).length <= 3 && !keys.some(k => n.includes(k))) return;
+    keys.forEach(k => {
+      if (seen[k] || !matchKey(n, k)) return;
+      seen[k] = true;
+      found.push({ key:k, nivel: NIVEL_CARGO[k] || 50, ...TITLES[k] });
+    });
+  });
+  return found.sort((a,b) => b.nivel - a.nivel);
+}
+function findTitle(raw){ return findTitles(raw)[0] || null; }
+/* TITLES_LOGIC_END */
+function tituloActual(){
+  const todos = findTitles($("#p-title").value);
+  if (cargoElegido) {
+    const hit = todos.find(t => t.key === cargoElegido);
+    if (hit) return hit;
   }
-  return null;
+  return todos[0] || null;
 }
 const TIPS = {
   "El inglés": "Tu barrera es el inglés: no tienes que escribir este mensaje desde cero. Copia el que armamos y cambia solo el nombre de la empresa.",
@@ -352,7 +458,21 @@ const TIPS = {
 let P = {...EJEMPLO};
 const CODIGO = (new URLSearchParams(location.search).get("c") || "").trim();
 const KEY_CV = "rp-cv-" + (CODIGO || "demo");
+const KEY_TITLE_PICK = "rp-title-key-" + (CODIGO || "demo");
+const KEY_BIEN = "rp-bienvenida";
+const KEY_TITULO = "rp-titulo-" + (CODIGO || "demo");
+const KEY_META = "rp-meta-" + (CODIGO || "demo");
+const KEY_RACHA = "rp-racha-" + (CODIGO || "demo");
+const KEY_AVISO = "rp-aviso-dicc-" + (CODIGO || "demo");
+const WA_DAVID = "https://wa.me/18322533555";
 let cvListo = false; try{ cvListo = localStorage.getItem(KEY_CV) === "1"; }catch(e){}
+let cargoElegido = ""; try{ cargoElegido = localStorage.getItem(KEY_TITLE_PICK) || ""; }catch(e){}
+let editandoCargo = false;
+let valTitulo = {q1:"", q2:"", q3:""};
+try{ valTitulo = Object.assign(valTitulo, JSON.parse(localStorage.getItem(KEY_TITULO)||"{}")||{}); }catch(e){}
+let metaSemana = 5; try{ const n = parseInt(localStorage.getItem(KEY_META),10); if(n>=1 && n<=30) metaSemana = n; }catch(e){}
+let racha = {semana:"", cumplidas:0}; try{ racha = Object.assign(racha, JSON.parse(localStorage.getItem(KEY_RACHA)||"{}")||{}); }catch(e){}
+let empresas = [];
 const state = {step:0, primary:null, backup:null};
 
 async function cargar(){
@@ -364,14 +484,17 @@ async function cargar(){
       if(d && d.ok){ P = d.persona; $("#badge").hidden = true; }
     }catch(e){ /* sin conexión: queda el ejemplo */ }
   }
-  pintarSaludo(); llenarPerfil();
+  pintarSaludo(); llenarPerfil(); pintarValTitulo();
+  let vioBien = false; try{ vioBien = localStorage.getItem(KEY_BIEN) === "1"; }catch(e){}
+  if(!vioBien){ $("#bienvenida").hidden = false; }
   if(nivelHechos() >= 6) home(); else showNivel();
+  cargarEmpresas();
 }
 
 function pintarSaludo(){
   const nombre = (P.nombre||"").split(" ")[0] || "";
   $("#hello-title").textContent = nombre ? `Hola, ${nombre}` : "Hola";
-  const m = findTitle(P.profesion);
+  const m = findTitle($("#p-title") ? $("#p-title").value || P.profesion : P.profesion);
   const f = [P.profesion, P.anios_exp ? P.anios_exp + " años" : "", P.pais, m ? "→ " + m.en : ""].filter(Boolean);
   $("#facts").innerHTML = f.map(x=>`<span class="fact">${esc(x)}</span>`).join("");
   const est = String(P.estado || "Nuevo");
@@ -390,12 +513,18 @@ function llenarPerfil(){
   try{ const w = localStorage.getItem("rp-wins"); if(w) $("#p-wins").value = w; }catch(e){}
   try{
     const libre = localStorage.getItem(KEY_CARGO);
-    if (libre && !findTitle($("#p-title").value)){
-      $("#p-title").value = libre;
+    if (libre){
       $("#p-cargo-libre").value = libre;
+      if (!findTitle($("#p-title").value)) $("#p-title").value = libre;
     }
   }catch(e){}
 }
+function cerrarBienvenida(){
+  try{ localStorage.setItem(KEY_BIEN, "1"); }catch(e){}
+  $("#bienvenida").hidden = true;
+}
+$("#bien-ok").onclick = cerrarBienvenida;
+$("#bien-skip").onclick = cerrarBienvenida;
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 // Nivelación (fase 2): 8 bases digitales; con ≥6 se abre la ruta de 6 pasos
@@ -450,21 +579,24 @@ function showNivel(){
   document.querySelectorAll(".view").forEach(v=>v.hidden = true);
   $("#nivelacion").hidden = false;
   $("#ruta-home").hidden = true; $("#stepbar").hidden = true; $("#nav").hidden = true;
+  $("#avance").hidden = true;
   pintarNivel(); window.scrollTo({top:0});
 }
 
 // Dos pantallas: la ruta (inicio) y un paso a la vez
-function home(){
+function home(opts){
   state.step = -1;
   document.querySelectorAll(".view").forEach(v=>v.hidden = true);
   $("#nivelacion").hidden = true;
   $("#ruta-home").hidden = false; $("#stepbar").hidden = true; $("#nav").hidden = true;
+  if (!(opts && opts.keepAvance)) $("#avance").hidden = true;
   render(); window.scrollTo({top:0});
 }
-function go(i){
+function go(i, opts){
   state.step=i;
   $("#nivelacion").hidden = true;
   $("#ruta-home").hidden = true; $("#stepbar").hidden = false; $("#nav").hidden = false;
+  if (!(opts && opts.keepAvance)) $("#avance").hidden = true;
   document.querySelectorAll(".view").forEach(v=>v.hidden = +v.dataset.step!==i);
   $("#step-count").textContent = `Paso ${i+1} de ${STEPS.length} · ${STEPS[i]}`;
   $("#prev").textContent = i===0 ? "← Tu ruta" : "Atrás";
@@ -474,8 +606,26 @@ function go(i){
 $("#to-route").onclick = home;
 $("#to-nivel").onclick = showNivel;
 $("#nivel-go").onclick = ()=>{ if(nivelHechos()>=6) home(); };
-$("#prev").onclick=()=> state.step===0 ? home() : go(state.step-1);
-$("#next").onclick=()=>{ revisados.add(state.step); guardarOk(); state.step===STEPS.length-1 ? home() : go(state.step+1); };
+$("#prev").onclick=()=> { $("#avance").hidden = true; state.step===0 ? home() : go(state.step-1); };
+$("#next").onclick=()=>{
+  revisados.add(state.step); guardarOk();
+  if (!findTitle($("#p-title").value)) avisarDiccionario();
+  mostrarAvance(state.step);
+  state.step===STEPS.length-1 ? home({keepAvance:true}) : go(state.step+1, {keepAvance:true});
+};
+function textoWa(paso){
+  return "Hola David, terminé el paso " + (paso+1) + " de mi ruta y tengo una duda: ";
+}
+function mostrarAvance(paso){
+  const listos = STEPS.reduce((n,_,i)=> n + (revisados.has(i) && !requisito(i) ? 1 : 0), 0);
+  const falta = STEPS.length - listos;
+  const el = $("#avance");
+  el.hidden = false;
+  $("#avance-text").textContent = listos === 6
+    ? "Ruta completa. Si algo no quedó claro, escríbeme."
+    : "Vas " + listos + " de 6. Lo que sigue te toma 15 minutos" + (falta === 1 ? "." : ".");
+  $("#avance-wa").href = WA_DAVID + "?text=" + encodeURIComponent(textoWa(paso));
+}
 
 // Estado de cada paso: ✓ solo cuando la persona lo revisó (Confirmar) y ya tiene lo que el paso pide
 const KEY_OK = "rp-ok-" + (new URLSearchParams(location.search).get("c") || "demo");
@@ -493,7 +643,7 @@ function requisito(i){
   ][i];
 }
 function pintarRuta(){
-  const m = findTitle($("#p-title").value), zip = ($("#p-zip").value.match(/\d{5}/)||[])[0];
+  const m = tituloActual(), zip = ($("#p-zip").value.match(/\d{5}/)||[])[0];
   const info = ["Resumen en inglés", m ? m.en : "Lo revisamos contigo", state.primary || "", zip ? "Cerca de " + zip : "", "Para LinkedIn", rows.length ? rows.length + " anotadas" : ""];
   const nombres = ["Tu perfil","Tu cargo aquí","Tu carril","Vacantes cerca","Mensaje de contacto","Tus aplicaciones"];
   let listos = 0;
@@ -509,23 +659,20 @@ function pintarRuta(){
 }
 
 function render(){
-  const m = findTitle($("#p-title").value);
-  // 1 resumen
+  const m = tituloActual();
+  const todos = findTitles($("#p-title").value);
+  // 1 resumen: se arma con logros y años, no con un texto genérico
   const role = m ? m.en : ($("#p-title").value || "professional");
   const wins = $("#p-wins").value.split("\n").map(s=>s.trim()).filter(Boolean);
-  const kw = m ? m.kw.slice(0,3).join(", ") : "process improvement and teamwork";
-  $("#summary").textContent = `Bilingual (English/Spanish) ${role} with ${$("#p-years").value.toLowerCase().replace("más de","10+").replace(" a ","–").replace("menos de","under")} years of experience in ${$("#p-country").value||"Latin America"}, skilled in ${kw}.` + (wins.length ? `\n\nKey results (write them in English):\n${wins.map(w=>"• "+w).join("\n")}` : "\n\nAdd your 3 key results above to complete this summary.");
-  // 2 traducción
-  const libre = $("#t-libre");
-  if (m){
-    $("#t-out").innerHTML = `<span class="from">${esc($("#p-title").value)} →</span><span class="big">${m.en}</span><span class="out-label">También te buscan como</span><div class="chips">${m.alt.map(a=>`<span class="chip">${a}</span>`).join("")}</div><span class="out-label">Palabras clave para tu CV</span><div class="chips">${m.kw.map(a=>`<span class="chip">${a}</span>`).join("")}</div>`;
-    libre.hidden = true;
+  const years = $("#p-years").value.toLowerCase().replace("más de","10+").replace(" a ","–").replace("menos de","under");
+  const pais = $("#p-country").value || "Latin America";
+  if (wins.length){
+    $("#summary").textContent = `Bilingual (English/Spanish) ${role} with ${years} years of experience in ${pais}.\n\nKey results:\n${wins.map(w=>"• "+w).join("\n")}`;
   } else {
-    $("#t-out").innerHTML = esGrado($("#p-title").value)
-      ? `<span class="big">Eso suena a un grado, no a un cargo</span><p>Maestría o licenciatura es el estudio. Abajo escribe en qué trabajabas (por ejemplo docente o contadora). Así no te quedas trabada.</p>`
-      : `<span class="big">No encontramos tu profesión exacta</span><p>Escribe tu cargo en español, corto. Con eso armamos tu ruta y David puede ampliar el diccionario.</p>`;
-    libre.hidden = false;
+    $("#summary").textContent = "Escribe arriba tus 3 logros (con números si puedes). Con ellos armamos tu resumen: un reclutador los lee primero.";
   }
+  // 2 traducción
+  pintarPasoCargo(m, todos);
   // 3 carril
   const lanes = m ? m.lanes : ["Coordinator","Specialist","Assistant"];
   if(!lanes.includes(state.primary)) state.primary = lanes[0];
@@ -540,6 +687,7 @@ function render(){
   $("#v-note").textContent = zip ? `Buscando "${$("#v-kw").value}" cerca de ${zip}.` : "Agrega tu ZIP en el paso 1.";
   const L = [["Indeed",`https://www.indeed.com/jobs?q=${q}&l=${z}&radius=${r}`],["LinkedIn",`https://www.linkedin.com/jobs/search/?keywords=${q}&location=${z}&distance=${r}`],["ZipRecruiter",`https://www.ziprecruiter.com/jobs-search?search=${q}&location=${z}&radius=${r}`],["Google Jobs",`https://www.google.com/search?q=${q}+jobs+near+${z}&ibp=htl;jobs`]];
   $("#v-links").innerHTML = L.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}<span>${r} millas ↗</span></a>`).join("");
+  pintarEmpresas();
   // 5 contacto
   $("#tip-barrera-text").textContent = TIPS[P.barrera] || TIPS["Otra"];
   const nombre = (P.nombre||"").split(" ")[0];
@@ -549,35 +697,226 @@ function render(){
   renderRows();
   pintarRuta();
 }
-["#p-title","#p-years","#p-country","#p-zip","#v-kw","#v-radius","#c-company","#c-person"].forEach(s=>$(s).addEventListener("input",()=>{ if(s==="#p-title"){ $("#v-kw").value=""; } render(); }));
+["#p-title","#p-years","#p-country","#p-zip","#v-kw","#v-radius","#c-company","#c-person"].forEach(s=>$(s).addEventListener("input",()=>{ if(s==="#p-title"){ $("#v-kw").value=""; cargoElegido=""; try{ localStorage.removeItem(KEY_TITLE_PICK);}catch(e){} } render(); }));
 $("#p-cargo-libre").addEventListener("input", ()=>{
+  editandoCargo = true;
   const v = $("#p-cargo-libre").value;
   $("#p-title").value = v;
   $("#v-kw").value = "";
-  try{ localStorage.setItem(KEY_CARGO, v); }catch(e){}
+  cargoElegido = "";
+  try{ localStorage.setItem(KEY_CARGO, v); localStorage.removeItem(KEY_TITLE_PICK);}catch(e){}
   render();
+});
+$("#btn-cambiar-cargo").addEventListener("click", ()=>{
+  editandoCargo = true;
+  $("#t-libre").hidden = false;
+  $("#btn-cambiar-cargo").hidden = true;
+  $("#p-cargo-libre").value = $("#p-title").value;
+  $("#p-cargo-libre").focus();
 });
 $("#p-wins").addEventListener("input",()=>{ try{ localStorage.setItem("rp-wins",$("#p-wins").value); }catch(e){} render(); });
 
-// 6 aplicaciones (solo en este celular)
+function pintarPasoCargo(m, todos){
+  const libre = $("#t-libre");
+  const btn = $("#btn-cambiar-cargo");
+  const ops = $("#t-opciones");
+  if (m){
+    $("#t-out").innerHTML = `<span class="from">${esc($("#p-title").value)} →</span><span class="big">${esc(m.en)}</span><span class="out-label">También te buscan como</span><div class="chips">${m.alt.map(a=>`<span class="chip">${esc(a)}</span>`).join("")}</div><span class="out-label">Palabras clave para tu CV</span><div class="chips">${m.kw.map(a=>`<span class="chip">${esc(a)}</span>`).join("")}</div>`;
+    if (editandoCargo){
+      libre.hidden = false; btn.hidden = true;
+    } else {
+      libre.hidden = true; btn.hidden = false;
+    }
+  } else {
+    $("#t-out").innerHTML = esGrado($("#p-title").value)
+      ? `<span class="big">Eso suena a un grado, no a un cargo</span><p>Maestría o licenciatura es el estudio. Abajo escribe en qué trabajabas (por ejemplo docente o contadora). Así no te quedas trabada.</p>`
+      : `<span class="big">No encontramos tu profesión exacta</span><p>Escribe tu cargo en español, corto. O elige uno de la lista. David puede ampliar el diccionario.</p>`;
+    libre.hidden = false; btn.hidden = true;
+  }
+  const extras = todos.filter(t => !m || t.key !== m.key);
+  const buscador = !m ? Object.keys(TITLES).map(k => ({key:k, en:TITLES[k].en})) : extras;
+  if (buscador.length){
+    ops.hidden = false;
+    ops.innerHTML = (m && extras.length ? `<span class="out-label">También podría ser</span>` : `<span class="out-label">Cargos del diccionario</span>`) +
+      buscador.map(t => `<button type="button" class="opt${m && t.key===m.key?" on":""}" data-key="${esc(t.key)}">${esc(t.en)}</button>`).join("");
+    ops.querySelectorAll("[data-key]").forEach(b => b.onclick = ()=>{
+      cargoElegido = b.dataset.key;
+      editandoCargo = false;
+      try{ localStorage.setItem(KEY_TITLE_PICK, cargoElegido); }catch(e){}
+      const es = TITLES[cargoElegido];
+      if (es) $("#v-kw").value = es.en;
+      render();
+    });
+  } else {
+    ops.hidden = true; ops.innerHTML = "";
+  }
+}
+
+function consejoTitulo(){
+  if (!valTitulo.q1 || !valTitulo.q2 || !valTitulo.q3) return null;
+  if (valTitulo.q1 === "sí") return {
+    hoja: "En trámite",
+    html: "<span class=\"big\">Sí, y con un tipo específico</span><p>Materia por materia, con la evaluadora que acepte esa junta. Revísalo con David antes de pagar.</p>"
+  };
+  if (valTitulo.q2 === "sí") return {
+    hoja: "En trámite",
+    html: "<span class=\"big\">Te conviene una evaluación general</span><p>Mientras tanto puedes aplicar: muchas empresas aceptan el título extranjero o la experiencia equivalente.</p>"
+  };
+  return {
+    hoja: "No",
+    html: "<span class=\"big\">No por ahora</span><p>Enfócate en tu CV y en aplicar.</p>"
+  };
+}
+function pintarValTitulo(){
+  ["q1","q2","q3"].forEach(q=>{
+    document.querySelectorAll('.ask[data-q="'+q+'"] button').forEach(b=>{
+      b.setAttribute("aria-pressed", String(b.dataset.v === valTitulo[q]));
+    });
+  });
+  const c = consejoTitulo();
+  const out = $("#val-out");
+  if (!c){ out.hidden = true; out.innerHTML = ""; return; }
+  out.hidden = false;
+  out.innerHTML = c.html;
+}
+document.querySelectorAll("#val-titulo .ask button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    const q = b.closest(".ask").dataset.q;
+    valTitulo[q] = b.dataset.v;
+    try{ localStorage.setItem(KEY_TITULO, JSON.stringify(valTitulo)); }catch(e){}
+    pintarValTitulo();
+    const c = consejoTitulo();
+    if (c && CODIGO && /^[a-f0-9]{10}$/.test(CODIGO)) enviarApp({ titulo_evaluado: c.hoja });
+  });
+});
+
+let appTimer = 0, appPend = {};
+function enviarApp(extra){
+  if (!CODIGO || !/^[a-f0-9]{10}$/.test(CODIGO) || !SCRIPT_URL) return;
+  Object.assign(appPend, extra || {});
+  clearTimeout(appTimer);
+  appTimer = setTimeout(() => {
+    const body = Object.assign({ accion:"guardar_app", codigo: CODIGO }, appPend);
+    appPend = {};
+    try{ fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify(body) }).catch(()=>{}); }catch(e){}
+  }, 800);
+}
+function avisarDiccionario(){
+  const raw = ($("#p-title").value || "").trim();
+  if (!raw || findTitle(raw)) return;
+  let ya = false; try{ ya = localStorage.getItem(KEY_AVISO) === raw; }catch(e){}
+  if (ya) return;
+  try{ localStorage.setItem(KEY_AVISO, raw); }catch(e){}
+  enviarApp({ aviso_diccionario: raw });
+}
+
+async function cargarEmpresas(){
+  try{
+    const r = await fetch("../data/empresas.json");
+    if (!r.ok) throw new Error("http");
+    const d = await r.json();
+    empresas = Array.isArray(d) ? d : [];
+  }catch(e){ empresas = []; }
+  pintarEmpresas();
+}
+function pintarEmpresas(){
+  const box = $("#v-empresas");
+  if (!box) return;
+  if (!empresas.length){ box.innerHTML = ""; return; }
+  const prim = state.primary || "";
+  const lista = empresas.filter(e => e && e.empresa && e.pagina_empleos);
+  const ver = lista.slice().sort((a,b) => (String(b.carril||"")===prim) - (String(a.carril||"")===prim));
+  box.innerHTML = ver.map(e => {
+    const nota = [e.sector, e.nota].filter(Boolean).join(" · ");
+    const tag = e.ejemplo ? " · ejemplo" : "";
+    return `<a href="${esc(e.pagina_empleos)}" target="_blank" rel="noopener"><b>${esc(e.empresa)}${tag}</b><span>${esc(e.carril||"")}${nota?" · "+esc(nota):""}</span></a>`;
+  }).join("");
+}
+
+// 6 aplicaciones (solo en este celular; conteos semanales van a la hoja si hay código)
 const today = new Date(); today.setHours(0,0,0,0);
 const iso = d => d.toISOString().slice(0,10);
 const addDays = (d,n)=>{const x=new Date(d); x.setDate(x.getDate()+n); return x;};
-let rows = []; try{ rows = JSON.parse(localStorage.getItem("rp-apps")||"[]"); }catch(e){ rows=[]; }
-const ST = ["Sin respuesta","Entrevista","Oferta","Rechazo"];
-const save = ()=>{ try{ localStorage.setItem("rp-apps", JSON.stringify(rows)); }catch(e){} };
-const fmt = d => d.slice(8,10)+"/"+d.slice(5,7);
-function renderRows(){
-  $("#rows").innerHTML = rows.map((r,i)=>{ const fu=addDays(new Date(r.date+"T00:00:00"),7), pend=r.status==="Sin respuesta";
-    const pill = !pend ? `<span class="pill ok">Cerrado</span>` : (fu<=today ? `<span class="pill due">Escribir hoy</span>` : `<span class="pill ok">${fmt(iso(fu))}</span>`);
-    return `<tr><td>${esc(r.company)}</td><td>${esc(r.role)}</td><td>${fmt(r.date)}</td><td>${pill}</td><td><select data-i="${i}" aria-label="Estado">${ST.map(s=>`<option ${s===r.status?"selected":""}>${s}</option>`).join("")}</select></td><td><button class="x" data-del="${i}" aria-label="Borrar">✕</button></td></tr>`; }).join("")
-    || `<tr><td colspan="6">Todavía no anotas aplicaciones. Agrega la primera arriba.</td></tr>`;
-  $("#rows").querySelectorAll("select").forEach(s=>s.onchange=()=>{ rows[s.dataset.i].status=s.value; save(); renderRows(); });
-  $("#rows").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ rows.splice(+b.dataset.del,1); save(); renderRows(); });
-  const n=rows.length, iv=rows.filter(r=>r.status==="Entrevista"||r.status==="Oferta").length;
-  $("#stats").textContent = n ? `${n} aplicaciones · ${iv} con entrevista u oferta.` : "";
+function normEstadoApp(s){
+  if (s==="Sin respuesta" || s==="aplicada") return "aplicada";
+  if (s==="Entrevista" || s==="entrevista") return "entrevista";
+  if (s==="Oferta" || s==="me respondieron") return "me respondieron";
+  if (s==="Rechazo" || s==="no") return "no";
+  return "aplicada";
 }
-$("#add-form").addEventListener("submit",e=>{ e.preventDefault(); rows.unshift({company:$("#a-company").value.trim(), role:$("#a-role").value.trim(), date:iso(today), status:"Sin respuesta"}); $("#a-company").value=""; $("#a-role").value=""; save(); renderRows(); });
+let rows = []; try{ rows = JSON.parse(localStorage.getItem("rp-apps")||"[]"); }catch(e){ rows=[]; }
+rows = rows.map(r => Object.assign({}, r, {status: normEstadoApp(r.status)}));
+const ST = ["aplicada","me respondieron","entrevista","no"];
+const ST_LBL = {aplicada:"Aplicada", "me respondieron":"Me respondieron", entrevista:"Entrevista", no:"No"};
+const save = ()=>{ try{ localStorage.setItem("rp-apps", JSON.stringify(rows)); }catch(e){} syncSemana(true); };
+const fmt = d => d.slice(8,10)+"/"+d.slice(5,7);
+function inicioSemana(d){
+  const x = new Date(d); x.setHours(0,0,0,0);
+  const day = x.getDay();
+  x.setDate(x.getDate() + (day===0 ? -6 : 1-day));
+  return x;
+}
+function appsDeSemana(){
+  const ini = inicioSemana(today).getTime();
+  const fin = addDays(inicioSemana(today), 7).getTime();
+  return rows.filter(r => {
+    const t = new Date(r.date+"T00:00:00").getTime();
+    return t >= ini && t < fin;
+  });
+}
+function syncSemana(enviar){
+  const sem = appsDeSemana();
+  const n = sem.length;
+  const resp = sem.filter(r => r.status==="me respondieron" || r.status==="entrevista").length;
+  $("#a-semana").textContent = n + " de " + metaSemana + " esta semana";
+  const claveSem = iso(inicioSemana(today));
+  if (racha.semana && racha.semana !== claveSem){
+    const esperada = iso(addDays(inicioSemana(today), -7));
+    if (racha.semana !== esperada || racha.contada !== racha.semana) racha.cumplidas = 0;
+  }
+  racha.semana = claveSem;
+  racha.meta = metaSemana;
+  if (n >= metaSemana && racha.contada !== claveSem){
+    racha.cumplidas = (racha.cumplidas || 0) + 1;
+    racha.contada = claveSem;
+  }
+  try{ localStorage.setItem(KEY_RACHA, JSON.stringify(racha)); }catch(e){}
+  const nR = racha.cumplidas || 0;
+  $("#a-racha").textContent = "Racha: " + nR + (nR === 1 ? " semana seguida" : " semanas seguidas");
+  if (enviar) enviarApp({ apps_semana: n, respuestas_semana: resp });
+}
+function renderRows(){
+  const box = $("#app-list");
+  if (!rows.length){
+    box.innerHTML = `<p class="hint">Todavía no anotas aplicaciones. Agrega la primera arriba.</p>`;
+  } else {
+    box.innerHTML = rows.map((r,i)=>{
+      const fu=addDays(new Date(r.date+"T00:00:00"),7);
+      const pend=r.status==="aplicada";
+      const pill = !pend ? `<span class="pill ok">${esc(ST_LBL[r.status]||r.status)}</span>` : (fu<=today ? `<span class="pill due">Escribir hoy</span>` : `<span class="pill ok">${fmt(iso(fu))}</span>`);
+      return `<article class="aitem"><div class="who"><div><b>${esc(r.company)}</b><small> ${esc(r.role)} · ${fmt(r.date)}</small></div>${pill}<button class="x" data-del="${i}" aria-label="Borrar">✕</button></div><div class="chips">${ST.map(s=>`<button type="button" class="opt${s===r.status?" on":""}" data-i="${i}" data-st="${s}">${esc(ST_LBL[s])}</button>`).join("")}</div></article>`;
+    }).join("");
+  }
+  box.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{ rows[+b.dataset.i].status=b.dataset.st; save(); renderRows(); });
+  box.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ rows.splice(+b.dataset.del,1); save(); renderRows(); });
+  const n=rows.length, iv=rows.filter(r=>r.status==="entrevista"||r.status==="me respondieron").length;
+  $("#stats").textContent = n ? `${n} aplicaciones · ${iv} con respuesta o entrevista.` : "";
+  $("#a-meta").value = metaSemana;
+  syncSemana(false);
+}
+$("#add-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  rows.unshift({company:$("#a-company").value.trim(), role:$("#a-role").value.trim(), date:iso(today), status:"aplicada"});
+  $("#a-company").value=""; $("#a-role").value="";
+  save(); renderRows();
+});
+$("#a-meta").addEventListener("input", ()=>{
+  const n = parseInt($("#a-meta").value,10);
+  if (!(n>=1 && n<=30)) return;
+  metaSemana = n;
+  try{ localStorage.setItem(KEY_META, String(n)); }catch(e){}
+  syncSemana(true);
+});
 
 document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{
   const el=$("#"+b.dataset.copy), t=$("#t-"+b.dataset.copy), ok=()=>{t.textContent="Copiado"; setTimeout(()=>t.textContent="",2000); if(b.dataset.copy==="msg"){ copiado=true; try{ localStorage.setItem(KEY_OK+"-copy","1"); }catch(e){} } };

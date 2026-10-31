@@ -129,7 +129,8 @@ const COLUMNAS = [
   'barrera', 'horas_disponibles', 'horario', 'comentario', 'consentimiento', 'estado', 'codigo', 'enlace',
   'fecha_empleo', 'seguimiento_7', 'seguimiento_30', 'seguimiento_60', 'seguimiento_90',
   'fecha_contacto', 'fecha_entrevista', 'cv_puntaje_antes', 'cv_puntaje_despues',
-  'plan_enviado', 'proximo_paso', 'proximo_fecha', 'notas_david', 'cita_id', 'zip'
+  'plan_enviado', 'proximo_paso', 'proximo_fecha', 'notas_david', 'cita_id', 'zip',
+  'apps_semana', 'respuestas_semana'
 ];
 
 // Agenda pública de citas (Google Calendar Appointment Schedule). No cambiar la config desde código.
@@ -214,7 +215,20 @@ function alertas(d) {
   if (d.horas_disponibles === 'Menos de 2') a.push('Tiene menos de 2 horas a la semana: la app tendría que funcionar con 15 minutos.');
   if (d.horas_trabajo === 'Más de 40') a.push('Trabaja más de 40 horas: ofrécele una llamada corta y flexible.');
   if (d.tiempo_eeuu === 'Menos de 1 año') a.push('Recién llegado (menos de 1 año): su necesidad puede ser más de orientación general.');
+  if (d.profesion && !cargoConocido(d.profesion)) {
+    a.push('Profesión no está en el diccionario de la app: "' + d.profesion + '". Amplía TITLES o pídele el cargo en la llamada.');
+  }
   return a;
+}
+
+// Misma idea que el diccionario de la app (no hace falta coincidir 1:1; solo avisa en la ficha)
+function cargoConocido(prof) {
+  const t = String(prof || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\./g, ' ');
+  const keys = ['contador', 'contabilidad', 'capacitacion', 'recursos humanos', 'ingenier', 'abogad',
+    'medic', 'enfermer', 'maestr', 'docente', 'docencia', 'ventas', 'administrador', 'administracion',
+    'psicolog', 'bodega', 'electromecan', 'cibersegur', 'turismo', 'hotel', 'marketing', 'sistemas'];
+  if (/\b(maestria|master|licenciatura|doctorado|diplomado|bachelor|mba)\b/.test(t) && t.split(/\s+/).length <= 2) return true;
+  return keys.some(k => t.indexOf(k) >= 0);
 }
 
 function tasa(apps, resp) {
@@ -620,7 +634,8 @@ function correoDiario() {
   const lista = pendientesHoy();
   const llamadas = llamadasHoyDesdeHoja();
   const huerfanos = leerHuerfanosAgenda();
-  if (!lista.length && !llamadas.length && !huerfanos.length) {
+  const cvAtras = cvsAtrasados48h();
+  if (!lista.length && !llamadas.length && !huerfanos.length && !cvAtras.length) {
     Logger.log('Correo diario: nadie para hoy; no se envía.');
     return;
   }
@@ -669,12 +684,22 @@ function correoDiario() {
         '<div style="font-size:13px;background:#f5f7f4;padding:10px;border-radius:6px">' + esc(msg) + '</div></div>';
     });
   }
-  const total = lista.length + llamadas.length + huerfanos.length;
+  if (cvAtras.length) {
+    cuerpo += '<h3 style="margin:18px 0 8px">Atrasados · CV sin revisar (+48 h) (' + cvAtras.length + ')</h3>';
+    cvAtras.forEach(p => {
+      const wa = linkWhatsApp(p.whatsapp);
+      cuerpo += '<div style="margin:0 0 14px;padding:12px;border:1px solid #b4533e;border-radius:8px;background:#f7e3dd">' +
+        '<div><b>' + esc(p.nombre) + '</b> · CV recibido hace ' + p.horas + ' h</div>' +
+        '<div style="font-size:13px;color:#5d6c66">Estado sigue en CV recibido. Revísalo y escribe por WhatsApp.</div>' +
+        '<div style="margin-top:6px">' + (wa ? '<a href="' + wa + '">WhatsApp</a>' : '') + '</div></div>';
+    });
+  }
+  const total = lista.length + llamadas.length + huerfanos.length + cvAtras.length;
   const html =
     '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26;line-height:1.5">' +
     '<div style="font-size:22px;font-weight:bold">Ruta Puente · A quién escribir hoy</div>' +
     '<p>Resumen: <b>' + llamadas.length + '</b> llamadas hoy · <b>' + lista.length + '</b> con próximo paso · <b>' +
-    huerfanos.length + '</b> reservas sin formulario. Nada se envía solo a las personas.</p>' +
+    huerfanos.length + '</b> reservas sin formulario · <b>' + cvAtras.length + '</b> CV +48 h. Nada se envía solo a las personas.</p>' +
     cuerpo +
     '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja</a> · ' +
     '<a href="' + BITACORA_URL + '">Abrir la Bitácora</a></p></div>';
@@ -682,7 +707,7 @@ function correoDiario() {
   MailApp.sendEmail({
     to: Session.getEffectiveUser().getEmail(),
     subject: 'Ruta Puente · ' + total + ' para hoy',
-    body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length,
+    body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length + '. CV +48h: ' + cvAtras.length,
     htmlBody: html,
     name: 'Ruta Puente'
   });
@@ -713,7 +738,7 @@ const COL_ENT = [
   'p5_una_cosa', 'p6_avance', 'p7_sirve_sobra', 'p8_falta',
   'p9_usara', 'p10_referidos', 'compromiso',
   'frase_clave', 'sorpresa', 'confirma',
-  'titulo_evaluado', 'equivalencia_eeuu'
+  'titulo_evaluado', 'equivalencia_eeuu', 'apps_semana_inicio'
 ];
 const TEXTOS_ENT = ['p1_ultima_busqueda', 'p2_desanimo', 'p3_ejemplo_barrera', 'p4_que_intento',
   'p5_una_cosa', 'p6_avance', 'p7_sirve_sobra', 'p8_falta', 'frase_clave', 'sorpresa', 'equivalencia_eeuu'];
@@ -721,8 +746,9 @@ const TEXTOS_ENT = ['p1_ultima_busqueda', 'p2_desanimo', 'p3_ejemplo_barrera', '
 function bitacora(txt) {
   let b;
   try { b = JSON.parse(txt); } catch (err) { return salida({ ok: false, error: 'formato' }); }
-  // Subida de CV: autentica por código personal (sin clave de Bitácora)
+  // Subida de CV y conteos de la app: autentican por código personal (sin clave de Bitácora)
   if (b && b.accion === 'subir_cv') return salida(subirCv(b));
+  if (b && b.accion === 'guardar_app') return salida(guardarApp(b));
   const clave = PropertiesService.getScriptProperties().getProperty('BITACORA_CLAVE');
   if (!clave || !b || b.clave !== clave) { Utilities.sleep(800); return salida({ ok: false, error: 'clave' }); }
   if (b.accion === 'listar') return salida(listarBitacora());
@@ -873,7 +899,9 @@ function listarBitacora() {
   const campos = ['nombre', 'pais', 'ciudad', 'zip', 'profesion', 'anios_exp', 'trabajo_actual', 'horas_trabajo', 'busco_12m',
     'aplicaciones', 'respuestas', 'barrera', 'comentario', 'prioridad', 'estado', 'whatsapp', 'enlace',
     'fecha_contacto', 'fecha_entrevista', 'cv_puntaje_antes', 'cv_puntaje_despues', 'plan_enviado',
-    'proximo_paso', 'proximo_fecha', 'notas_david', 'fecha_empleo', 'cita_id'];
+    'proximo_paso', 'proximo_fecha', 'notas_david', 'fecha_empleo', 'cita_id',
+    'apps_semana', 'respuestas_semana'];
+  const cvs = mapaCvsPorCodigo();
   const personas = datos.filter(r => r[i('nombre')] && r[i('codigo')]).map(r => {
     const p = { codigo: String(r[i('codigo')]) };
     campos.forEach(c => {
@@ -882,6 +910,7 @@ function listarBitacora() {
     });
     const ent = mapa[p.codigo];
     if (ent) { delete ent._fila; p.entrevista = ent; }
+    if (cvs[p.codigo]) p.cv_recibido_fecha = cvs[p.codigo].toISOString();
     return p;
   });
   return { ok: true, personas: personas, gate: contarGate(mapa), estados: ESTADOS };
@@ -914,6 +943,7 @@ function guardarEntrevista(d) {
   o.confirma = (o.lo_intento === 'Sí' && o.barrera_clara === 'Sí' && o.compromiso === 'Sí') ? 'Sí' : 'No';
   o.titulo_evaluado = ['Sí', 'No', 'En trámite'].indexOf(d.titulo_evaluado) >= 0 ? d.titulo_evaluado : '';
   o.equivalencia_eeuu = o.titulo_evaluado === 'Sí' ? limpiar(d.equivalencia_eeuu) : '';
+  o.apps_semana_inicio = Math.max(0, parseInt(d.apps_semana_inicio, 10) || 0);
 
   const h = hojaEntrevistas();
   const fila = COL_ENT.map(c => o[c] !== undefined && o[c] !== null ? o[c] : '');
@@ -1013,6 +1043,106 @@ function aplicarEstadoFila(hoja, fila, cab, estado, overrides) {
     hoja.getRange(fila, idx(c) + 1).setValue(c === 'notas_david' || c.indexOf('puntaje') >= 0 || c === 'plan_enviado' ? limpiar(v) : v);
   });
   return true;
+}
+
+function mapaCvsPorCodigo() {
+  const h = hojaCvs();
+  if (h.getLastRow() < 2) return {};
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const out = {};
+  datos.forEach(r => {
+    const c = String(r[i('codigo')] || '');
+    if (!c || i('fecha') < 0) return;
+    const f = r[i('fecha')];
+    if (!(f instanceof Date) || isNaN(f.getTime())) return;
+    if (!out[c] || f > out[c]) out[c] = f;
+  });
+  return out;
+}
+
+function cvsAtrasados48h() {
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const cvs = mapaCvsPorCodigo();
+  const out = [];
+  const ahora = Date.now();
+  datos.forEach(r => {
+    if (!r[i('nombre')] || !r[i('codigo')]) return;
+    if (String(r[i('estado')] || '') !== 'CV recibido') return;
+    const codigo = String(r[i('codigo')]);
+    const f = cvs[codigo];
+    if (!f) return;
+    const horas = Math.floor((ahora - f.getTime()) / 3600000);
+    if (horas <= 48) return;
+    out.push({
+      nombre: r[i('nombre')],
+      whatsapp: r[i('whatsapp')],
+      codigo: codigo,
+      horas: horas
+    });
+  });
+  return out;
+}
+
+// La app personal manda conteos y el consejo de título. Autentica por código (como subir_cv).
+function guardarApp(b) {
+  const codigo = String((b && b.codigo) || '').trim();
+  if (!/^[a-f0-9]{10}$/.test(codigo)) return { ok: false, error: 'codigo' };
+  asegurarColumnas();
+  const hoja = obtenerHoja();
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  const k = datos.findIndex(r => String(r[i('codigo')]) === codigo);
+  if (k < 0) return { ok: false, error: 'persona' };
+  const fila = k + 2;
+  const nombre = String(datos[k][i('nombre')] || '');
+
+  if (b.apps_semana !== undefined && i('apps_semana') >= 0) {
+    hoja.getRange(fila, i('apps_semana') + 1).setValue(Math.max(0, parseInt(b.apps_semana, 10) || 0));
+  }
+  if (b.respuestas_semana !== undefined && i('respuestas_semana') >= 0) {
+    hoja.getRange(fila, i('respuestas_semana') + 1).setValue(Math.max(0, parseInt(b.respuestas_semana, 10) || 0));
+  }
+
+  if (b.titulo_evaluado && ['Sí', 'No', 'En trámite'].indexOf(b.titulo_evaluado) >= 0) {
+    const prev = leerEntrevistas()[codigo];
+    if (!prev || !String(prev.titulo_evaluado || '').trim()) {
+      const h = hojaEntrevistas();
+      if (prev) {
+        const cabE = h.getRange(1, 1, 1, h.getLastColumn()).getValues()[0].map(String);
+        const col = cabE.indexOf('titulo_evaluado') + 1;
+        if (col > 0) h.getRange(prev._fila, col).setValue(b.titulo_evaluado);
+      } else {
+        const o = {};
+        COL_ENT.forEach(c => { o[c] = ''; });
+        o.actualizado = new Date();
+        o.codigo = codigo;
+        o.nombre = limpiar(nombre);
+        o.titulo_evaluado = b.titulo_evaluado;
+        h.appendRow(COL_ENT.map(c => o[c] !== undefined && o[c] !== null ? o[c] : ''));
+      }
+    }
+  }
+
+  if (b.aviso_diccionario) {
+    const cargo = limpiar(String(b.aviso_diccionario).slice(0, 200));
+    try {
+      MailApp.sendEmail({
+        to: Session.getEffectiveUser().getEmail(),
+        subject: 'Ruta Puente · Cargo fuera del diccionario',
+        body: 'La persona ' + nombre + ' (código ' + codigo + ') escribió este cargo y no está en TITLES:\n\n' + cargo +
+          '\n\nAmplía el diccionario en app/index.html.',
+        name: 'Ruta Puente'
+      });
+    } catch (err) { console.error(err); }
+  }
+  return { ok: true };
 }
 
 function guardarEstado(d) {

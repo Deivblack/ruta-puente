@@ -1,0 +1,18 @@
+[
+  {
+    "carril": "Staff Accountant",
+    "empresa": "Ejemplo Hospital Houston",
+    "sector": "Salud (ejemplo)",
+    "pagina_empleos": "https://www.example.com/careers",
+    "nota": "Fila de ejemplo. David carga las empresas reales. No es una empresa de Houston.",
+    "ejemplo": true
+  },
+  {
+    "carril": "Teacher",
+    "empresa": "Ejemplo Distrito Escolar",
+    "sector": "Educación (ejemplo)",
+    "pagina_empleos": "https://www.example.com/jobs",
+    "nota": "Fila de ejemplo. David carga las empresas reales.",
+    "ejemplo": true
+  }
+]
