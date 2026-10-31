@@ -194,6 +194,11 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
     <h2>Cómo se llama tu trabajo aquí</h2>
     <p class="hint">Un reclutador en EE.UU. busca por cargos y palabras clave. Esto es lo que tienes que poner en tu CV y en LinkedIn.</p>
     <div class="out" id="t-out"></div>
+    <div id="t-libre" hidden>
+      <label for="p-cargo-libre">Escribe tu cargo en español (el trabajo que hacías, no el grado)
+        <input id="p-cargo-libre" placeholder="Ej.: docente, ingeniero electromecánico" autocomplete="off">
+      </label>
+    </div>
     <div class="tip" id="tip-titulo"><span class="dot" aria-hidden="true"></span><p>Para que tu título cuente aquí, existe la evaluación de credenciales (por ejemplo WES o ECE): traduce tu grado a su equivalente en EE.UU. Ruta Puente orienta; no da asesoría legal.</p></div>
   </section>
 
@@ -290,14 +295,49 @@ const TITLES = {
   "docente": {en:"Teacher", alt:["Bilingual Teacher","Teaching Assistant"], kw:["lesson planning","classroom management","bilingual","curriculum"], lanes:["Bilingual Teacher","Teaching Assistant","Corporate Trainer"]},
   "ventas": {en:"Sales Manager", alt:["Account Manager","Business Development Rep"], kw:["pipeline","CRM","quota","B2B"], lanes:["Account Manager","Sales Representative","Customer Success Manager"]},
   "administrador": {en:"Operations Coordinator", alt:["Business Analyst","Office Manager"], kw:["operations","scheduling","budgeting","reporting"], lanes:["Operations Coordinator","Office Manager","Business Analyst"]},
+  "psicologo organizacional": {en:"People Operations Specialist", alt:["HR Business Partner","Talent Development Specialist"], kw:["organizational psychology","employee engagement","assessment","L&D"], lanes:["People Operations Specialist","HR Generalist","Talent Development Specialist"]},
   "psicologo": {en:"Case Manager", alt:["Behavioral Health Technician","Recruiter"], kw:["case management","assessment","bilingual","documentation"], lanes:["Case Manager","Recruiter","HR Coordinator"]},
-  "bodega": {en:"Warehouse Supervisor", alt:["Inventory Control Specialist","Logistics Coordinator"], kw:["inventory","WMS","OSHA","shipping & receiving"], lanes:["Logistics Coordinator","Inventory Control Specialist","Warehouse Supervisor"]}
+  "bodega": {en:"Warehouse Supervisor", alt:["Inventory Control Specialist","Logistics Coordinator"], kw:["inventory","WMS","OSHA","shipping & receiving"], lanes:["Logistics Coordinator","Inventory Control Specialist","Warehouse Supervisor"]},
+  "ingeniero electromecanico": {en:"Electromechanical Engineer", alt:["Maintenance Engineer","Automation Technician"], kw:["PLC","preventive maintenance","motors","hydraulics"], lanes:["Maintenance Engineer","Electromechanical Technician","Automation Technician"]},
+  "ciberseguridad": {en:"Cybersecurity Analyst", alt:["SOC Analyst","Information Security Analyst"], kw:["SIEM","incident response","vulnerability","network security"], lanes:["Cybersecurity Analyst","SOC Analyst","IT Security Specialist"]},
+  "turismo": {en:"Guest Services Coordinator", alt:["Hotel Operations Coordinator","Destination Marketing Coordinator"], kw:["hospitality","guest services","reservations","customer experience"], lanes:["Guest Services Coordinator","Hotel Front Desk Supervisor","Destination Marketing Coordinator"]},
+  "hoteleria": {en:"Hotel Operations Coordinator", alt:["Front Desk Supervisor","Guest Services Manager"], kw:["hospitality","PMS","guest services","front office"], lanes:["Hotel Operations Coordinator","Guest Services Supervisor","Front Desk Supervisor"]},
+  "marketing de destinos": {en:"Destination Marketing Coordinator", alt:["Tourism Marketing Specialist","Communications Coordinator"], kw:["destination marketing","social media","tourism","campaigns"], lanes:["Destination Marketing Coordinator","Tourism Marketing Specialist","Communications Coordinator"]}
 };
-const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();
+const KEY_CARGO = "rp-cargo-" + (new URLSearchParams(location.search).get("c") || "demo");
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
+function expandir(raw){
+  let t = norm(raw);
+  t = t.replace(/\bing\.?\b/g, "ingeniero");
+  t = t.replace(/\bingenieria\b/g, "ingeniero");
+  t = t.replace(/\bingeniero en\b/g, "ingeniero de");
+  t = t.replace(/\bmaestra\b/g, "maestro");
+  t = t.replace(/\bcontadora\b/g, "contador");
+  t = t.replace(/\bpsicologa\b/g, "psicologo");
+  t = t.replace(/\bdocencia\b/g, "docente");
+  return t.replace(/\s+/g, " ").trim();
+}
+function esGrado(raw){
+  const t = expandir(raw);
+  if (/\b(maestro|maestra|docente)\b/.test(t)) return false;
+  return /\b(maestria|master|licenciatura|doctorado|diplomado|bachelor|mba)\b/.test(t);
+}
+function partesProfesion(raw){
+  return expandir(raw).split(/\s*(?:\/|,|;|\s+y\s+)\s*/).map(s => s.trim()).filter(s => s.length >= 3);
+}
 function findTitle(raw){
-  const n = norm(raw); if(!n) return null;
-  const v = [n, n.replace(/a\b/g,"o"), n.replace(/ra\b/g,"r"), n.replace(/a\b/g,"")];
-  for(const k of Object.keys(TITLES)){ if(v.some(x => x===k || x.includes(k) || (x.length>=5 && k.includes(x)))) return {key:k,...TITLES[k]}; }
+  const chunks = [];
+  const full = expandir(raw);
+  if (full) chunks.push(full);
+  partesProfesion(raw).forEach(p => { if (chunks.indexOf(p) < 0) chunks.push(p); });
+  const keys = Object.keys(TITLES).sort((a,b) => b.length - a.length);
+  for (const n of chunks){
+    if (esGrado(n) && n.split(/\s+/).length <= 3 && !keys.some(k => n.includes(k))) continue;
+    const v = [n, n.replace(/a\b/g,"o"), n.replace(/ra\b/g,"r"), n.replace(/a\b/g,"")];
+    for (const k of keys){
+      if (v.some(x => x===k || x.includes(k) || (x.length>=5 && k.includes(x)))) return {key:k, ...TITLES[k]};
+    }
+  }
   return null;
 }
 const TIPS = {
@@ -348,6 +388,13 @@ function llenarPerfil(){
     : ((String(P.ciudad||"").match(/\d{5}/)||[])[0] || "");
   if(P.anios_exp) $("#p-years").value = P.anios_exp;
   try{ const w = localStorage.getItem("rp-wins"); if(w) $("#p-wins").value = w; }catch(e){}
+  try{
+    const libre = localStorage.getItem(KEY_CARGO);
+    if (libre && !findTitle($("#p-title").value)){
+      $("#p-title").value = libre;
+      $("#p-cargo-libre").value = libre;
+    }
+  }catch(e){}
 }
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -469,9 +516,16 @@ function render(){
   const kw = m ? m.kw.slice(0,3).join(", ") : "process improvement and teamwork";
   $("#summary").textContent = `Bilingual (English/Spanish) ${role} with ${$("#p-years").value.toLowerCase().replace("más de","10+").replace(" a ","–").replace("menos de","under")} years of experience in ${$("#p-country").value||"Latin America"}, skilled in ${kw}.` + (wins.length ? `\n\nKey results (write them in English):\n${wins.map(w=>"• "+w).join("\n")}` : "\n\nAdd your 3 key results above to complete this summary.");
   // 2 traducción
-  $("#t-out").innerHTML = m
-    ? `<span class="from">${esc($("#p-title").value)} →</span><span class="big">${m.en}</span><span class="out-label">También te buscan como</span><div class="chips">${m.alt.map(a=>`<span class="chip">${a}</span>`).join("")}</div><span class="out-label">Palabras clave para tu CV</span><div class="chips">${m.kw.map(a=>`<span class="chip">${a}</span>`).join("")}</div>`
-    : `<span class="big">Todavía no tenemos tu cargo</span><p>Lo vamos a agregar. Mientras tanto, escribe tu profesión de forma más general en el paso 1 (por ejemplo "Ingeniero industrial").</p>`;
+  const libre = $("#t-libre");
+  if (m){
+    $("#t-out").innerHTML = `<span class="from">${esc($("#p-title").value)} →</span><span class="big">${m.en}</span><span class="out-label">También te buscan como</span><div class="chips">${m.alt.map(a=>`<span class="chip">${a}</span>`).join("")}</div><span class="out-label">Palabras clave para tu CV</span><div class="chips">${m.kw.map(a=>`<span class="chip">${a}</span>`).join("")}</div>`;
+    libre.hidden = true;
+  } else {
+    $("#t-out").innerHTML = esGrado($("#p-title").value)
+      ? `<span class="big">Eso suena a un grado, no a un cargo</span><p>Maestría o licenciatura es el estudio. Abajo escribe en qué trabajabas (por ejemplo docente o contadora). Así no te quedas trabada.</p>`
+      : `<span class="big">No encontramos tu profesión exacta</span><p>Escribe tu cargo en español, corto. Con eso armamos tu ruta y David puede ampliar el diccionario.</p>`;
+    libre.hidden = false;
+  }
   // 3 carril
   const lanes = m ? m.lanes : ["Coordinator","Specialist","Assistant"];
   if(!lanes.includes(state.primary)) state.primary = lanes[0];
@@ -496,6 +550,13 @@ function render(){
   pintarRuta();
 }
 ["#p-title","#p-years","#p-country","#p-zip","#v-kw","#v-radius","#c-company","#c-person"].forEach(s=>$(s).addEventListener("input",()=>{ if(s==="#p-title"){ $("#v-kw").value=""; } render(); }));
+$("#p-cargo-libre").addEventListener("input", ()=>{
+  const v = $("#p-cargo-libre").value;
+  $("#p-title").value = v;
+  $("#v-kw").value = "";
+  try{ localStorage.setItem(KEY_CARGO, v); }catch(e){}
+  render();
+});
 $("#p-wins").addEventListener("input",()=>{ try{ localStorage.setItem("rp-wins",$("#p-wins").value); }catch(e){} render(); });
 
 // 6 aplicaciones (solo en este celular)
