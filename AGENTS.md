@@ -5,7 +5,7 @@ Instrucciones para cualquier agente de código (Cursor, Claude Code, etc.) que t
 ## 1. Qué es Ruta Puente
 Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE. UU., tienen título universitario, pueden trabajar legalmente y hoy trabajan por debajo de su nivel** (almacén, limpieza, restaurantes, delivery). Objetivo: que vuelvan a trabajar en su campo.
 - Dueño del producto: David (Houston, TX). Habla español; inglés intermedio. Es implementador de software, **no programador**: explícale los cambios en español, en lenguaje simple, y pídele confirmación antes de cualquier paso que no se pueda deshacer.
-- Etapa actual: **Sprint 0 (validación)**. Regla de paso al Sprint 1: 5 entrevistas dentro del perfil y 3 que confirmen el problema. Piloto continuo del 12 oct al 15 nov 2026.
+- Etapa actual: **Sprint 0 (validación) · producción v6**. Regla de paso al Sprint 1: 5 entrevistas dentro del perfil y 3 que confirmen el problema. Piloto continuo del 12 oct al 15 nov 2026.
 - Las cuentas con contraseña para usuarios llegan **después de 25 usuarios activos**. Hasta entonces, cada persona entra a su app con un enlace personal.
 
 ## 2. Reglas que no se rompen
@@ -30,6 +30,8 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
+├── data/empresas.json → Empresas objetivo (2 filas de ejemplo; David carga las reales)
+├── tests/titulos.js  → Prueba automática de 15 cargos (`node tests/titulos.js` antes de cada commit)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
 └── README.md
 ```
@@ -51,15 +53,16 @@ URLs públicas:
 ```
 - `SCRIPT_URL` (igual en las 3 páginas): `https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec`
 - ID del proyecto Apps Script: `1mLZVH8IdSfyc2K1nPj3mF4LBEZHnw9rP9SNvHg2bXxYNSod4txkl1Wad`
-- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). Versión en producción todavía v5 hasta que David despliegue v6 (flujo, CV, agenda, ZIP).
+- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). **Producción v6** (flujo, CV, agenda, ZIP; desplegada 30 oct 2026). El código de este repo agrega `guardar_app`, conteos semanales y CV +48 h: hay que desplegar **nueva versión de la misma implementación** (v7) para que eso viva en Google.
 - El script está **vinculado a la hoja** "Ruta Puente - Respuestas" (`SpreadsheetApp.getActiveSpreadsheet()`).
 - Nota técnica: Google reserva el parámetro `c` en `/exec`; por eso la app llama con `?codigo=` y `doGet` acepta `codigo` (y `c` por compatibilidad).
 - La Bitácora manda `fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify(...)})` sin cabeceras (queda `text/plain`, sin preflight CORS). El formulario manda `URLSearchParams` con `mode:'no-cors'`. `doPost` distingue los dos por `e.postData.type`.
 
 ## 5. Contratos de datos
 ### Hoja "Respuestas" (columnas, en orden)
-`fecha, prioridad, nombre, whatsapp, ciudad, pais, fuente, profesion, titulo, anios_exp, tiempo_eeuu, autorizado, trabajo_actual, horas_trabajo, busco_12m, aplicaciones, respuestas, barrera, horas_disponibles, horario, comentario, consentimiento, estado, codigo, enlace, fecha_empleo, seguimiento_7, seguimiento_30, seguimiento_60, seguimiento_90, fecha_contacto, fecha_entrevista, cv_puntaje_antes, cv_puntaje_despues, plan_enviado, proximo_paso, proximo_fecha, notas_david, cita_id, zip`
+`fecha, prioridad, nombre, whatsapp, ciudad, pais, fuente, profesion, titulo, anios_exp, tiempo_eeuu, autorizado, trabajo_actual, horas_trabajo, busco_12m, aplicaciones, respuestas, barrera, horas_disponibles, horario, comentario, consentimiento, estado, codigo, enlace, fecha_empleo, seguimiento_7, seguimiento_30, seguimiento_60, seguimiento_90, fecha_contacto, fecha_entrevista, cv_puntaje_antes, cv_puntaje_despues, plan_enviado, proximo_paso, proximo_fecha, notas_david, cita_id, zip, apps_semana, respuestas_semana`
 - `ciudad`: nombre de la ciudad (texto). `zip`: 5 dígitos, columna al final. Nunca deducir ubicación por el código de área del teléfono.
+- `apps_semana` / `respuestas_semana`: conteos de la semana que manda la app (`guardar_app`). No se guarda la lista de empresas.
 - `migrarCiudad()` (simulación por defecto): si `ciudad` contiene 5 dígitos y `zip` está vacío, los copia a `zip`.
 - `prioridad` se calcula en el servidor: `autorizado = No` → "Fuera de perfil"; si no, 1 punto por título, 1 por buscar en 12 meses, 1 por autorizado → 3 = Alta, 2 = Media, menos = Baja.
 - `estado` (lista desplegable, en orden): Nuevo → Contactado → Agendado → Entrevistado → CV recibido → CV revisado → Plan enviado → Aplicando → Entrevista laboral → Empleado; salidas: No responde, Descartado, Pausa.
@@ -71,10 +74,11 @@ URLs públicas:
 - `migrarEstados()` (por defecto simulación): propone `Entrevistado` a quien ya tenga fila en "Entrevistas". Ejecutar `migrarEstados(false)` solo a mano tras revisar el log.
 
 ### Hoja "Entrevistas" (una fila por persona, por `codigo`)
-`actualizado, codigo, nombre, dentro_perfil, p1_ultima_busqueda, p2_desanimo, lo_intento, p3_ejemplo_barrera, p4_que_intento, gasto, monto_usd, barrera_clara, p5_una_cosa, p6_avance, p7_sirve_sobra, p8_falta, p9_usara, p10_referidos, compromiso, frase_clave, sorpresa, confirma, titulo_evaluado, equivalencia_eeuu`
+`actualizado, codigo, nombre, dentro_perfil, p1_ultima_busqueda, p2_desanimo, lo_intento, p3_ejemplo_barrera, p4_que_intento, gasto, monto_usd, barrera_clara, p5_una_cosa, p6_avance, p7_sirve_sobra, p8_falta, p9_usara, p10_referidos, compromiso, frase_clave, sorpresa, confirma, titulo_evaluado, equivalencia_eeuu, apps_semana_inicio`
 - `compromiso` = Sí si `p9_usara = Sí` o `p10_referidos > 0`.
 - `confirma` = Sí si `lo_intento`, `barrera_clara` y `compromiso` son Sí.
-- `titulo_evaluado`: Sí / No / En trámite. `equivalencia_eeuu` solo si Sí (texto del grado; nunca fecha de nacimiento ni documentos).
+- `titulo_evaluado`: Sí / No / En trámite. `equivalencia_eeuu` solo si Sí (texto del grado; nunca fecha de nacimiento ni documentos). La app puede escribir **solo si está vacío** (consejo G3: licencia Texas → En trámite; solo Bachelor's → En trámite; si no → No).
+- `apps_semana_inicio`: número que dice la persona en la llamada (“¿Cuántas aplicaciones haces por semana?”).
 - Contador del Sprint 1: filas con `dentro_perfil = Sí` (meta 5) y de esas, `confirma = Sí` (meta 3).
 
 ### API del Apps Script
@@ -85,6 +89,7 @@ URLs públicas:
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
 - `POST` text/plain JSON `{clave, accion:"revisar_agenda"}` → ejecuta `revisarAgenda()` (Calendar → Agendado).
 - `POST` text/plain JSON `{accion:"subir_cv", codigo, mime, contenido_b64}` → guarda PDF/DOCX (≤5 MB) en Drive privado "Ruta Puente - CVs", fila en pestaña "CVs", estado `CV recibido`, correo a David. Autentica por `codigo` (sin clave).
+- `POST` text/plain JSON `{accion:"guardar_app", codigo, apps_semana?, respuestas_semana?, titulo_evaluado?, aviso_diccionario?}` → autentica por `codigo`. Escribe conteos en Respuestas. `titulo_evaluado` solo si la celda en Entrevistas está vacía. Si viene `aviso_diccionario`, correo a David para ampliar TITLES.
 - Clave incorrecta → `{ok:false, error:"clave"}` con 800 ms de espera.
 - `AGENDA_URL` (pública, en landing y app): Google Calendar Appointment Schedule de llamadas de 15 min.
 
@@ -93,15 +98,23 @@ URLs públicas:
 
 ### App personal (app/index.html)
 - 6 pasos: `Perfil, Tu cargo, Carril, Vacantes, Contacto, Aplicaciones`. Pantalla de inicio con la ruta y barra de progreso.
+- Primera visita: bienvenida de 3 tarjetas (se puede saltar; `rp-bienvenida`). Cada paso tiene una línea “para qué te sirve”.
+- El resumen profesional se arma con los logros y los años del paso 1 (no un texto genérico).
+- Paso 2: diccionario + campo libre que **no desaparece** al escribir (botón “Cambiar”). Si hay varias coincidencias, elige la de mayor nivel y muestra las otras. Tarjeta “¿Necesito validar mi título?” (3 sí/no).
 - Paso 3 (Carril) incluye "Mi CV": botón subir PDF/DOCX ≤5 MB → `subir_cv`. Tras éxito: "Recibido. David lo revisa…".
+- Paso 4: portales + “Empresas objetivo en Houston” (`data/empresas.json`). Si el archivo falla o está vacío, solo queda el mensaje fijo.
+- Paso 6: meta semanal (default 5), racha, lista de 1 toque (aplicada / me respondieron / entrevista / no).
+- Al confirmar un paso: “Vas N de 6…” + botón WhatsApp `https://wa.me/18322533555` con texto del paso.
 - Un paso tiene ✓ solo si la persona lo confirmó **y** cumple su requisito: paso 1 → escribió sus logros; paso 4 → ZIP de 5 dígitos; paso 5 → copió su mensaje; paso 6 → al menos 1 aplicación anotada.
 - Sin código válido, muestra el ejemplo `EJEMPLO` (María) con la etiqueta "Ejemplo".
-- Estado local (localStorage, siempre dentro de try/catch): `rp-wins`, `rp-apps`, `rp-ok-<codigo>`, `rp-ok-<codigo>-copy`, `rp-cv-<codigo>`.
-- Diccionario `TITLES`: cargo en español → cargo en EE. UU., alternativas, palabras clave y "carriles".
+- Estado local (localStorage, siempre dentro de try/catch): `rp-wins`, `rp-apps`, `rp-ok-<codigo>`, `rp-ok-<codigo>-copy`, `rp-cv-<codigo>`, `rp-cargo-<codigo>`, `rp-title-key-<codigo>`, `rp-titulo-<codigo>`, `rp-meta-<codigo>`, `rp-racha-<codigo>`, `rp-bienvenida`.
+- Diccionario `TITLES`: cargo en español → cargo en EE. UU., alternativas, palabras clave y "carriles". Normaliza tildes, `ing.`/`ing`, femeninos (ingeniera, licenciada…), carrera→cargo (contabilidad, enfermería, docencia, administración, sistemas). Prueba: `node tests/titulos.js`.
 
 ### Bitácora (bitacora/index.html)
 - Pide la clave una vez y la guarda en el celular (`rp-bit-clave`). Borradores por persona en `rp-bit-draft-<codigo>`.
 - 6 bloques del guion + "Tus notas" + decisión calculada en vivo.
+- En la tarjeta de cada persona: chip “CV recibido hace X h”; rojo si pasaron más de 48 h y el estado sigue en `CV recibido` (también entra al correo diario en “Atrasados”).
+- Pregunta de diagnóstico: “¿Cuántas aplicaciones haces por semana?” → `apps_semana_inicio`.
 - Filtros: Para hoy (`proximo_fecha` ≤ hoy), Sin contactar (`estado` = Nuevo), Todos.
 - Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
 
@@ -109,7 +122,8 @@ URLs públicas:
 ### Sitio (GitHub Pages)
 1. Edita los archivos en una rama o directo en `main` si David lo pide.
 2. Prueba localmente abriendo el archivo en el navegador (o `npx serve .`) a 400 px de ancho.
-3. `git commit` con mensaje en español que diga qué cambió y por qué; `git push`. GitHub Pages publica en 1–2 minutos.
+3. Antes de cada commit del diccionario o de la app: `node tests/titulos.js` (15 cargos). Debe salir 15/15.
+4. `git commit` con mensaje en español que diga qué cambió y por qué; `git push`. GitHub Pages publica en 1–2 minutos.
 
 ### Apps Script (con clasp)
 Configuración (una vez, con David presente):
@@ -153,10 +167,11 @@ Hoy el producto cubre partes de 1, 3, 4 y 5. Lo siguiente: 2 y 7.
 
 ## 9. Backlog priorizado
 1. **Configurar el repo para trabajar con Cursor** (clasp, .gitignore, borrar duplicados solo si David aprueba). Sin cambios funcionales.
-2. **Checklist de nivelación (fase 2) en la app personal:** 8 puntos (correo profesional, Google Docs y PDF, subir archivo desde el celular, LinkedIn básico, Indeed, qué es un ATS, presentarse en 30 s en inglés, cómo funciona el mercado: recruiter, staffing agency, W-2 vs 1099, pago por hora vs anual). Cada punto con explicación de 3–5 líneas, enlace a un recurso gratuito y casilla "Ya lo hice" en localStorage. Se muestra antes de la ruta de 6 pasos si la persona no ha completado al menos 6 de 8.
-3. **Seguimiento 7/30/60/90 días (fase 7):** columna `fecha_empleo` en Respuestas (la llena David) y un trigger diario que le manda a David un correo con las personas a contactar hoy y un mensaje sugerido para WhatsApp. No se envían mensajes automáticos a usuarios.
-4. **Métricas en la Bitácora:** puntaje del CV antes/después, aplicaciones por semana, tasa de respuesta.
-5. **Módulo de CV y LinkedIn (después de 25 usuarios activos):** la persona sube su PDF (CV o "Guardar en PDF" de LinkedIn) → carpeta privada en Drive → Apps Script lo envía a la API de Gemini **plan de pago** (el gratuito usa los datos para entrenar; no sirve para CVs) → JSON con el esquema del Archivo Maestro (`schema_version 1.0`) → pestaña "Perfiles" → David aprueba antes de que la persona vea el resultado. No hacer scraping de LinkedIn.
+2. ~~Checklist de nivelación (fase 2)~~ **Hecho** en la app (8 puntos, ≥6 para seguir).
+3. ~~Seguimiento 7/30/60/90 días (fase 7)~~ **Hecho** (`fecha_empleo` + correo diario a David, sin WhatsApp automático).
+4. **Métricas en la Bitácora:** puntaje del CV antes/después ya está; faltan gráficos de `apps_semana` / `respuestas_semana` / `apps_semana_inicio`.
+5. **Cargar empresas reales** en `data/empresas.json` (hoy hay 2 filas de ejemplo).
+6. **Módulo de CV y LinkedIn (después de 25 usuarios activos):** la persona sube su PDF (CV o "Guardar en PDF" de LinkedIn) → carpeta privada en Drive → Apps Script lo envía a la API de Gemini **plan de pago** (el gratuito usa los datos para entrenar; no sirve para CVs) → JSON con el esquema del Archivo Maestro (`schema_version 1.0`) → pestaña "Perfiles" → David aprueba antes de que la persona vea el resultado. No hacer scraping de LinkedIn.
 
 ## 10. Forma de trabajo esperada
 - Antes de programar: explica en 3–6 viñetas qué vas a cambiar, en qué archivos y cómo se va a probar. Espera el "ok" de David si toca datos, el script o algo publicado.

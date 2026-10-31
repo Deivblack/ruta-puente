@@ -198,6 +198,9 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
         <textarea id="p1_ultima_busqueda"></textarea>
         <div class="hint">Toca el micrófono del teclado para dictar.</div></div>
       <div class="q"><label for="p2_desanimo">P2 · Lo que más le desanimó</label><textarea id="p2_desanimo"></textarea></div>
+      <div class="q"><label for="apps_semana_inicio">¿Cuántas aplicaciones haces por semana?</label>
+        <input type="number" id="apps_semana_inicio" min="0" inputmode="numeric">
+        <div class="hint">Número que dice en la llamada. Se guarda en Entrevistas.</div></div>
       <label class="check"><input type="checkbox" id="lo_intento"> <span><b>Lo intentó:</b> confirmó con hechos que buscó en los últimos 12 meses. <em id="busco-hint"></em></span></label>
     </div>
   </details>
@@ -279,7 +282,7 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
 const TEXTOS = ['p1_ultima_busqueda','p2_desanimo','p3_ejemplo_barrera','p4_que_intento','p5_una_cosa','p6_avance','p7_sirve_sobra','p8_falta','frase_clave','sorpresa','equivalencia_eeuu'];
-const NUMS = ['monto_usd','p10_referidos'];
+const NUMS = ['monto_usd','p10_referidos','apps_semana_inicio'];
 const CHECKS = ['lo_intento','barrera_clara'];
 const SEGS = ['gasto','p9_usara','dentro_perfil','titulo_evaluado'];
 const $ = s => document.querySelector(s);
@@ -403,6 +406,17 @@ function pintarPersonas(){
     b.querySelector('strong').textContent = corto;
     b.querySelector('span').textContent = (p.profesion||'—') + ' · ' + (p.pais||'');
     b.querySelector('em').textContent = txt;
+    if (p.cv_recibido_fecha) {
+      const rec = new Date(p.cv_recibido_fecha);
+      if (!isNaN(rec.getTime())) {
+        const horas = Math.floor((Date.now() - rec.getTime()) / 3600000);
+        const late = horas > 48 && String(p.estado || '') === 'CV recibido';
+        const chip = document.createElement('em');
+        chip.className = 'pill ' + (late ? 'out' : 'done');
+        chip.textContent = 'CV recibido hace ' + (horas < 1 ? '<1' : horas) + ' h';
+        b.appendChild(chip);
+      }
+    }
     b.addEventListener('click', () => elegir(p.codigo));
     box.appendChild(b);
   });
