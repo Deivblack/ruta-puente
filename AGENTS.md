@@ -51,7 +51,7 @@ URLs públicas:
 ```
 - `SCRIPT_URL` (igual en las 3 páginas): `https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec`
 - ID del proyecto Apps Script: `1mLZVH8IdSfyc2K1nPj3mF4LBEZHnw9rP9SNvHg2bXxYNSod4txkl1Wad`
-- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). Versión en producción todavía v5 hasta que David despliegue v6 (flujo, CV, agenda, ZIP).
+- ID de la implementación (deployment) activa: el mismo que aparece en `SCRIPT_URL` (`AKfycbwMKLgk…`). Versión actual: **v6** (flujo, CV, agenda, ZIP). David pegó el código, autorizó Drive/Calendar y activó triggers el 30 oct 2026 (zona Chicago).
 - El script está **vinculado a la hoja** "Ruta Puente - Respuestas" (`SpreadsheetApp.getActiveSpreadsheet()`).
 - Nota técnica: Google reserva el parámetro `c` en `/exec`; por eso la app llama con `?codigo=` y `doGet` acepta `codigo` (y `c` por compatibilidad).
 - La Bitácora manda `fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify(...)})` sin cabeceras (queda `text/plain`, sin preflight CORS). El formulario manda `URLSearchParams` con `mode:'no-cors'`. `doPost` distingue los dos por `e.postData.type`.
@@ -60,7 +60,7 @@ URLs públicas:
 ### Hoja "Respuestas" (columnas, en orden)
 `fecha, prioridad, nombre, whatsapp, ciudad, pais, fuente, profesion, titulo, anios_exp, tiempo_eeuu, autorizado, trabajo_actual, horas_trabajo, busco_12m, aplicaciones, respuestas, barrera, horas_disponibles, horario, comentario, consentimiento, estado, codigo, enlace, fecha_empleo, seguimiento_7, seguimiento_30, seguimiento_60, seguimiento_90, fecha_contacto, fecha_entrevista, cv_puntaje_antes, cv_puntaje_despues, plan_enviado, proximo_paso, proximo_fecha, notas_david, cita_id, zip`
 - `ciudad`: nombre de la ciudad (texto). `zip`: 5 dígitos, columna al final. Nunca deducir ubicación por el código de área del teléfono.
-- `migrarCiudad()` (simulación por defecto): si `ciudad` contiene 5 dígitos y `zip` está vacío, los copia a `zip`.
+- `migrarCiudad()` (simulación por defecto): si `ciudad` contiene 5 dígitos y `zip` está vacío, los copia a `zip`. El 30 oct 2026 David revisó la simulación (8 filas) y aplicó `migrarCiudad(false)`. `migrarEstados()` simuló 0 filas: no se aplicó.
 - `prioridad` se calcula en el servidor: `autorizado = No` → "Fuera de perfil"; si no, 1 punto por título, 1 por buscar en 12 meses, 1 por autorizado → 3 = Alta, 2 = Media, menos = Baja.
 - `estado` (lista desplegable, en orden): Nuevo → Contactado → Agendado → Entrevistado → CV recibido → CV revisado → Plan enviado → Aplicando → Entrevista laboral → Empleado; salidas: No responde, Descartado, Pausa.
 - `codigo`: 10 caracteres hex (`Utilities.getUuid()` sin guiones, recortado). `enlace` = URL de la app + `?c=` + código.
@@ -119,22 +119,80 @@ Configuración (una vez, con David presente):
 4. Agrega `.clasp.json` y `.clasprc.json` al `.gitignore` (contienen IDs y credenciales).
 5. Desde entonces la fuente del script es `apps-script/` (el archivo `apps-script.gs` de la raíz queda como copia histórica; pregunta a David si se borra).
 
-Publicar un cambio del script:
+Publicar un cambio del script (cuando haya clasp):
 1. `clasp push` (sube el código).
 2. `clasp deploy -i <ID de la implementación activa> -d "vN - descripción"` → nueva versión **en la misma URL**. Para ver el ID: `clasp deployments`.
 3. Si el cambio pide permisos nuevos (por ejemplo Drive), David debe autorizar ejecutando una función desde el editor.
 4. Verifica: formulario de prueba (o `pruebaFicha()` desde el editor) y, para la Bitácora, una llamada `listar`.
 
+Hoy **no hay clasp** en este repo (no existe `apps-script/`, ni `.clasp.json`, ni sesión `.clasprc.json`). Un agente no puede `clasp push` ni `clasp deploy`. El despliegue v6 lo hizo David a mano (30 oct 2026).
+
+### Desplegar una versión nueva (sin clasp)
+
+Hazlo con tu cuenta de Google. No crees implementación nueva. La URL `/exec` debe seguir igual. Pasos que ya se usaron para v6:
+
+1. Abre el proyecto: https://script.google.com/home/projects/1mLZVH8IdSfyc2K1nPj3mF4LBEZHnw9rP9SNvHg2bXxYNSod4txkl1Wad/edit
+2. El código de v6 **ya está en GitHub** (`apps-script.gs` de `main`). Ábrelo en bruto y copia todo:  
+   https://raw.githubusercontent.com/Deivblack/ruta-puente/main/apps-script.gs
+3. En el editor de Apps Script: selecciona **todo** el archivo `.gs` actual, pégalo encima y **guarda** (Ctrl+S / Cmd+S). Si ya se fusionó el comentario de versión, se lee arriba `v6 - flujo CV agenda zip`.
+4. Arriba a la derecha: **Deploy** → **Manage deployments**.
+5. En la implementación que ya existe (Web app, la URL termina en `AKfycbwMKLgk…/exec`): pulsa el **lápiz**.
+6. En **Version** elige **New version**. Descripción: `v6 - flujo CV agenda zip`.
+7. No toques “Execute as” ni “Who has access”. Pulsa **Deploy**.
+8. Comprueba que la URL sigue siendo exactamente:  
+   `https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec`  
+   Si sale otra URL, **cancela** y avisa: se creó una implementación nueva por error.
+9. (Recomendado) Archivo → Configuración del proyecto → zona horaria **America/Chicago**.
+
+### Autorizar permisos nuevos (Drive + Calendar)
+
+Google pide permiso la primera vez. En el editor, elige cada función en el menú y pulsa **Ejecutar**. Si sale “Authorization required”, pulsa **Review permissions** → tu cuenta → **Allow**.
+
+Orden sugerido:
+1. `actualizarHoja()` — agrega columnas nuevas si faltan (`zip`, `proximo_paso`, etc.). No borra filas.
+2. `activarOnEditEstado()` — al cambiar Estado en la hoja, calcula el próximo paso.
+3. `activarCorreoDiario()` — correo ~7:30 a. m. (hora de Chicago si la zona está bien).
+4. `activarRevisarAgenda()` — cada hora mira el calendario.
+5. `revisarAgenda()` — **esta** es la que pide permiso de Calendar. Ejecútala una vez a mano.
+6. `carpetaCvs()` — **esta** es la que pide permiso de Drive. Crea (si no existe) la carpeta privada `Ruta Puente - CVs`.
+7. `hojaCvs()` — crea la pestaña `CVs` si aún no está. También aparece sola al subir el primer CV.
+
+Atajo: `configurarTodo()` hace los pasos 2–4 más el resumen semanal y el seguimiento 7/30/60/90. Igual hay que ejecutar `revisarAgenda()` y `carpetaCvs()` una vez para que Google pida Calendar y Drive.
+
+No ejecutes `crearClaveBitacora()` (la clave ya existe). No vuelvas a aplicar migraciones sin simular primero.
+
+### Simulación: migrarEstados y migrarCiudad
+
+1. En el editor ejecuta `migrarEstados()` (sin `false`).
+2. Abre **Registro de ejecución**. Debe decir **SIMULACIÓN**.
+3. Ejecuta `migrarCiudad()` igual.
+4. Solo con el **ok** de David se aplica (`migrarEstados(false)` / `migrarCiudad(false)`), con una función auxiliar en el editor, porque el menú ▶ siempre simula.
+
+Hecho el 30 oct 2026: `migrarEstados` → 0 filas (no se aplicó). `migrarCiudad` → 8 filas, David dijo sí y se aplicó.
+
+### Pruebas con la persona PRUEBA (celular, ~400 px)
+
+Usa solo el nombre **PRUEBA**. Si ya hay una fila PRUEBA en la hoja, no llenes el formulario otra vez: usa su enlace de la columna `enlace`.
+
+1. **Formulario → agenda.** https://deivblack.github.io/ruta-puente/  
+   Nombre PRUEBA, WhatsApp tuyo, ciudad Houston, ZIP 77095, autorizado Sí. Al enviar debe aparecer **Agenda tu llamada** (no WhatsApp de “fuera de perfil”). Reserva un horario de prueba y luego cancélalo si no lo quieres.
+2. **App, subir CV.** Abre el enlace personal `…/app/?c=<codigo>` de PRUEBA (columna `enlace`). Checklist de nivelación → Carril → **Subir mi CV** (PDF o Word ≤ 5 MB). Debe decir “Recibido…”. En Drive: carpeta `Ruta Puente - CVs`. En la hoja: pestaña `CVs` y estado **CV recibido**. Te llega un correo.
+3. **Bitácora.** https://deivblack.github.io/ruta-puente/bitacora/  
+   Elige PRUEBA. Cambia estado (por ejemplo Contactado) → **Guardar estado**. Pulsa **Revisar agenda**. Filtros: Para hoy / Sin contactar / Todos.
+4. **Correo diario.** En el editor ejecuta `pruebaCorreoDiario()`. Revisa tu Gmail. No manda mensajes a usuarios.
+
+v6 quedó autorizada el 30 oct 2026. Para un cambio nuevo del script, vuelve a desplegar **nueva versión de la misma implementación** (sección de arriba).
+
 ### Funciones de mantenimiento en el script
 - `crearClaveBitacora()` → crea la clave si no existe y la muestra en el registro (no la copies a ningún archivo).
 - `actualizarHoja()` → rellena códigos y enlaces faltantes, agrega columnas nuevas si faltan y regenera la pestaña "Enlaces".
-- `activarResumenSemanal()` / `configurarTodo()` → trigger de los lunes y validación de estados (`configurarTodo` también activa seguimiento diario y `onEditEstado`).
+- `activarResumenSemanal()` / `configurarTodo()` → `configurarTodo` activa resumen semanal, seguimiento 7/30/60/90, correo diario, `onEditEstado` y `revisarAgenda`. Igual hay que ejecutar `revisarAgenda()` y `carpetaCvs()` una vez para autorizar Calendar y Drive.
 - `activarOnEditEstado()` → trigger instalable al editar `estado` + lista desplegable ampliada.
 - `migrarEstados()` / `migrarEstados(false)` → simulación (default) o aplica Entrevistado a quienes ya tienen fila en Entrevistas.
 - `migrarCiudad()` / `migrarCiudad(false)` → simulación (default) o copia ZIP de 5 dígitos desde `ciudad` a `zip`.
 - `correoDiario()` / `activarCorreoDiario()` / `pruebaCorreoDiario()` → “a quién escribir hoy” (~7:30 a. m.; incluye Llamadas de hoy y reservas sin formulario).
-- `revisarAgenda()` / `activarRevisarAgenda()` → cada hora lee Calendar; pide permiso Calendar.
-- `subirCv()` → recepción de CV (pide permiso Drive la primera vez).
+- `revisarAgenda()` / `activarRevisarAgenda()` → cada hora lee Calendar; pide permiso Calendar. Ejecutar `revisarAgenda()` una vez a mano para autorizar.
+- `carpetaCvs()` / `hojaCvs()` / `subirCv()` → carpeta Drive privada, pestaña CVs y recepción de CV. Ejecutar `carpetaCvs()` una vez a mano para autorizar Drive.
 - `seguimientoEmpleo()` → correo diario a David con hitos 7/30/60/90 pendientes y mensaje sugerido de WhatsApp (no escribe a usuarios).
 - `activarSeguimientoEmpleo()` → crea el trigger diario (8 a. m.) y asegura las columnas de empleo/seguimiento.
 - `pruebaSeguimientoEmpleo()` → manda un correo de ejemplo sin usar filas reales.

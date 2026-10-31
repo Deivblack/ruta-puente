@@ -1,3 +1,6 @@
+// Versión del código: v6 - flujo CV agenda zip
+// Desplegar como NUEVA VERSIÓN de la misma implementación web (Deploy → Manage deployments → lápiz).
+// Nunca crear una implementación nueva: la URL /exec no debe cambiar.
 // BITÁCORA: ejecuta esta función UNA vez (botón Ejecutar). Crea tu clave y la muestra en el registro de ejecución.
 function crearClaveBitacora() {
   const props = PropertiesService.getScriptProperties();
