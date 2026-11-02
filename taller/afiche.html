@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Afiche · Taller Ruta Puente · 13 nov 2026</title>
+<link rel="icon" href="../logo-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+@page { size: letter; margin: 0; }
+html, body { margin: 0; padding: 0; background: #fff; }
+*{box-sizing:border-box}
+body{
+  font-family:"Nunito","Segoe UI",system-ui,sans-serif;
+  color:#1a2420;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+.hoja{
+  width:8.5in; height:11in;
+  margin:0 auto;
+  padding:0.42in 0.48in 0.38in;
+  background:#fff;
+  display:flex; flex-direction:column; gap:0.18in;
+  position:relative; overflow:hidden;
+  border: none;
+}
+.marca{
+  position:absolute; inset:0; display:grid; place-items:center;
+  pointer-events:none; z-index:2;
+}
+.marca span{
+  font-family:"Bricolage Grotesque","Segoe UI",sans-serif;
+  font-weight:800; font-size:92pt; letter-spacing:.08em;
+  color:#1a2420; opacity:.08; transform:rotate(-28deg); white-space:nowrap;
+}
+.head{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.brand{display:flex; align-items:center; gap:10px}
+.brand svg{width:48px; height:48px}
+.brand b{font-family:"Bricolage Grotesque","Segoe UI",sans-serif; font-size:22pt; font-weight:800; color:#1a2420}
+.tag{
+  font-weight:800; font-size:13pt; letter-spacing:.12em;
+  background:#e8b04b; color:#1a2420; padding:8px 16px; border-radius:999px;
+}
+h1{
+  font-family:"Bricolage Grotesque","Segoe UI",sans-serif;
+  font-size:48pt; line-height:.95; margin:0.06in 0 0; font-weight:800; color:#1a2420;
+}
+.sub{font-size:18pt; font-weight:700; margin:0.08in 0 0; color:#1a2420; line-height:1.25}
+.takes{list-style:none; margin:0.12in 0 0; padding:0; display:flex; flex-direction:column; gap:0.1in}
+.takes li{
+  display:flex; gap:12px; align-items:flex-start;
+  font-size:18pt; font-weight:700; line-height:1.25;
+}
+.takes .n{
+  flex:0 0 36px; height:36px; border-radius:50%;
+  background:#2e7d5b; color:#fff;
+  display:grid; place-items:center;
+  font-family:"Bricolage Grotesque","Segoe UI",sans-serif;
+  font-weight:800; font-size:16pt;
+}
+.bloque{
+  background:#e1efe7; border:3px solid #2e7d5b; border-radius:18px;
+  padding:0.18in 0.22in; margin-top:0.06in;
+}
+.bloque .k{font-size:12pt; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#2e7d5b; margin:0}
+.bloque .v{font-family:"Bricolage Grotesque","Segoe UI",sans-serif; font-size:22pt; font-weight:800; margin:4px 0 0; line-height:1.15}
+.qr-wrap{
+  display:flex; align-items:center; gap:0.22in; margin-top:0.08in;
+}
+.qr-wrap img{
+  width:2.6in; height:2.6in; background:#fff;
+  border:8px solid #fff; outline:3px solid #1a2420;
+}
+.qr-txt{display:flex; flex-direction:column; gap:8px}
+.qr-txt strong{font-family:"Bricolage Grotesque","Segoe UI",sans-serif; font-size:22pt; line-height:1.1}
+.qr-txt span{font-size:16pt; font-weight:800; word-break:break-all}
+.pie{
+  margin-top:auto; padding-top:0.1in; border-top:3px solid #1a2420;
+  font-size:13pt; font-weight:700; display:flex; flex-direction:column; gap:4px;
+}
+@media print{
+  html, body{width:8.5in; height:11in; background:#fff}
+  .hoja{box-shadow:none}
+}
+@media screen{
+  body{background:#cfd5d1; padding:16px}
+  .hoja{box-shadow:0 8px 28px rgba(0,0,0,.18); background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="hoja" id="hoja">
+  <div class="marca" id="marca" hidden><span>BORRADOR</span></div>
+  <div class="head">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#1D2B26" stroke-width="5" stroke-linecap="round"/></svg>
+      <b>Ruta Puente</b>
+    </div>
+    <span class="tag">TALLER GRATUITO</span>
+  </div>
+  <h1>¿Cómo se llama tu cargo en inglés?</h1>
+  <p class="sub">Para profesionales latinos que hoy trabajan en algo distinto a lo que estudiaron.</p>
+  <ul class="takes">
+    <li><span class="n">1</span><span>Tu cargo en inglés y cómo te buscan los reclutadores.</span></li>
+    <li><span class="n">2</span><span>Qué debe tener un CV para EE. UU. (y qué quitar).</span></li>
+    <li><span class="n">3</span><span>Tu siguiente paso para aplicar esta semana.</span></li>
+  </ul>
+  <div class="bloque">
+    <p class="k">Cuándo y dónde</p>
+    <p class="v" id="a-cuando"></p>
+  </div>
+  <div class="qr-wrap">
+    <img src="qr-taller.svg" width="250" height="250" alt="Código QR para inscribirse al taller">
+    <div class="qr-txt">
+      <strong>Escanea e inscríbete gratis</strong>
+      <span id="a-url"></span>
+    </div>
+  </div>
+  <div class="pie">
+    <span id="a-apoyo" hidden></span>
+    <span>Ruta Puente · deivblack.github.io/ruta-puente</span>
+  </div>
+</div>
+<script src="config.js"></script>
+<script>
+(function(){
+  const bits = [TALLER.fecha];
+  bits.push(TALLER.hora);
+  bits.push(TALLER.lugar);
+  if (!tallerPendiente(TALLER.direccion)) bits.push(TALLER.direccion);
+  bits.push(TALLER.modalidad || "Presencial");
+  document.getElementById("a-cuando").textContent = bits.join(" · ");
+  document.getElementById("a-url").textContent = TALLER_URL_CORTA;
+  if (!tallerPendiente(TALLER.apoyo)){
+    const a = document.getElementById("a-apoyo");
+    a.hidden = false;
+    a.textContent = TALLER.apoyo;
+  }
+  if (tallerEsBorrador()) document.getElementById("marca").hidden = false;
+})();
+</script>
+</body>
+</html>

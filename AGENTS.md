@@ -29,6 +29,12 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
+├── taller/           → Inscripción y afiche del taller (13 nov 2026)
+│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos
+│   ├── index.html    → Página pública de inscripción
+│   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
+│   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
+│   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
 └── README.md
@@ -37,11 +43,15 @@ URLs públicas:
 - Landing: https://deivblack.github.io/ruta-puente/
 - App (ejemplo, sin código): https://deivblack.github.io/ruta-puente/app/
 - Bitácora: https://deivblack.github.io/ruta-puente/bitacora/
+- Taller: https://deivblack.github.io/ruta-puente/taller/
+- Afiche: https://deivblack.github.io/ruta-puente/taller/afiche.html
 
 ## 4. Arquitectura
 ```
 [Landing + formulario] --POST form-urlencoded--> [Apps Script doPost] --> Hoja "Respuestas"
                                                         └--> Correo a David con la ficha de entrevista
+[Taller /taller/] --POST form-urlencoded form=taller--> [doPost → guardarTaller] --> Hoja "Taller" + correo
+[Taller] --GET ?taller=estado--> {ok, inscritos, espera}  (para cupos; sin datos personales)
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
 [Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David (conteo por estado + atrasados)
@@ -80,6 +90,8 @@ URLs públicas:
 ### API del Apps Script
 - `GET ?codigo=<10 hex>` → `{ok, persona:{nombre (solo primer nombre), pais, profesion, anios_exp, ciudad, zip, barrera, estado}}`. Solo lectura y datos mínimos: **no agregues campos sensibles aquí** (la URL es pública).
 - `POST` form-urlencoded (formulario) → guarda fila, envía ficha. Ignora envíos con `website` (honeypot) o sin `nombre`.
+- `POST` form-urlencoded `form=taller` → pestaña **Taller**. Columnas: `fecha, nombre, whatsapp, correo, profesion, ciudad, zip, fuente, consentimiento, en_ruta_puente, asistio, notas`. `en_ruta_puente` = Sí si los últimos 10 dígitos del WhatsApp ya están en Respuestas. Si `notas = lista de espera`, no cuenta como cupo. Correo a David: "Inscripción taller: [nombre]".
+- `GET ?taller=estado` → `{ok, inscritos, espera}` (público, sin nombres ni teléfonos). La página compara con `TALLER.cupos` en `taller/config.js`.
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
@@ -104,6 +116,13 @@ URLs públicas:
 - 6 bloques del guion + "Tus notas" + decisión calculada en vivo.
 - Filtros: Para hoy (`proximo_fecha` ≤ hoy), Sin contactar (`estado` = Nuevo), Todos.
 - Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
+- Contador "Taller 13 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
+
+### Taller (`taller/`)
+- Datos en **un solo archivo** `taller/config.js` (`TALLER`). Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**.
+- Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos) y vuelve a exportar el PDF del afiche.
+- `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
+- No usar logo ni escudo del Consulado ni de otras instituciones: solo texto de `TALLER.apoyo` cuando David lo confirme.
 
 ## 6. Cómo trabajar y publicar
 ### Sitio (GitHub Pages)

@@ -143,6 +143,8 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
     <div class="meter"><b id="g-in">0 / 5</b><div class="dots" id="d-in"></div><span>entrevistas dentro del perfil</span></div>
     <div class="meter"><b id="g-ok">0 / 3</b><div class="dots sun" id="d-ok"></div><span>confirman el problema</span></div>
     <p id="g-msg">Diana y Paulette (7 oct) quedaron fuera del perfil y no cuentan.</p>
+    <p id="g-taller" style="grid-column:1/-1;margin:0;font-weight:700">Taller 13 nov: 0 inscritos</p>
+    <button class="link" id="copy-taller" type="button" style="grid-column:1/-1;text-align:left;padding:0">Copiar WhatsApp del taller</button>
   </section>
 
   <section>
@@ -289,7 +291,7 @@ const store = {
   del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
 let clave = store.get('rp-bit-clave') || '';
-let personas = [], gate = {dentro:0, confirman:0}, actual = null;
+let personas = [], gate = {dentro:0, confirman:0}, taller = {inscritos:0, espera:0, lista:[]}, actual = null;
 let filtro = 'todos';
 let ESTADOS_UI = ['Nuevo','Contactado','Agendado','Entrevistado','CV recibido','CV revisado','Plan enviado','Aplicando','Entrevista laboral','Empleado','No responde','Descartado','Pausa'];
 
@@ -346,7 +348,7 @@ async function cargar(desdeLogin){
   catch(e){ return desdeLogin ? mostrarLogin('No hay conexión con la hoja. Revisa tu internet e intenta de nuevo.') : toast('No se pudo actualizar. Revisa tu internet.', true); }
   if (!r.ok){ store.del('rp-bit-clave'); return mostrarLogin(r.error === 'clave' ? 'Esa clave no es correcta.' : 'La hoja respondió con un error.'); }
   store.set('rp-bit-clave', clave);
-  personas = r.personas || []; gate = r.gate || gate;
+  personas = r.personas || []; gate = r.gate || gate; taller = r.taller || taller;
   if (r.estados && r.estados.length) ESTADOS_UI = r.estados;
   $('#login').hidden = true; $('#main').hidden = false;
   pintarGate(); pintarPersonas();
@@ -371,7 +373,18 @@ function pintarGate(){
   $('#g-ok').textContent = gate.confirman + ' / 3';
   dots($('#d-in'), Math.min(gate.dentro,5), 5); dots($('#d-ok'), Math.min(gate.confirman,3), 3);
   if (gate.dentro >= 5 && gate.confirman >= 3) $('#g-msg').textContent = '¡Listo! Cumpliste la regla de paso: arranca el Sprint 1.';
+  const nT = taller.inscritos || 0;
+  const espera = taller.espera ? ' · ' + taller.espera + ' en espera' : '';
+  $('#g-taller').textContent = 'Taller 13 nov: ' + nT + ' inscritos' + espera;
 }
+$('#copy-taller').addEventListener('click', () => {
+  const nums = (taller.lista || []).map(x => String(x.whatsapp || '').replace(/\D/g, '')).filter(n => n.length >= 10);
+  if (!nums.length) return toast('Todavía no hay WhatsApp del taller.', true);
+  const txt = nums.join('\n');
+  const ok = () => toast('Copié ' + nums.length + ' números');
+  try { navigator.clipboard.writeText(txt).then(ok).catch(() => toast(txt)); }
+  catch (e) { toast(txt); }
+});
 function estadoPill(p){
   const est = String(p.estado || '');
   if (est === 'Descartado' || p.prioridad === 'Fuera de perfil') return ['out', est || 'Fuera de perfil'];

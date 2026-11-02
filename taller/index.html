@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taller gratuito · ¿Cómo se llama tu cargo en inglés? · Ruta Puente</title>
+<meta name="description" content="Taller gratuito para profesionales latinos en EE. UU.: tu cargo en inglés y tu CV listo para aplicar. Viernes 13 de noviembre de 2026.">
+<meta property="og:title" content="Taller gratuito · Ruta Puente">
+<meta property="og:description" content="¿Cómo se llama tu cargo en inglés? Viernes 13 de noviembre de 2026. Gratis.">
+<link rel="icon" href="../logo-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#f5f7f4; --surface:#ffffff; --ink:#1f2a26; --muted:#5d6c66; --line:#dde5e0;
+  --hope:#2e7d5b; --hope-soft:#e1efe7; --hope-ink:#ffffff; --sun:#e8b04b; --sun-soft:#fbf0d9;
+  --err:#b4462f;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111a17; --surface:#18241f; --ink:#e7efea; --muted:#a2b2ab; --line:#2a3a33;
+  --hope:#5fbf8f; --hope-soft:#1f3a2e; --hope-ink:#0f1a15; --sun:#f0c062; --sun-soft:#3a3120; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body);padding:0 16px 48px}
+.wrap{max-width:720px;margin:0 auto}
+a{color:var(--hope)}
+h1,h2{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0}
+.brand{display:flex;align-items:center;gap:10px;font:800 20px var(--f-display);color:var(--ink);text-decoration:none}
+.brand svg{width:34px;height:34px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--hope);background:var(--hope-soft);padding:5px 12px;border-radius:999px}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sun)}
+.hero{display:flex;flex-direction:column;gap:14px;padding:8px 0 20px}
+.hero h1{font-size:clamp(30px,7vw,48px);font-weight:800}
+.lead{font-size:18px;color:var(--muted)}
+.meta{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.meta b{font-family:var(--f-display)}
+.gratis{display:inline-block;background:var(--sun);color:#1d2b26;font-weight:800;font-size:14px;padding:4px 12px;border-radius:999px;align-self:flex-start}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:800 16px var(--f-body);border:0;border-radius:999px;padding:13px 22px;cursor:pointer;text-decoration:none;background:var(--hope);color:var(--hope-ink)}
+.btn.ghost{background:transparent;color:var(--hope);border:2px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+section{padding:28px 0 0}
+.sec{font-size:clamp(22px,4.5vw,28px);margin-bottom:12px}
+.takes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.takes li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.takes .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--sun-soft);border:2px solid var(--sun);display:grid;place-items:center;font:800 14px var(--f-display)}
+.who{background:var(--hope-soft);border-radius:14px;padding:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.q{font-weight:700}
+.hint{font-size:14px;color:var(--muted);font-weight:400}
+input[type=text],input[type=tel],input[type=email],select{font:17px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+input:focus,select:focus{border-color:var(--hope);outline:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{position:relative;cursor:pointer}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips span{display:inline-block;padding:10px 14px;border-radius:999px;border:2px solid var(--line);background:var(--bg);font-weight:700;font-size:15px}
+.chips input:checked+span{background:var(--hope);border-color:var(--hope);color:var(--hope-ink)}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.consent input{width:22px;height:22px;flex:0 0 22px;accent-color:var(--hope);margin-top:2px}
+.err{color:var(--err);font-weight:700;font-size:14px;min-height:1.2em}
+.hp{position:absolute;left:-9999px}
+.lleno{background:var(--sun-soft);border:1px solid var(--sun);border-radius:12px;padding:12px 14px;font-weight:700}
+.done{text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;padding:24px 8px}
+.done .big{font:800 28px var(--f-display)}
+.done .btn{width:100%;max-width:360px}
+.me{display:flex;gap:14px;align-items:flex-start;background:var(--hope-soft);border-radius:14px;padding:16px}
+.me .avatar{flex:0 0 52px;height:52px;border-radius:50%;background:var(--hope);color:var(--hope-ink);display:grid;place-items:center;font:800 20px var(--f-display)}
+footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
+.cupos-tag{font-size:14px;font-weight:800;color:var(--hope)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="../">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="var(--hope)" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/></svg>
+      Ruta Puente
+    </a>
+    <a class="btn ghost" href="#inscribete" style="padding:6px 14px;font-size:15px">Inscríbete</a>
+  </header>
+
+  <main>
+    <div class="hero">
+      <span class="eyebrow">Taller gratuito</span>
+      <h1 id="t-titulo"></h1>
+      <p class="lead" id="t-sub"></p>
+    </div>
+
+    <div class="meta" id="t-meta">
+      <span class="gratis">Gratis</span>
+      <div><b id="t-fecha"></b></div>
+      <div id="t-cuando"></div>
+      <div id="t-modalidad"></div>
+      <div class="row" id="t-maps-row" hidden>
+        <a class="btn ghost" id="t-maps" href="#" target="_blank" rel="noopener">Cómo llegar</a>
+      </div>
+      <span class="cupos-tag" id="t-cupos" hidden></span>
+    </div>
+
+    <section>
+      <h2 class="sec">Qué te llevas</h2>
+      <ul class="takes">
+        <li><span class="n" aria-hidden="true">1</span><span>Tu cargo en inglés y cómo te buscan los reclutadores.</span></li>
+        <li><span class="n" aria-hidden="true">2</span><span>Qué debe tener un CV para EE. UU. (y qué quitar).</span></li>
+        <li><span class="n" aria-hidden="true">3</span><span>Tu siguiente paso para empezar a aplicar esta semana.</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="sec">Para quién es</h2>
+      <p class="who">Profesionales latinos que viven en EE. UU. y hoy trabajan en algo distinto a lo que estudiaron.</p>
+    </section>
+
+    <section id="inscribete">
+      <h2 class="sec" id="form-title">Inscríbete</h2>
+      <p class="lleno" id="cupos-lleno" hidden>Cupos llenos — déjanos tu WhatsApp para el próximo taller.</p>
+      <form class="card" id="form" novalidate>
+        <input class="hp" type="text" name="website" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <input type="hidden" name="form" value="taller">
+        <input type="hidden" name="utm" id="utm" value="">
+        <div class="field">
+          <label for="nombre">Nombre y apellido</label>
+          <input type="text" id="nombre" name="nombre" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="whatsapp">WhatsApp</label>
+          <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="numeric" placeholder="(832) 000-0000" required>
+          <span class="err" id="err-whatsapp"></span>
+        </div>
+        <div class="field">
+          <label for="correo">Correo <span class="hint">(opcional)</span></label>
+          <input type="email" id="correo" name="correo" autocomplete="email" placeholder="nombre@correo.com">
+        </div>
+        <div class="field">
+          <label for="profesion">Profesión o carrera que estudiaste</label>
+          <input type="text" id="profesion" name="profesion" placeholder="Ej.: contadora, ingeniero, maestra" required>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="ciudad">Ciudad</label>
+            <input type="text" id="ciudad" name="ciudad" placeholder="Houston" autocomplete="address-level2" required>
+          </div>
+          <div class="field">
+            <label for="zip">ZIP</label>
+            <input type="text" id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="77095" required>
+            <span class="err" id="err-zip"></span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="q" id="q-fuente">¿Cómo te enteraste?</span>
+          <div class="chips" role="radiogroup" aria-labelledby="q-fuente">
+            <label><input type="radio" name="fuente" value="Consulado" required><span>Consulado</span></label>
+            <label><input type="radio" name="fuente" value="CBBA Radio / YouTube"><span>CBBA Radio / YouTube</span></label>
+            <label><input type="radio" name="fuente" value="Grupo de WhatsApp"><span>Grupo de WhatsApp</span></label>
+            <label><input type="radio" name="fuente" value="Facebook"><span>Facebook</span></label>
+            <label><input type="radio" name="fuente" value="Un amigo"><span>Un amigo</span></label>
+            <label><input type="radio" name="fuente" value="Otro"><span>Otro</span></label>
+          </div>
+          <input type="text" id="fuente_otro" name="fuente_otro" placeholder="¿Dónde?" hidden>
+        </div>
+        <label class="consent">
+          <input type="checkbox" id="consentimiento" name="consentimiento" value="Sí" required>
+          <span>Acepto que Ruta Puente me escriba por WhatsApp sobre el taller.</span>
+        </label>
+        <span class="err" id="err-consent"></span>
+        <span class="err" id="err"></span>
+        <button class="btn" id="send" type="submit">Inscribirme</button>
+      </form>
+      <div class="done card" id="done" hidden>
+        <div class="big" id="done-title">¡Listo!</div>
+        <p id="done-text"></p>
+        <a class="btn" id="btn-cal" href="#" target="_blank" rel="noopener">Agregar a mi calendario</a>
+        <a class="btn ghost" id="btn-invitar" href="#" target="_blank" rel="noopener">Invita a un amigo</a>
+        <p class="hint"><a href="../">¿Quieres empezar ya? Llena el formulario de Ruta Puente (3 min)</a></p>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="sec">Quién lo da</h2>
+      <div class="me">
+        <div class="avatar" aria-hidden="true">D</div>
+        <p><b>David Moreno Abril</b> — psicólogo industrial, 15+ años en capacitación y talento humano, fundador de Ruta Puente.</p>
+      </div>
+    </section>
+  </main>
+  <footer>Ruta Puente · Houston · taller gratuito, orientación de empleo</footer>
+</div>
+<script src="config.js"></script>
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
+const $ = s => document.querySelector(s);
+const utm = (new URLSearchParams(location.search).get("utm") || "").trim();
+let listaEspera = false;
+let inscritos = 0;
+
+function esc(s){ return String(s==null?"":s); }
+
+function pintarDatos(){
+  $("#t-titulo").textContent = TALLER.titulo;
+  $("#t-sub").textContent = TALLER.subtitulo;
+  $("#t-fecha").textContent = TALLER.fecha;
+  $("#t-modalidad").textContent = TALLER.modalidad || "Presencial";
+  const horaOk = !tallerPendiente(TALLER.hora);
+  const lugarOk = !tallerPendiente(TALLER.lugar);
+  const dirOk = !tallerPendiente(TALLER.direccion);
+  const cuando = [];
+  if (horaOk) cuando.push(TALLER.hora);
+  if (lugarOk) cuando.push(TALLER.lugar);
+  $("#t-cuando").textContent = (horaOk && lugarOk)
+    ? cuando.join(" · ")
+    : "Hora y lugar: te avisamos por WhatsApp";
+  const maps = tallerMapsUrl();
+  if (maps){
+    $("#t-maps-row").hidden = false;
+    $("#t-maps").href = maps;
+  }
+  if (TALLER.cupos > 0){
+    $("#t-cupos").hidden = false;
+    $("#t-cupos").textContent = "Cupos limitados";
+  }
+  $("#btn-cal").href = tallerCalendarioUrl();
+  $("#btn-invitar").href = tallerInvitarUrl();
+  if (utm) $("#utm").value = utm;
+}
+
+function soloDigitos(s){ return String(s||"").replace(/\D/g,""); }
+
+function validar(){
+  ["err-whatsapp","err-zip","err-consent","err"].forEach(id => $( "#"+id ).textContent = "");
+  let ok = true;
+  if (!$("#nombre").value.trim()){ $("#err").textContent = "Escribe tu nombre."; ok = false; }
+  const wa = soloDigitos($("#whatsapp").value);
+  if (wa.length !== 10){
+    $("#err-whatsapp").textContent = "Escribe 10 dígitos de EE. UU., sin el 1.";
+    ok = false;
+  }
+  const zip = ($("#zip").value || "").trim();
+  if (!/^\d{5}$/.test(zip)){
+    $("#err-zip").textContent = "El ZIP debe ser exactamente 5 dígitos.";
+    ok = false;
+  }
+  if (!$("#profesion").value.trim() || !$("#ciudad").value.trim()){
+    if (ok) $("#err").textContent = "Completa profesión y ciudad.";
+    ok = false;
+  }
+  if (!$("#form").querySelector('input[name="fuente"]:checked')){
+    if (ok) $("#err").textContent = "Dinos cómo te enteraste.";
+    ok = false;
+  }
+  if (!$("#consentimiento").checked){
+    $("#err-consent").textContent = "Para inscribirte, acepta que te escribamos por WhatsApp.";
+    ok = false;
+  }
+  return ok;
+}
+
+async function cargarCupos(){
+  if (!(TALLER.cupos > 0) || !SCRIPT_URL.startsWith("https://")) return;
+  try{
+    const r = await fetch(SCRIPT_URL + "?taller=estado");
+    const d = await r.json();
+    if (d && d.ok) inscritos = parseInt(d.inscritos, 10) || 0;
+    if (TALLER.cupos > 0 && inscritos >= TALLER.cupos){
+      listaEspera = true;
+      $("#cupos-lleno").hidden = false;
+      $("#form-title").textContent = "Lista de espera";
+      $("#send").textContent = "Dejar mi WhatsApp";
+    }
+  }catch(e){}
+}
+
+$("#form").querySelectorAll('input[name="fuente"]').forEach(r => r.addEventListener("change", () => {
+  const on = r.value === "Otro" && r.checked;
+  const box = $("#fuente_otro");
+  box.hidden = !on; box.required = on;
+}));
+
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!validar()) return;
+  const data = Object.fromEntries(new FormData($("#form")).entries());
+  if (data.website) return;
+  delete data.website;
+  if (data.fuente === "Otro" && data.fuente_otro) data.fuente = "Otro: " + data.fuente_otro.trim();
+  delete data.fuente_otro;
+  if (utm){
+    const etiqueta = utm.charAt(0).toUpperCase() + utm.slice(1).toLowerCase();
+    data.fuente = data.fuente && data.fuente !== etiqueta ? (etiqueta + " · " + data.fuente) : etiqueta;
+  }
+  data.whatsapp = soloDigitos(data.whatsapp);
+  data.consentimiento = "Sí";
+  data.notas = listaEspera ? "lista de espera" : "";
+  if (!SCRIPT_URL.startsWith("https://")){
+    $("#err").textContent = "El formulario todavía no está conectado.";
+    return;
+  }
+  const btn = $("#send");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  try{
+    await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", body: new URLSearchParams(data) });
+    confirmar(data);
+  }catch(ex){
+    btn.disabled = false; btn.textContent = listaEspera ? "Dejar mi WhatsApp" : "Inscribirme";
+    $("#err").textContent = "No se pudo enviar. Revisa tu internet e inténtalo de nuevo.";
+  }
+});
+
+function confirmar(d){
+  $("#form").hidden = true;
+  $("#cupos-lleno").hidden = true;
+  const done = $("#done"); done.hidden = false;
+  const nombre = (d.nombre || "").trim().split(/\s+/)[0] || "";
+  $("#done-title").textContent = nombre ? ("¡Listo, " + nombre + "!") : "¡Listo!";
+  $("#done-text").textContent = listaEspera
+    ? "Te apuntamos en lista de espera. Te escribimos por WhatsApp si se abre un cupo, o para el próximo taller."
+    : "Te esperamos el 13 de noviembre.";
+  done.scrollIntoView({block:"center"});
+}
+
+pintarDatos();
+cargarCupos();
+</script>
+</body>
+</html>
