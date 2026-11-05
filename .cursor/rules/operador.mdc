@@ -1,0 +1,22 @@
+---
+description: Separación público/privado — datos de personas solo en ruta-puente-ops/
+alwaysApply: true
+---
+
+# Operador — límites del repo público
+
+Este repo (`ruta-puente`) es **público**. El trabajo operativo privado vive en `ruta-puente-ops/` (repo privado, ignorado por git aquí).
+
+## Nunca en este repo
+- Datos de personas (nombres completos, WhatsApp, correos, CVs, notas, perfiles, exports o capturas de la hoja).
+- Claves y secretos (`.env`, `BITACORA_CLAVE`, tokens, IDs privados).
+- Playbooks con fichas reales, mensajes personalizados o listados de usuarios.
+
+## Solo en `ruta-puente-ops/`
+- CVs, notas, perfiles, datos de la hoja y `.env`.
+- Playbooks, comandos, personas del Operador y scripts de operación.
+
+## Cómo actuar
+- Si una tarea pide guardar o citar datos de personas → escribe solo dentro de `ruta-puente-ops/`.
+- Si `ruta-puente-ops/` no está clonada aquí, dilo y no improvises datos en el repo público.
+- Plantillas y reglas genéricas (sin datos reales) sí pueden vivir en este repo, como esta regla.
