@@ -1,0 +1,5 @@
+# Credenciales e IDs de clasp. El repo es público: nunca subirlos.
+.clasprc.json
+.clasp.json
+apps-script/.clasprc.json
+apps-script/.clasp.json
