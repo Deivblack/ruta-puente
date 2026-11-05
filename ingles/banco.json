@@ -1,0 +1,1052 @@
+[
+  {
+    "id": "l1-b1",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nWarehouse Associate — Houston, TX\nPart-time. Morning shift, 6 a.m. to 2 p.m.\nMust lift 40 lbs. Apply on our website.\n\n¿A qué hora empieza el turno?",
+    "opciones": [
+      "6 a.m.",
+      "2 p.m.",
+      "40 lbs",
+      "On the website"
+    ],
+    "correcta": "6 a.m.",
+    "por_que": "Morning shift empieza a las 6 a.m. Las 2 p.m. es cuando termina.",
+    "frase_util": "I'm available for the morning shift.",
+    "revisar": true
+  },
+  {
+    "id": "l1-b2",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nFront Desk Clerk\nFull-time. Must be bilingual (English/Spanish).\nPay: $16 per hour. Send your resume to jobs@lakeviewhotel.com.\n\n¿Cómo se aplica a este puesto?",
+    "opciones": [
+      "Mandar el resume al correo jobs@lakeviewhotel.com",
+      "Llamar al hotel",
+      "Ir en persona a las 16",
+      "Publicar en Facebook"
+    ],
+    "correcta": "Mandar el resume al correo jobs@lakeviewhotel.com",
+    "por_que": "La vacante dice Send your resume to ese correo. $16 es el pago, no una hora.",
+    "frase_util": "I attached my resume. Thank you for your time.",
+    "revisar": true
+  },
+  {
+    "id": "l1-b3",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nCustomer Service Representative\nMonday to Friday, 9 a.m. to 5 p.m. No weekends.\nWe offer health insurance after 90 days.\n\n¿Trabaja los sábados?",
+    "opciones": [
+      "No, only Monday to Friday",
+      "Yes, every Saturday",
+      "Only in the morning",
+      "After 90 days"
+    ],
+    "correcta": "No, only Monday to Friday",
+    "por_que": "No weekends significa que no hay turno de fin de semana.",
+    "frase_util": "I can work Monday through Friday.",
+    "revisar": true
+  },
+  {
+    "id": "l1-i1",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nStaff Accountant\n3+ years of experience. QuickBooks required. CPA preferred, not required.\nHybrid: 3 days in office in Katy, TX. Apply through Indeed.\n\n¿Qué es obligatorio?",
+    "opciones": [
+      "QuickBooks and 3+ years of experience",
+      "CPA license",
+      "Living in Katy",
+      "Working 5 days in the office"
+    ],
+    "correcta": "QuickBooks and 3+ years of experience",
+    "por_que": "Required es obligatorio. Preferred, not required significa que el CPA ayuda, pero no es requisito.",
+    "frase_util": "I have three years of accounting experience and I'm proficient in QuickBooks.",
+    "revisar": true
+  },
+  {
+    "id": "l1-i2",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nMedical Assistant — Sugar Land clinic\nBilingual preferred. Must have open availability, including one Saturday a month.\nStart date: immediately. Background check required.\n\n¿Qué disponibilidad piden?",
+    "opciones": [
+      "Estar libre también un sábado al mes",
+      "Solo entre semana",
+      "Noches todos los días",
+      "Empezar en 90 días"
+    ],
+    "correcta": "Estar libre también un sábado al mes",
+    "por_que": "Open availability including one Saturday a month = entre semana y un sábado al mes. Immediately es la fecha de inicio.",
+    "frase_util": "I have open availability, including one Saturday a month.",
+    "revisar": true
+  },
+  {
+    "id": "l1-i3",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nIT Support Specialist\nHelp desk experience required. CompTIA A+ a plus.\nThis is a W-2 position, $22–$26/hour, not a 1099 contract.\n\n¿Qué tipo de contrato es?",
+    "opciones": [
+      "Empleo W-2 (empleado de la empresa)",
+      "Contrato 1099 (independiente)",
+      "Prácticas no pagadas",
+      "Solo por comisión"
+    ],
+    "correcta": "Empleo W-2 (empleado de la empresa)",
+    "por_que": "W-2 es empleado con impuestos retenidos. La vacante dice que NO es 1099.",
+    "frase_util": "I'm looking for a W-2 role, not a 1099 contract.",
+    "revisar": true
+  },
+  {
+    "id": "l1-a1",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nOperations Coordinator\nWe are looking for someone who can hit the ground running. You will liaise with vendors, own the weekly scorecard, and flag risks before they become blockers.\nFive or more years in operations or a related field.\n\n¿Qué espera el empleador en las primeras semanas?",
+    "opciones": [
+      "Que empieces a aportar desde el primer día, sin un largo entrenamiento",
+      "Que viajes a otro país",
+      "Que hables tres idiomas",
+      "Que esperes 90 días para cualquier tarea"
+    ],
+    "correcta": "Que empieces a aportar desde el primer día, sin un largo entrenamiento",
+    "por_que": "Hit the ground running = empezar productivo de inmediato. Los años de experiencia son un requisito, no lo que pide en las primeras semanas.",
+    "frase_util": "I can hit the ground running and I'm used to owning weekly reports.",
+    "revisar": true
+  },
+  {
+    "id": "l1-a2",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nBilingual Teacher (Spanish/English)\nValid Texas certification required OR ability to obtain it within 12 months.\nYou will differentiate instruction for mixed-level classrooms and partner with families.\n\n¿Puedes aplicar si aún no tienes la certificación de Texas?",
+    "opciones": [
+      "Sí, si puedes obtenerla en 12 meses",
+      "No, es imposible aplicar",
+      "Solo si ya eres ciudadano",
+      "Solo con maestría"
+    ],
+    "correcta": "Sí, si puedes obtenerla en 12 meses",
+    "por_que": "OR ability to obtain it within 12 months abre la puerta si aún no la tienes, con un plazo claro.",
+    "frase_util": "I'm eligible to obtain Texas certification within 12 months.",
+    "revisar": true
+  },
+  {
+    "id": "l1-a3",
+    "escena": 1,
+    "habilidad": "lectura",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Lee esta vacante:\n\nGuest Services Manager\nOversee a team of 8. P&L awareness a plus. Must be comfortable with a fast-paced, high-touch environment and de-escalating guest complaints.\n\n¿Cuál es el corazón del puesto?",
+    "opciones": [
+      "Liderar al equipo y manejar quejas de huéspedes con calma",
+      "Hacer solo la contabilidad del hotel",
+      "Limpiar habitaciones",
+      "Vender tours los fines de semana"
+    ],
+    "correcta": "Liderar al equipo y manejar quejas de huéspedes con calma",
+    "por_que": "Oversee a team y de-escalating guest complaints son las funciones clave. P&L awareness a plus es deseable, no el foco.",
+    "frase_util": "I'm comfortable de-escalating guest complaints and leading a small team.",
+    "revisar": true
+  },
+  {
+    "id": "e2-b1",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Escucha al reclutador y responde: ¿qué te está pidiendo?",
+    "opciones": [
+      "Si puedes hablar ahora unos minutos",
+      "Si puedes empezar mañana",
+      "Tu número de seguro social",
+      "Si hablas francés"
+    ],
+    "correcta": "Si puedes hablar ahora unos minutos",
+    "por_que": "Is this a good time significa: ¿puedes hablar ahora? No está ofreciendo el trabajo todavía.",
+    "frase_util": "Yes, this is a good time to talk.",
+    "revisar": true,
+    "audio": "Hi, this is Jenna from Green Oak Staffing. Is this a good time to talk for a few minutes?",
+    "pregunta": "¿Qué te está pidiendo el reclutador?"
+  },
+  {
+    "id": "e2-b2",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿para qué puesto te llama?",
+    "opciones": [
+      "Accountant",
+      "Driver",
+      "Chef",
+      "Teacher"
+    ],
+    "correcta": "Accountant",
+    "por_que": "La reclutadora dice accountant role. Escucha el cargo completo, no solo la ciudad.",
+    "frase_util": "I'm interested in the accountant role.",
+    "revisar": true,
+    "audio": "I'm calling about the accountant role in Houston. Are you still looking for work?",
+    "pregunta": "¿Para qué puesto te llama?"
+  },
+  {
+    "id": "e2-b3",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿cuándo sería la entrevista?",
+    "opciones": [
+      "Thursday at 10 a.m.",
+      "Tuesday at 4 p.m.",
+      "Tomorrow night",
+      "Next month"
+    ],
+    "correcta": "Thursday at 10 a.m.",
+    "por_que": "Thursday at 10 a.m. es el horario que propone. Si no puedes, se pide otro.",
+    "frase_util": "Thursday at 10 a.m. works for me.",
+    "revisar": true,
+    "audio": "Can you do a 15-minute phone interview on Thursday at 10 a.m.?",
+    "pregunta": "¿Cuándo sería la entrevista?"
+  },
+  {
+    "id": "e2-i1",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿qué te pide que hagas después de la llamada?",
+    "opciones": [
+      "Enviar el resume en PDF hoy",
+      "Llamar al gerente ahora",
+      "Ir a la oficina sin cita",
+      "Hacer un pago"
+    ],
+    "correcta": "Enviar el resume en PDF hoy",
+    "por_que": "Send over your resume in PDF today. Over = enviarlo. PDF es el formato.",
+    "frase_util": "I'll send my resume in PDF today.",
+    "revisar": true,
+    "audio": "Great. After this call, please send over your resume in PDF today, and I'll share it with the hiring manager.",
+    "pregunta": "¿Qué te pide que hagas después de la llamada?"
+  },
+  {
+    "id": "e2-i2",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿el puesto es presencial, híbrido o remoto?",
+    "opciones": [
+      "Híbrido: dos días en oficina",
+      "100% remoto",
+      "Solo fines de semana",
+      "Noches en el almacén"
+    ],
+    "correcta": "Híbrido: dos días en oficina",
+    "por_que": "Hybrid, two days in the office = híbrido. El resto de días no están en la oficina.",
+    "frase_util": "Hybrid works for me. I can be in the office two days a week.",
+    "revisar": true,
+    "audio": "This role is hybrid. You'd be in the office Tuesdays and Thursdays, and the rest of the week from home.",
+    "pregunta": "¿El puesto es presencial, híbrido o remoto?"
+  },
+  {
+    "id": "e2-i3",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿qué rango de pago menciona?",
+    "opciones": [
+      "20 to 24 dollars an hour",
+      "2,000 a month",
+      "40 hours unpaid",
+      "Commission only"
+    ],
+    "correcta": "20 to 24 dollars an hour",
+    "por_que": "Twenty to twenty-four an hour es el rango. Confirmar siempre si es por hora o anual.",
+    "frase_util": "Thank you. That range works for me.",
+    "revisar": true,
+    "audio": "The pay range is twenty to twenty-four dollars an hour, depending on experience. Does that work for you?",
+    "pregunta": "¿Qué rango de pago menciona?"
+  },
+  {
+    "id": "e2-a1",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿cuál es el siguiente paso del proceso?",
+    "opciones": [
+      "Una entrevista por video con el supervisor la próxima semana",
+      "Empezar a trabajar hoy",
+      "Hacer un examen de gramática",
+      "Mudarte de ciudad"
+    ],
+    "correcta": "Una entrevista por video con el supervisor la próxima semana",
+    "por_que": "Move forward = avanzar. Video interview with the supervisor next week es el paso concreto.",
+    "frase_util": "I can do a video interview next week. What days are open?",
+    "revisar": true,
+    "audio": "We'd like to move you forward. The next step is a video interview with the supervisor next week. I'll send a calendar link.",
+    "pregunta": "¿Cuál es el siguiente paso del proceso?"
+  },
+  {
+    "id": "e2-a2",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿qué le preocupa al reclutador?",
+    "opciones": [
+      "Que el gap en el resume se explique con claridad",
+      "Que no tengas título de EE. UU.",
+      "Que no tengas carro",
+      "Que pidas demasiado dinero"
+    ],
+    "correcta": "Que el gap en el resume se explique con claridad",
+    "por_que": "Employment gap = tiempo sin trabajar en el CV. Quiere una explicación breve y honesta, no un juicio.",
+    "frase_util": "I took a career break to relocate. I'm ready to return full time.",
+    "revisar": true,
+    "audio": "I noticed a two-year gap on your resume. Could you walk me through what you were doing during that time?",
+    "pregunta": "¿Qué le preocupa al reclutador?"
+  },
+  {
+    "id": "e2-a3",
+    "escena": 2,
+    "habilidad": "escucha",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Escucha y responde: ¿qué está negociando el reclutador?",
+    "opciones": [
+      "La fecha de inicio, no el salario",
+      "Un recorte de sueldo",
+      "Que trabajes sin contrato",
+      "Cambiar tu nombre en el CV"
+    ],
+    "correcta": "La fecha de inicio, no el salario",
+    "por_que": "Start date es la fecha de inicio. Push it two weeks = retrasarla dos semanas. No habló de salario.",
+    "frase_util": "I can start in two weeks. Does that work on your side?",
+    "revisar": true,
+    "audio": "The team wants you to start on the 15th, but I can push it two weeks if you need to give notice at your current job.",
+    "pregunta": "¿Qué está negociando el reclutador?"
+  },
+  {
+    "id": "w4-b1",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Un reclutador escribe: “Thank you for applying. Are you available Thursday at 10 a.m.?”\n¿Cuál respuesta es clara y cortés?",
+    "opciones": [
+      "Thank you. Thursday at 10 a.m. works for me.",
+      "Call me now!!!!!",
+      "I don't know maybe later bye"
+    ],
+    "correcta": "Thank you. Thursday at 10 a.m. works for me.",
+    "por_que": "Agradece, responde el día y la hora con una frase completa. Los signos de exclamación y el 'maybe' suenan poco profesionales.",
+    "frase_util": "Thursday at 10 a.m. works for me.",
+    "revisar": true,
+    "tipo": "correo"
+  },
+  {
+    "id": "w4-b2",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Completa la frase de un correo de trabajo:\n“I attached my _____ . Please let me know if you need anything else.”",
+    "opciones": [
+      "resume",
+      "resumir",
+      "kitchen",
+      "password"
+    ],
+    "correcta": "resume",
+    "por_que": "En EE. UU. se dice resume (CV). Attached my resume es la fórmula estándar.",
+    "frase_util": "I attached my resume.",
+    "revisar": true,
+    "tipo": "frase"
+  },
+  {
+    "id": "w4-b3",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Completa: “I am _____ to start next Monday.”",
+    "opciones": [
+      "available",
+      "availability",
+      "availably",
+      "avoid"
+    ],
+    "correcta": "available",
+    "por_que": "Available = disponible. Availability es el sustantivo y no va después de I am en esta frase.",
+    "frase_util": "I am available to start next Monday.",
+    "revisar": true,
+    "tipo": "frase"
+  },
+  {
+    "id": "w4-i1",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Te escriben: “Could you share your salary expectations?”\n¿Cuál respuesta es profesional?",
+    "opciones": [
+      "Based on the role and my experience, I'm looking for $22 to $26 an hour. I'm open to discussing the full package.",
+      "I need a lot of money because rent is crazy.",
+      "You tell me first or I won't answer."
+    ],
+    "correcta": "Based on the role and my experience, I'm looking for $22 to $26 an hour. I'm open to discussing the full package.",
+    "por_que": "Da un rango ligado a la experiencia y deja espacio para hablar. No expliques tu renta ni pongas ultimátums.",
+    "frase_util": "I'm looking for $22 to $26 an hour, and I'm open to discussing the full package.",
+    "revisar": true,
+    "tipo": "correo"
+  },
+  {
+    "id": "w4-i2",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Completa: “Thank you for reaching _____. I look forward to the interview.”",
+    "opciones": [
+      "out",
+      "in",
+      "up the stairs",
+      "off"
+    ],
+    "correcta": "out",
+    "por_que": "Reach out = contactar. Thank you for reaching out es muy usada en correos de reclutadores.",
+    "frase_util": "Thank you for reaching out.",
+    "revisar": true,
+    "tipo": "frase"
+  },
+  {
+    "id": "w4-i3",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Completa: “Please find my resume _____ to this email.”",
+    "opciones": [
+      "attached",
+      "attach",
+      "attachmenting",
+      "closed"
+    ],
+    "correcta": "attached",
+    "por_que": "Attached es el participio correcto. Please find my resume attached es una fórmula clásica de correo.",
+    "frase_util": "Please find my resume attached to this email.",
+    "revisar": true,
+    "tipo": "frase"
+  },
+  {
+    "id": "w4-a1",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Te escriben: “We decided to move forward with other candidates.”\n¿Cuál respuesta cuida la relación para el futuro?",
+    "opciones": [
+      "Thank you for the update and for the opportunity. I wish the team well. Please keep me in mind for similar roles.",
+      "This is unfair. You wasted my time.",
+      "Ok."
+    ],
+    "correcta": "Thank you for the update and for the opportunity. I wish the team well. Please keep me in mind for similar roles.",
+    "por_que": "Agradecer y dejar la puerta abierta es profesional. Quejarse o responder solo Ok cierra la red de contactos.",
+    "frase_util": "Please keep me in mind for similar roles.",
+    "revisar": true,
+    "tipo": "correo"
+  },
+  {
+    "id": "w4-a2",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Completa: “I would be happy to _____ a 15-minute call at your convenience.”",
+    "opciones": [
+      "schedule",
+      "scratch",
+      "scream",
+      "skip"
+    ],
+    "correcta": "schedule",
+    "por_que": "Schedule a call = agendar una llamada. At your convenience deja que la otra persona elija horario.",
+    "frase_util": "I would be happy to schedule a 15-minute call at your convenience.",
+    "revisar": true,
+    "tipo": "frase"
+  },
+  {
+    "id": "w4-a3",
+    "escena": 4,
+    "habilidad": "escritura",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Completa: “Just a quick follow-up in case my last email got buried. Happy to share more _____ if helpful.”",
+    "opciones": [
+      "details",
+      "detalles",
+      "debts",
+      "delays"
+    ],
+    "correcta": "details",
+    "por_que": "Follow-up + got buried (se perdió en la bandeja) es tono natural de EE. UU. Details = más información, no deudas ni retrasos.",
+    "frase_util": "Just a quick follow-up in case my last email got buried.",
+    "revisar": true,
+    "tipo": "frase"
+  },
+  {
+    "id": "v-g-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "En un trabajo de oficina, shift significa:",
+    "opciones": [
+      "el turno (mañana, tarde o noche)",
+      "el sueldo anual",
+      "la entrevista",
+      "el uniforme"
+    ],
+    "correcta": "el turno (mañana, tarde o noche)",
+    "por_que": "Shift es el bloque de horas que trabajas. Morning shift, night shift.",
+    "frase_util": "I can work the morning shift.",
+    "revisar": true
+  },
+  {
+    "id": "v-g-b2",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Hiring manager es:",
+    "opciones": [
+      "la persona de la empresa que decide contratarte",
+      "el software que filtra CVs",
+      "tu compañero de almuerzo",
+      "el banco"
+    ],
+    "correcta": "la persona de la empresa que decide contratarte",
+    "por_que": "El reclutador busca candidatos; el hiring manager es quien te supervisaría y decide.",
+    "frase_util": "I'd like to speak with the hiring manager.",
+    "revisar": true
+  },
+  {
+    "id": "v-g-b3",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "general",
+    "enunciado": "Full-time normalmente significa:",
+    "opciones": [
+      "unas 40 horas por semana",
+      "2 horas al día",
+      "solo sábados",
+      "trabajo sin pago"
+    ],
+    "correcta": "unas 40 horas por semana",
+    "por_que": "Full-time en EE. UU. suele ser cerca de 40 horas. Part-time es menos.",
+    "frase_util": "I'm looking for a full-time position.",
+    "revisar": true
+  },
+  {
+    "id": "v-g-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Si un anuncio pide bilingual customer-facing skills, busca a alguien que:",
+    "opciones": [
+      "atienda al público en dos idiomas",
+      "solo escriba código",
+      "trabaje de noche en silencio",
+      "maneje un camión"
+    ],
+    "correcta": "atienda al público en dos idiomas",
+    "por_que": "Customer-facing = trato con clientes. Bilingual aquí casi siempre es inglés y español.",
+    "frase_util": "I have bilingual customer-facing experience.",
+    "revisar": true
+  },
+  {
+    "id": "v-g-i2",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Benefits en una oferta de empleo suelen ser:",
+    "opciones": [
+      "seguro médico, días de vacaciones, 401(k)",
+      "el uniforme",
+      "el estacionamiento del mall",
+      "la propina de un día"
+    ],
+    "correcta": "seguro médico, días de vacaciones, 401(k)",
+    "por_que": "Benefits = prestaciones. Pregunta siempre: health insurance, PTO, retirement plan.",
+    "frase_util": "Could you tell me more about the benefits?",
+    "revisar": true
+  },
+  {
+    "id": "v-g-i3",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "general",
+    "enunciado": "Follow up después de una entrevista es:",
+    "opciones": [
+      "escribir un mensaje corto de agradecimiento y recordar tu interés",
+      "llamar cada hora",
+      "pedir el trabajo a gritos",
+      "borrar tu solicitud"
+    ],
+    "correcta": "escribir un mensaje corto de agradecimiento y recordar tu interés",
+    "por_que": "Un follow-up de 4–6 líneas al día siguiente es lo esperado en EE. UU.",
+    "frase_util": "I wanted to follow up and thank you for your time yesterday.",
+    "revisar": true
+  },
+  {
+    "id": "v-g-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "En un CV de EE. UU., transferable skills son:",
+    "opciones": [
+      "habilidades que servían en tu profesión y también sirven en este país o puesto",
+      "solo diplomas apostillados",
+      "contraseñas de tus cuentas",
+      "el nombre de tu jefe anterior"
+    ],
+    "correcta": "habilidades que servían en tu profesión y también sirven en este país o puesto",
+    "por_que": "Liderar un equipo, atender clientes o cerrar mes son transferable skills, aunque el cargo cambie de nombre.",
+    "frase_util": "I have transferable skills in customer service and team leadership.",
+    "revisar": true
+  },
+  {
+    "id": "v-g-a2",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "At-will employment, en la práctica, significa que:",
+    "opciones": [
+      "la empresa o tú pueden terminar el trabajo sin un contrato largo, salvo reglas legales",
+      "nunca te pueden despedir",
+      "trabajas de por vida",
+      "no te pagan impuestos"
+    ],
+    "correcta": "la empresa o tú pueden terminar el trabajo sin un contrato largo, salvo reglas legales",
+    "por_que": "Es el modelo más común en EE. UU. No es un juicio sobre ti; es cómo está armado el empleo.",
+    "frase_util": "I understand this is an at-will position.",
+    "revisar": true
+  },
+  {
+    "id": "v-g-a3",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "general",
+    "enunciado": "Si te piden que seas a self-starter, esperan que:",
+    "opciones": [
+      "avances las tareas sin que te lo recuerden cada hora",
+      "esperes instrucciones para todo",
+      "trabajes solo de noche",
+      "compres tus herramientas"
+    ],
+    "correcta": "avances las tareas sin que te lo recuerden cada hora",
+    "por_que": "Self-starter = iniciativa. En entrevistas, da un ejemplo de algo que organizaste tú.",
+    "frase_util": "I'm a self-starter. In my last role I set up a weekly checklist without being asked.",
+    "revisar": true
+  },
+  {
+    "id": "v-con-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "contabilidad",
+    "enunciado": "Accounts payable (AP) es el equipo que:",
+    "opciones": [
+      "paga las facturas que la empresa debe a proveedores",
+      "cobra a los clientes",
+      "contrata personal",
+      "limpia la oficina"
+    ],
+    "correcta": "paga las facturas que la empresa debe a proveedores",
+    "por_que": "Payable = por pagar. Accounts receivable (AR) es lo que te deben los clientes.",
+    "frase_util": "I worked in accounts payable, processing vendor invoices.",
+    "revisar": true
+  },
+  {
+    "id": "v-con-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "contabilidad",
+    "enunciado": "Month-end close es:",
+    "opciones": [
+      "cerrar los libros del mes: conciliar y dejar listos los reportes",
+      "las vacaciones de fin de mes",
+      "apagar las computadoras",
+      "pagar la renta de tu casa"
+    ],
+    "correcta": "cerrar los libros del mes: conciliar y dejar listos los reportes",
+    "por_que": "En contabilidad de EE. UU. el close es un ciclo con fecha límite. Reconciliations entran ahí.",
+    "frase_util": "I supported month-end close and bank reconciliations.",
+    "revisar": true
+  },
+  {
+    "id": "v-con-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "contabilidad",
+    "enunciado": "Una bank reconciliation sirve para:",
+    "opciones": [
+      "cuadrar el banco con lo que dice el sistema, y encontrar diferencias",
+      "pedir un préstamo",
+      "cambiar de banco",
+      "imprimir cheques en blanco"
+    ],
+    "correcta": "cuadrar el banco con lo que dice el sistema, y encontrar diferencias",
+    "por_que": "Reconcile = conciliar. Es una de las palabras que más buscan en Staff Accountant.",
+    "frase_util": "I completed weekly bank reconciliations in Excel and QuickBooks.",
+    "revisar": true
+  },
+  {
+    "id": "v-ing-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "ingenieria",
+    "enunciado": "En una planta, PPE significa:",
+    "opciones": [
+      "equipo de protección personal (casco, lentes, tapones)",
+      "un tipo de computadora",
+      "el horario de almuerzo",
+      "el sueldo extra"
+    ],
+    "correcta": "equipo de protección personal (casco, lentes, tapones)",
+    "por_que": "Personal Protective Equipment. En entrevistas de manufactura siempre sale.",
+    "frase_util": "I always follow PPE requirements on the floor.",
+    "revisar": true
+  },
+  {
+    "id": "v-ing-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "ingenieria",
+    "enunciado": "Preventive maintenance es:",
+    "opciones": [
+      "revisar y cuidar las máquinas antes de que se descompongan",
+      "esperar a que se rompan",
+      "pintar la oficina",
+      "cambiar de turno"
+    ],
+    "correcta": "revisar y cuidar las máquinas antes de que se descompongan",
+    "por_que": "Preventive = prevenir. Es el corazón de muchos puestos de maintenance.",
+    "frase_util": "I performed preventive maintenance on motors and pumps.",
+    "revisar": true
+  },
+  {
+    "id": "v-ing-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "ingenieria",
+    "enunciado": "Un downtime en producción es:",
+    "opciones": [
+      "el tiempo que la línea está parada, y hay que reducirlo",
+      "las vacaciones del gerente",
+      "un bono extra",
+      "el nombre de una máquina"
+    ],
+    "correcta": "el tiempo que la línea está parada, y hay que reducirlo",
+    "por_que": "Reduce downtime es un KPI clásico. En el CV: Reduced downtime by 12%.",
+    "frase_util": "I helped reduce equipment downtime by improving our checklist.",
+    "revisar": true
+  },
+  {
+    "id": "v-sis-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "sistemas",
+    "enunciado": "Un help desk ticket es:",
+    "opciones": [
+      "un caso o solicitud de soporte que hay que resolver",
+      "un boleto de avión",
+      "una multa",
+      "una contraseña"
+    ],
+    "correcta": "un caso o solicitud de soporte que hay que resolver",
+    "por_que": "Ticket = caso. Se abre, se asigna y se cierra cuando el usuario queda bien.",
+    "frase_util": "I resolved help desk tickets for password resets and printer issues.",
+    "revisar": true
+  },
+  {
+    "id": "v-sis-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "sistemas",
+    "enunciado": "Troubleshooting significa:",
+    "opciones": [
+      "encontrar la causa de un problema y probar soluciones, paso a paso",
+      "apagar todo y irte",
+      "comprar una PC nueva siempre",
+      "llamar a la policía"
+    ],
+    "correcta": "encontrar la causa de un problema y probar soluciones, paso a paso",
+    "por_que": "Es la palabra clave de IT Support. En entrevistas pide un ejemplo concreto.",
+    "frase_util": "I troubleshoot hardware and software issues for 40+ users.",
+    "revisar": true
+  },
+  {
+    "id": "v-sis-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "sistemas",
+    "enunciado": "Si un anuncio pide on-call support, espera que:",
+    "opciones": [
+      "algunos días o noches estés disponible si el sistema se cae",
+      "nunca uses el teléfono",
+      "trabajes solo 9 a 5 sin excepciones",
+      "pagues tú internet del cliente"
+    ],
+    "correcta": "algunos días o noches estés disponible si el sistema se cae",
+    "por_que": "On-call = guardia. Pregunta cada cuánto toca y si se paga extra.",
+    "frase_util": "I'm open to on-call support on a rotating schedule.",
+    "revisar": true
+  },
+  {
+    "id": "v-hot-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "hoteleria",
+    "enunciado": "Check-in es el momento en que el huésped:",
+    "opciones": [
+      "llega y se registra en recepción",
+      "se va del hotel",
+      "pide la comida",
+      "reserva un vuelo"
+    ],
+    "correcta": "llega y se registra en recepción",
+    "por_que": "Check-in = llegada. Check-out = salida. Front desk maneja ambos.",
+    "frase_util": "I handled check-in and check-out at the front desk.",
+    "revisar": true
+  },
+  {
+    "id": "v-hot-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "hoteleria",
+    "enunciado": "Un guest complaint hay que:",
+    "opciones": [
+      "escuchar, disculparse si aplica y ofrecer una solución",
+      "discutir hasta ganar",
+      "ignorar el problema",
+      "pedir que se vaya sin hablar"
+    ],
+    "correcta": "escuchar, disculparse si aplica y ofrecer una solución",
+    "por_que": "De-escalate y make it right son el vocabulario de hospitalidad en EE. UU.",
+    "frase_util": "I'm used to handling guest complaints and finding a fair solution.",
+    "revisar": true
+  },
+  {
+    "id": "v-hot-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "hoteleria",
+    "enunciado": "RevPAR en hotelería es un indicador de:",
+    "opciones": [
+      "ingreso por habitación disponible; mezcla ocupación y tarifa",
+      "la calidad del desayuno",
+      "el número de toallas",
+      "las propinas del valet"
+    ],
+    "correcta": "ingreso por habitación disponible; mezcla ocupación y tarifa",
+    "por_que": "No hace falta ser gerente para reconocerlo. Occupancy y rate alimentan el RevPAR.",
+    "frase_util": "I tracked occupancy and helped the team protect the nightly rate.",
+    "revisar": true
+  },
+  {
+    "id": "v-edu-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "educacion",
+    "enunciado": "Lesson plan es:",
+    "opciones": [
+      "el plan de la clase: objetivos, actividades y materiales",
+      "la lista de asistencia",
+      "el menú de la cafetería",
+      "el uniforme"
+    ],
+    "correcta": "el plan de la clase: objetivos, actividades y materiales",
+    "por_que": "En EE. UU. se espera que el docente lleve lesson plans, no solo el libro.",
+    "frase_util": "I write clear lesson plans with objectives and activities.",
+    "revisar": true
+  },
+  {
+    "id": "v-edu-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "educacion",
+    "enunciado": "Classroom management es:",
+    "opciones": [
+      "cómo mantienes el orden y el clima para que el grupo aprenda",
+      "arreglar el aire acondicionado",
+      "cobrar la colegiatura",
+      "manejar un autobús"
+    ],
+    "correcta": "cómo mantienes el orden y el clima para que el grupo aprenda",
+    "por_que": "Es una de las frases que más buscan en Teacher y Teaching Assistant.",
+    "frase_util": "I have strong classroom management with mixed-level groups.",
+    "revisar": true
+  },
+  {
+    "id": "v-edu-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "educacion",
+    "enunciado": "Differentiate instruction significa:",
+    "opciones": [
+      "adaptar la clase a distintos niveles en el mismo salón",
+      "dar el mismo examen a todos sin cambios",
+      "enseñar solo a los más avanzados",
+      "cancelar la clase"
+    ],
+    "correcta": "adaptar la clase a distintos niveles en el mismo salón",
+    "por_que": "Muy pedido en distritos bilingües. En el CV: Differentiated instruction for mixed-level classrooms.",
+    "frase_util": "I differentiate instruction so every student can participate.",
+    "revisar": true
+  },
+  {
+    "id": "v-sal-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "salud",
+    "enunciado": "Vital signs son:",
+    "opciones": [
+      "presión, pulso, temperatura y respiración",
+      "el nombre del seguro",
+      "las alergias de la familia",
+      "el turno de noche"
+    ],
+    "correcta": "presión, pulso, temperatura y respiración",
+    "por_que": "Tomar vital signs es una tarea típica de Medical Assistant y Patient Care Technician.",
+    "frase_util": "I recorded vital signs and updated the patient chart.",
+    "revisar": true
+  },
+  {
+    "id": "v-sal-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "salud",
+    "enunciado": "EHR (electronic health record) es:",
+    "opciones": [
+      "el expediente clínico electrónico del paciente",
+      "una receta de gafas",
+      "el reloj del hospital",
+      "un tipo de uniforme"
+    ],
+    "correcta": "el expediente clínico electrónico del paciente",
+    "por_que": "Epic, Cerner u otros son EHR. En el CV pon: Documented patient information in the EHR.",
+    "frase_util": "I documented visits in the electronic health record.",
+    "revisar": true
+  },
+  {
+    "id": "v-sal-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "salud",
+    "enunciado": "Patient privacy en la clínica significa que:",
+    "opciones": [
+      "no comentas datos del paciente fuera del equipo de cuidado",
+      "publicas fotos del caso en redes",
+      "das el expediente a cualquier visita",
+      "hablas fuerte en la sala de espera"
+    ],
+    "correcta": "no comentas datos del paciente fuera del equipo de cuidado",
+    "por_que": "En EE. UU. es una regla de oro. No hace falta citar leyes: demuestra el hábito.",
+    "frase_util": "I protect patient privacy in every conversation.",
+    "revisar": true
+  },
+  {
+    "id": "v-adm-b1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "basico",
+    "carril_o_general": "administracion",
+    "enunciado": "Office manager se encarga sobre todo de:",
+    "opciones": [
+      "que la oficina funcione: agenda, proveedores, equipo",
+      "operar en quirófano",
+      "manejar un tráiler",
+      "dar clases de yoga"
+    ],
+    "correcta": "que la oficina funcione: agenda, proveedores, equipo",
+    "por_que": "Es un carril realista para administración y secretariado profesional.",
+    "frase_util": "I kept the office running: calendars, vendors, and supplies.",
+    "revisar": true
+  },
+  {
+    "id": "v-adm-i1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "intermedio",
+    "carril_o_general": "administracion",
+    "enunciado": "Tomar meeting minutes es:",
+    "opciones": [
+      "escribir el acta: acuerdos, responsables y fechas",
+      "contar los minutos de retraso",
+      "servir el café",
+      "apagar la luz"
+    ],
+    "correcta": "escribir el acta: acuerdos, responsables y fechas",
+    "por_que": "Minutes = acta, no el reloj. Muy pedido en Operations Coordinator y Office Manager.",
+    "frase_util": "I took meeting minutes and sent action items the same day.",
+    "revisar": true
+  },
+  {
+    "id": "v-adm-a1",
+    "escena": 3,
+    "habilidad": "vocabulario",
+    "nivel": "avanzado",
+    "carril_o_general": "administracion",
+    "enunciado": "Si te piden calendar management, esperan que:",
+    "opciones": [
+      "priorices y protejas la agenda de una persona o un equipo",
+      "vendas calendarios",
+      "cambies la fecha del feriado nacional",
+      "borres todas las reuniones"
+    ],
+    "correcta": "priorices y protejas la agenda de una persona o un equipo",
+    "por_que": "Es más que “poner citas”: es filtrar, mover y avisar con tiempo.",
+    "frase_util": "I managed a busy calendar and confirmed meetings the day before.",
+    "revisar": true
+  }
+]

@@ -35,6 +35,11 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
 │   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
+├── ingles/           → Diagnóstico de inglés para el trabajo
+│   ├── index.html    → 5 escenas + resultado y plan de 7 días
+│   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
+│   ├── recursos.json → recursos gratuitos del resultado (David completa URLs)
+│   └── README.md     → cómo editar ítems
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
 └── README.md
@@ -45,6 +50,7 @@ URLs públicas:
 - Bitácora: https://deivblack.github.io/ruta-puente/bitacora/
 - Taller: https://deivblack.github.io/ruta-puente/taller/
 - Afiche: https://deivblack.github.io/ruta-puente/taller/afiche.html
+- Inglés: https://deivblack.github.io/ruta-puente/ingles/
 
 ## 4. Arquitectura
 ```
@@ -52,6 +58,7 @@ URLs públicas:
                                                         └--> Correo a David con la ficha de entrevista
 [Taller /taller/] --POST form-urlencoded form=taller--> [doPost → guardarTaller] --> Hoja "Taller" + correo
 [Taller] --GET ?taller=estado--> {ok, inscritos, espera}  (para cupos; sin datos personales)
+[Ingles /ingles/] --POST form-urlencoded form=ingles--> pestaña "Ingles" (solo con codigo; sin audio)
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
 [Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David (conteo por estado + atrasados)
@@ -92,6 +99,7 @@ URLs públicas:
 - `POST` form-urlencoded (formulario) → guarda fila, envía ficha. Ignora envíos con `website` (honeypot) o sin `nombre`.
 - `POST` form-urlencoded `form=taller` → pestaña **Taller**. Columnas: `fecha, nombre, whatsapp, correo, profesion, ciudad, zip, fuente, consentimiento, en_ruta_puente, asistio, notas`. `en_ruta_puente` = Sí si los últimos 10 dígitos del WhatsApp ya están en Respuestas. Si `notas = lista de espera`, no cuenta como cupo. Correo a David: "Inscripción taller: [nombre]".
 - `GET ?taller=estado` → `{ok, inscritos, espera}` (público, sin nombres ni teléfonos). La página compara con `TALLER.cupos` en `taller/config.js`.
+- `POST` form-urlencoded `form=ingles` → pestaña **Ingles**. Columnas: `fecha, codigo, nivel_general, lectura, escucha, vocabulario, escritura, oral_auto, autoeficacia_antes`. Solo si `codigo` existe en Respuestas. Nunca audio ni respuestas sueltas. Niveles: Empezando, Funcional, Seguro, Profesional.
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
@@ -110,6 +118,7 @@ URLs públicas:
 - Sin código válido, muestra el ejemplo `EJEMPLO` (María) con la etiqueta "Ejemplo".
 - Estado local (localStorage, siempre dentro de try/catch): `rp-wins`, `rp-apps`, `rp-ok-<codigo>`, `rp-ok-<codigo>-copy`, `rp-cv-<codigo>`.
 - Diccionario `TITLES`: cargo en español → cargo en EE. UU., alternativas, palabras clave y "carriles".
+- En nivelación: enlace "Haz tu diagnóstico de inglés (10 min)" a `/ingles/?c=`.
 
 ### Bitácora (bitacora/index.html)
 - Pide la clave una vez y la guarda en el celular (`rp-bit-clave`). Borradores por persona en `rp-bit-draft-<codigo>`.
@@ -117,12 +126,20 @@ URLs públicas:
 - Filtros: Para hoy (`proximo_fecha` ≤ hoy), Sin contactar (`estado` = Nuevo), Todos.
 - Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
 - Contador "Taller 13 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
+- Chip en la tarjeta: "Inglés: Funcional (4 nov)" si hay fila en la pestaña Ingles.
 
 ### Taller (`taller/`)
 - Datos en **un solo archivo** `taller/config.js` (`TALLER`). Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**.
 - Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos) y vuelve a exportar el PDF del afiche.
 - `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
 - No usar logo ni escudo del Consulado ni de otras instituciones: solo texto de `TALLER.apoyo` cuando David lo confirme.
+
+### Diagnóstico de inglés (`ingles/`)
+- Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
+- Ítems en `ingles/banco.json`. Recursos en `ingles/recursos.json`. Cómo editar: `ingles/README.md`.
+- Escala: Empezando · Funcional · Seguro · Profesional (orientativo A1–A2 / B1 / B2 / C1; no es certificación).
+- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y no envía nada.
+- Todos los ítems y los 2 recursos de ejemplo salen con `"revisar": true` hasta que David los apruebe y complete URLs reales. No inventar enlaces.
 
 ## 6. Cómo trabajar y publicar
 ### Sitio (GitHub Pages)

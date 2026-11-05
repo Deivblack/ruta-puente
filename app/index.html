@@ -143,6 +143,7 @@ footer{text-align:center;font-size:13px;color:var(--muted);padding-top:12px}
   <section class="card" id="nivelacion" hidden>
     <h2>Nivelación</h2>
     <p class="hint">Antes de tu ruta, asegúrate de manejar estas bases. Marca lo que ya sabes hacer. Con 6 de 8 puedes continuar.</p>
+    <p class="hint"><a id="link-ingles" href="../ingles/">Haz tu diagnóstico de inglés (10 min)</a></p>
     <div class="progress"><div class="track"><div class="fill" id="nivel-bar"></div></div><span id="nivel-text">0 de 8</span></div>
     <ul class="nivel-list" id="nivel-list"></ul>
     <div class="nivel-foot">
@@ -431,6 +432,8 @@ const guardarNivel = ()=>{ try{ localStorage.setItem(KEY_NIVEL, JSON.stringify(n
 const nivelHechos = ()=> NIVEL.reduce((n,it)=> n + (nivelOk[it.id]?1:0), 0);
 
 function pintarNivel(){
+  const a = $("#link-ingles");
+  if (a) a.href = "../ingles/" + (CODIGO ? ("?c=" + encodeURIComponent(CODIGO)) : "");
   const n = nivelHechos();
   $("#nivel-list").innerHTML = NIVEL.map(it=>{
     const on = !!nivelOk[it.id];

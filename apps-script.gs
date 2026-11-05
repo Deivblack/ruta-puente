@@ -13,6 +13,7 @@ function crearClaveBitacora() {
 // Ejecuta esta función (botón Ejecutar) cuando quieras poner al día la hoja: códigos, enlaces, columnas nuevas y pestaña Enlaces
 function actualizarHoja() {
   hojaTaller();
+  hojaIngles();
   const hoja = asegurarColumnas();
   const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
   const cCod = cab.indexOf('codigo') + 1, cEnl = cab.indexOf('enlace') + 1, cNom = cab.indexOf('nombre') + 1;
@@ -67,6 +68,7 @@ function crearPestanaEnlaces() {
     ['Qué es', 'Enlace', 'Para qué'],
     ['Landing con formulario', 'https://deivblack.github.io/ruta-puente/', 'Compartir en redes y por WhatsApp'],
     ['Taller 13 nov (inscripción)', TALLER_URL, 'Página pública del taller. Afiche: ' + TALLER_URL.replace(/\/$/, '') + '/afiche.html'],
+    ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado en la pestaña Ingles'],
     ['Enlace personal de cada persona', 'Columna "enlace" en la pestaña Respuestas', 'Mandárselo por WhatsApp en la llamada'],
     ['App con datos de ejemplo', APP_URL, 'Ver la app tal como la ve alguien sin código'],
     ['Esta hoja', libro.getUrl(), 'Respuestas, estados y enlaces'],
@@ -155,6 +157,7 @@ function doPost(e) {
     if (e && e.postData && String(e.postData.type).indexOf('text/plain') === 0) return bitacora(e.postData.contents);
     const p = (e && e.parameter) || {};
     if (p.form === 'taller') return salida(guardarTaller(p));
+    if (p.form === 'ingles') return salida(guardarIngles(p));
     if (p.website || !p.nombre) return salida({ ok: false }); // bots o envíos vacíos
     const hoja = obtenerHoja();
     const d = Object.assign({}, p);
@@ -297,6 +300,88 @@ function enviarCorreoTaller(d) {
     htmlBody: html,
     name: 'Ruta Puente'
   });
+}
+
+/* ---------- Diagnóstico de inglés (pestaña Ingles) ---------- */
+
+const HOJA_INGLES = 'Ingles';
+const COL_INGLES = [
+  'fecha', 'codigo', 'nivel_general', 'lectura', 'escucha', 'vocabulario',
+  'escritura', 'oral_auto', 'autoeficacia_antes'
+];
+const NIVELES_INGLES = ['Empezando', 'Funcional', 'Seguro', 'Profesional'];
+
+function hojaIngles() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName(HOJA_INGLES);
+  if (!h) h = libro.insertSheet(HOJA_INGLES);
+  if (h.getLastRow() === 0) {
+    h.appendRow(COL_INGLES);
+    h.setFrozenRows(1);
+    h.getRange(1, 1, 1, COL_INGLES.length).setFontWeight('bold').setBackground('#e1efe7');
+  } else {
+    const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    COL_INGLES.forEach(c => {
+      if (cab.indexOf(c) < 0) {
+        const col = h.getLastColumn() + 1;
+        h.getRange(1, col).setValue(c).setFontWeight('bold').setBackground('#e1efe7');
+        cab.push(c);
+      }
+    });
+  }
+  return h;
+}
+
+function nivelInglesOk(v) {
+  return NIVELES_INGLES.indexOf(String(v || '')) >= 0 ? String(v) : '';
+}
+
+function guardarIngles(p) {
+  const codigo = String(p.codigo || '').trim();
+  if (!/^[a-f0-9]{10}$/i.test(codigo)) return { ok: false };
+  const hoja = obtenerHoja();
+  if (hoja.getLastRow() < 2) return { ok: false };
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const iCod = cab.indexOf('codigo');
+  if (iCod < 0 || !datos.some(r => String(r[iCod]) === codigo)) return { ok: false };
+  const d = {
+    fecha: new Date(),
+    codigo: codigo,
+    nivel_general: nivelInglesOk(p.nivel_general),
+    lectura: nivelInglesOk(p.lectura),
+    escucha: nivelInglesOk(p.escucha),
+    vocabulario: nivelInglesOk(p.vocabulario),
+    escritura: nivelInglesOk(p.escritura),
+    oral_auto: nivelInglesOk(p.oral_auto),
+    autoeficacia_antes: String(parseInt(p.autoeficacia_antes, 10) || '')
+  };
+  hojaIngles().appendRow(COL_INGLES.map(c => c === 'fecha' ? d.fecha : limpiar(d[c])));
+  return { ok: true };
+}
+
+function leerIngles() {
+  const h = hojaIngles();
+  const mapa = {};
+  if (h.getLastRow() < 2) return mapa;
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  datos.forEach(r => {
+    const codigo = String(r[i('codigo')] || '');
+    if (!codigo) return;
+    const fecha = r[i('fecha')];
+    mapa[codigo] = {
+      nivel: r[i('nivel_general')] || '',
+      fecha: fecha instanceof Date ? fecha.toISOString() : String(fecha || ''),
+      lectura: r[i('lectura')] || '',
+      escucha: r[i('escucha')] || '',
+      vocabulario: r[i('vocabulario')] || '',
+      escritura: r[i('escritura')] || '',
+      oral_auto: r[i('oral_auto')] || ''
+    };
+  });
+  return mapa;
 }
 
 /* ---------- Ficha de entrevista por correo ---------- */
@@ -1014,6 +1099,8 @@ function listarBitacora() {
     return p;
   });
   const taller = contarTaller();
+  const inglesMap = leerIngles();
+  personas.forEach(p => { p.ingles = inglesMap[p.codigo] || null; });
   return { ok: true, personas: personas, gate: contarGate(mapa), estados: ESTADOS, taller: taller };
 }
 

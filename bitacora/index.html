@@ -163,6 +163,7 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
   <section class="ficha" aria-label="Lo que ya sabes por el formulario">
     <p class="label" style="margin:0">Antes de la llamada · viene del formulario</p>
     <h2 id="f-name"></h2>
+    <span class="pill done" id="f-ingles" hidden></span>
     <dl class="facts">
       <div><dt>Profesión en su país</dt><dd id="f-prof"></dd></div>
       <div><dt>Trabajo actual</dt><dd id="f-job"></dd></div>
@@ -416,6 +417,17 @@ function pintarPersonas(){
     b.querySelector('strong').textContent = corto;
     b.querySelector('span').textContent = (p.profesion||'—') + ' · ' + (p.pais||'');
     b.querySelector('em').textContent = txt;
+    if (p.ingles && p.ingles.nivel){
+      const chip = document.createElement('em');
+      chip.className = 'pill done';
+      let extra = p.ingles.nivel;
+      if (p.ingles.fecha){
+        const d = new Date(p.ingles.fecha);
+        if (!isNaN(d.getTime())) extra += ' (' + d.toLocaleDateString('es-US', {day:'numeric', month:'short'}) + ')';
+      }
+      chip.textContent = 'Inglés: ' + extra;
+      b.appendChild(chip);
+    }
     b.addEventListener('click', () => elegir(p.codigo));
     box.appendChild(b);
   });
@@ -453,6 +465,15 @@ function elegir(codigo, conservar){
   document.querySelectorAll('.person').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.c === codigo)));
   const nom = String(p.nombre||'').trim();
   $('#f-name').textContent = nom;
+  if (p.ingles && p.ingles.nivel){
+    let extra = p.ingles.nivel;
+    if (p.ingles.fecha){
+      const d = new Date(p.ingles.fecha);
+      if (!isNaN(d.getTime())) extra += ' (' + d.toLocaleDateString('es-US', {day:'numeric', month:'short'}) + ')';
+    }
+    $('#f-ingles').hidden = false;
+    $('#f-ingles').textContent = 'Inglés: ' + extra;
+  } else { $('#f-ingles').hidden = true; $('#f-ingles').textContent = ''; }
   $('#f-prof').textContent = (p.profesion||'—') + (p.anios_exp ? ', ' + p.anios_exp + ' años' : '');
   $('#f-job').textContent = (p.trabajo_actual||'—') + (p.horas_trabajo ? ' · ' + p.horas_trabajo + ' h' : '');
   $('#f-apps').textContent = p.busco_12m === 'Sí' ? (p.aplicaciones||0) + ' / ' + (p.respuestas||0) : 'No buscó en 12 meses';
