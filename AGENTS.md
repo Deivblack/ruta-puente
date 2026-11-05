@@ -11,7 +11,7 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ## 2. Reglas que no se rompen
 1. **Costo cero.** Nada de servicios de pago, licencias, servidores ni bases de datos nuevas. El stack es: GitHub Pages + Google Apps Script + Google Sheets + Google Drive. Si algo requiere pagar, detente y pregunta.
 2. **Sin dependencias ni build.** HTML, CSS y JavaScript puros. Cada página es **un solo archivo** `index.html` con su CSS y JS dentro. Lo único externo permitido: Google Fonts. Nada de npm en el sitio, ni React, ni Tailwind, ni bundlers.
-3. **Nunca subas secretos al repo.** El repo es **público**. La clave de la Bitácora vive en Script Properties (`BITACORA_CLAVE`) y no se escribe en ningún archivo. Tampoco correos personales, números de teléfono reales ni datos de personas.
+3. **Nunca subas secretos al repo.** El repo es **público**. La clave de la Bitácora vive en Script Properties (`BITACORA_CLAVE`) y no se escribe en ningún archivo. Tampoco correos personales, números de teléfono reales ni datos de personas. El trabajo de **ops** (datos sensibles) vive fuera de este repo, en la carpeta local `ruta-puente-ops` y en un repo **privado**; no se copia aquí ni se publica en GitHub Pages. `.gitignore` ignora `ruta-puente-ops/`.
 4. **Privacidad por diseño.** Nunca crees campos ni preguntes por: estatus migratorio, visas, SSN, pasaporte, cédula, cuentas bancarias, antecedentes penales o información médica. Para elegibilidad solo existe "¿Puedes trabajar legalmente en EE. UU.? (Sí/No)".
 5. **No rompas lo que ya está en uso:**
    - La URL del Apps Script (`SCRIPT_URL`) no cambia: siempre se despliega como **nueva versión de la misma implementación**, nunca como implementación nueva.

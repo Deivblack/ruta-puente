@@ -1,0 +1,9 @@
+# Carpeta local de ops (información sensible). Nunca al repo público ni a GitHub Pages.
+ruta-puente-ops/
+/ops/
+
+# Credenciales de clasp (Apps Script). Contienen IDs y sesión de Google.
+.clasp.json
+.clasprc.json
+apps-script/.clasp.json
+apps-script/.clasprc.json
