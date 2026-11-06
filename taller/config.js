@@ -1,9 +1,9 @@
-// Único lugar para los datos del taller del 13 de noviembre.
+// Único lugar para los datos del taller del 20 de noviembre.
 // Cambia aquí hora, lugar, dirección, apoyo y cupos. La página y el afiche leen esto.
 const TALLER = {
   titulo: "¿Cómo se llama tu cargo en inglés?",
   subtitulo: "Taller gratuito de 90 minutos: tu cargo en inglés, un logro para el CV, tu presentación y un plan para esta semana.",
-  fecha: "Viernes 13 de noviembre de 2026",
+  fecha: "Viernes 20 de noviembre de 2026",
   hora: "2:00 p. m. – 3:30 p. m.",
   lugar: "Consulado General del Ecuador en Houston",
   direccion: "2603 Augusta Dr #810, Houston, TX 77057",
@@ -13,8 +13,8 @@ const TALLER = {
   apoyo: "Auspiciado por el Consulado General del Ecuador en Houston",
   logoApoyo: "escudo-ecuador.svg",  // escudo nacional (Wikimedia Commons, CC0); lockup del Consulado
   whatsapp: "18322533555",          // preguntas; mismo número público de Ruta Puente
-  inicioISO: "2026-11-13T14:00:00-06:00",
-  finISO: "2026-11-13T15:30:00-06:00"
+  inicioISO: "2026-11-20T14:00:00-06:00",
+  finISO: "2026-11-20T15:30:00-06:00"
 };
 
 const TALLER_URL = "https://deivblack.github.io/ruta-puente/taller/";

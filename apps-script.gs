@@ -67,7 +67,7 @@ function crearPestanaEnlaces() {
   const filas = [
     ['Qué es', 'Enlace', 'Para qué'],
     ['Landing con formulario', 'https://deivblack.github.io/ruta-puente/', 'Compartir en redes y por WhatsApp'],
-    ['Taller 13 nov (inscripción)', TALLER_URL, 'Página pública del taller. Afiche: ' + TALLER_URL.replace(/\/$/, '') + '/afiche.html'],
+    ['Taller 20 nov (inscripción)', TALLER_URL, 'Página pública del taller. Afiche: ' + TALLER_URL.replace(/\/$/, '') + '/afiche.html'],
     ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado en la pestaña Ingles'],
     ['Enlace personal de cada persona', 'Columna "enlace" en la pestaña Respuestas', 'Mandárselo por WhatsApp en la llamada'],
     ['App con datos de ejemplo', APP_URL, 'Ver la app tal como la ve alguien sin código'],
@@ -184,7 +184,7 @@ function calcularPrioridad(d) {
   return pts === 3 ? 'Alta' : pts === 2 ? 'Media' : 'Baja';
 }
 
-/* ---------- Taller 13 nov (pestaña Taller) ---------- */
+/* ---------- Taller 20 nov (pestaña Taller) ---------- */
 
 const HOJA_TALLER = 'Taller';
 const COL_TALLER = [
@@ -282,7 +282,7 @@ function enviarCorreoTaller(d) {
   const espera = /lista de espera/i.test(String(d.notas || ''));
   const html =
     '<div style="font-family:Arial,sans-serif;max-width:560px;color:#1d2b26;line-height:1.5">' +
-    '<div style="font-size:20px;font-weight:bold">Inscripción taller · 13 nov</div>' +
+    '<div style="font-size:20px;font-weight:bold">Inscripción taller · 20 nov</div>' +
     '<p><b>' + esc(d.nombre) + '</b>' + (espera ? ' · lista de espera' : '') + '</p>' +
     '<ul>' +
     '<li>WhatsApp: ' + esc(d.whatsapp) + '</li>' +
