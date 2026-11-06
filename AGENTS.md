@@ -29,12 +29,14 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
-├── taller/           → Inscripción y afiche del taller (13 nov 2026)
-│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos
+├── taller/           → Inscripción y afiche del taller (20 nov 2026, Consulado Ecuador Houston)
+│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos, WhatsApp
 │   ├── index.html    → Página pública de inscripción
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
+│   ├── escudo-ecuador.svg / .png → archivo guardado; no se muestra (el apoyo va solo en el copy de WhatsApp)
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
-│   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
+│   ├── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
+│   └── artes/        → imágenes y copy para grupos (cuadrado + estado + copy-whatsapp.txt)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
 │   ├── index.html    → 5 escenas + resultado y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
@@ -125,14 +127,16 @@ URLs públicas:
 - 6 bloques del guion + "Tus notas" + decisión calculada en vivo.
 - Filtros: Para hoy (`proximo_fecha` ≤ hoy), Sin contactar (`estado` = Nuevo), Todos.
 - Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
-- Contador "Taller 13 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
+- Contador "Taller 20 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
 - Chip en la tarjeta: "Inglés: Funcional (4 nov)" si hay fila en la pestaña Ingles.
 
 ### Taller (`taller/`)
 - Datos en **un solo archivo** `taller/config.js` (`TALLER`). Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**.
-- Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos) y vuelve a exportar el PDF del afiche.
+- Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos, cuposLimitados, whatsapp) y vuelve a exportar el PDF del afiche.
+- `cuposLimitados: true` muestra “Cupos limitados” sin cerrar el formulario. Solo cierra (lista de espera) si `cupos > 0` y se llena.
 - `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
-- No usar logo ni escudo del Consulado ni de otras instituciones: solo texto de `TALLER.apoyo` cuando David lo confirme.
+- No poner logo ni escudo del Consulado en landing, afiche ni artes. El apoyo se dice solo en el copy de WhatsApp (`taller/artes/copy-whatsapp.txt`). El lugar del taller sí puede ser el Consulado (es la dirección).
+- Artes para grupos: `taller/artes/whatsapp-cuadrado.png` (grupos), `whatsapp-estado.png` (estado), texto en `copy-whatsapp.txt`. El QR y el enlace llevan `?utm=whatsapp`.
 
 ### Diagnóstico de inglés (`ingles/`)
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.

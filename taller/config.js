@@ -1,17 +1,20 @@
-// Único lugar para los datos del taller del 13 de noviembre.
+// Único lugar para los datos del taller del 20 de noviembre.
 // Cambia aquí hora, lugar, dirección, apoyo y cupos. La página y el afiche leen esto.
 const TALLER = {
   titulo: "¿Cómo se llama tu cargo en inglés?",
-  subtitulo: "Taller gratuito para profesionales latinos: tu cargo en EE. UU. y tu CV listo para aplicar",
-  fecha: "Viernes 13 de noviembre de 2026",
-  hora: "[POR CONFIRMAR]",          // ej. "6:30 p. m. – 8:00 p. m."
-  lugar: "[POR CONFIRMAR]",         // nombre del lugar
-  direccion: "[POR CONFIRMAR]",     // dirección para Google Maps
-  modalidad: "Presencial",          // o "Presencial y en línea"
-  cupos: 0,                         // 0 = sin límite; si es > 0, mostrar "cupos limitados" y cerrar al llenarse
-  apoyo: "[POR CONFIRMAR]",         // texto de aliados, solo si lo aprueban
-  inicioISO: "2026-11-13T18:30:00-06:00", // botón de calendario; actualizar con la hora real
-  finISO: "2026-11-13T20:00:00-06:00"
+  subtitulo: "Taller gratuito de 90 minutos: tu cargo en inglés, un logro para el CV, tu presentación y un plan para esta semana.",
+  fecha: "Viernes 20 de noviembre de 2026",
+  hora: "2:00 p. m. – 3:30 p. m.",
+  lugar: "Consulado General del Ecuador en Houston",
+  direccion: "2603 Augusta Dr #810, Houston, TX 77057",
+  modalidad: "Presencial",
+  cupos: 0,                         // 0 = no cerrar el formulario; el aviso de cupos usa cuposLimitados
+  cuposLimitados: true,
+  apoyo: "Con el apoyo del Consulado de Ecuador en Houston", // solo en el copy de WhatsApp, no en las imágenes
+  logoApoyo: "",
+  whatsapp: "18322533555",          // preguntas; mismo número público de Ruta Puente
+  inicioISO: "2026-11-20T14:00:00-06:00",
+  finISO: "2026-11-20T15:30:00-06:00"
 };
 
 const TALLER_URL = "https://deivblack.github.io/ruta-puente/taller/";
@@ -26,6 +29,20 @@ function tallerEsBorrador() {
   return ["hora", "lugar", "direccion", "apoyo"].some(k => tallerPendiente(TALLER[k]));
 }
 
+function tallerWhatsappUrl(texto) {
+  const n = String(TALLER.whatsapp || "").replace(/\D/g, "");
+  if (!n) return "";
+  const href = "https://wa.me/" + n;
+  return texto ? href + "?text=" + encodeURIComponent(texto) : href;
+}
+
+function tallerWhatsappBonito() {
+  const n = String(TALLER.whatsapp || "").replace(/\D/g, "");
+  const diez = n.length === 11 && n.charAt(0) === "1" ? n.slice(1) : n;
+  if (diez.length !== 10) return n;
+  return diez.slice(0, 3) + "-" + diez.slice(3, 6) + "-" + diez.slice(6);
+}
+
 function tallerCalendarioUrl() {
   const utc = iso => {
     const d = new Date(iso);
@@ -33,9 +50,10 @@ function tallerCalendarioUrl() {
     return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   };
   const text = encodeURIComponent(TALLER.titulo + " · Ruta Puente");
-  const details = encodeURIComponent(
-    TALLER.subtitulo + "\n\nGratis. Inscríbete: " + TALLER_URL
-  );
+  const parts = [TALLER.subtitulo, "", "Gratis. Cupos limitados. Inscríbete: " + TALLER_URL];
+  if (!tallerPendiente(TALLER.lugar)) parts.push("Lugar: " + TALLER.lugar);
+  if (!tallerPendiente(TALLER.direccion)) parts.push("Dirección: " + TALLER.direccion);
+  const details = encodeURIComponent(parts.join("\n"));
   const bits = [];
   if (!tallerPendiente(TALLER.lugar)) bits.push(TALLER.lugar);
   if (!tallerPendiente(TALLER.direccion)) bits.push(TALLER.direccion);
@@ -51,9 +69,9 @@ function tallerMapsUrl() {
 }
 
 function tallerInvitarUrl() {
-  const hora = tallerPendiente(TALLER.hora) ? "" : " a las " + TALLER.hora;
-  const lugar = tallerPendiente(TALLER.lugar) ? "" : " en " + TALLER.lugar;
+  const hora = tallerPendiente(TALLER.hora) ? "" : " · " + TALLER.hora;
+  const lugar = tallerPendiente(TALLER.lugar) ? "" : " · " + TALLER.lugar;
   const msg = "Te invito al taller gratuito de Ruta Puente: \"" + TALLER.titulo +
     "\". " + TALLER.fecha + hora + lugar + ". Inscríbete aquí: " + TALLER_URL;
-  return "https://wa.me/?text=" + encodeURIComponent(msg);
+  return tallerWhatsappUrl(msg) || "https://wa.me/?text=" + encodeURIComponent(msg);
 }

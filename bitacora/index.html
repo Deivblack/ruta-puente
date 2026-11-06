@@ -143,7 +143,7 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
     <div class="meter"><b id="g-in">0 / 5</b><div class="dots" id="d-in"></div><span>entrevistas dentro del perfil</span></div>
     <div class="meter"><b id="g-ok">0 / 3</b><div class="dots sun" id="d-ok"></div><span>confirman el problema</span></div>
     <p id="g-msg">Diana y Paulette (7 oct) quedaron fuera del perfil y no cuentan.</p>
-    <p id="g-taller" style="grid-column:1/-1;margin:0;font-weight:700">Taller 13 nov: 0 inscritos</p>
+    <p id="g-taller" style="grid-column:1/-1;margin:0;font-weight:700">Taller 20 nov: 0 inscritos</p>
     <button class="link" id="copy-taller" type="button" style="grid-column:1/-1;text-align:left;padding:0">Copiar WhatsApp del taller</button>
   </section>
 
@@ -376,7 +376,7 @@ function pintarGate(){
   if (gate.dentro >= 5 && gate.confirman >= 3) $('#g-msg').textContent = '¡Listo! Cumpliste la regla de paso: arranca el Sprint 1.';
   const nT = taller.inscritos || 0;
   const espera = taller.espera ? ' · ' + taller.espera + ' en espera' : '';
-  $('#g-taller').textContent = 'Taller 13 nov: ' + nT + ' inscritos' + espera;
+  $('#g-taller').textContent = 'Taller 20 nov: ' + nT + ' inscritos' + espera;
 }
 $('#copy-taller').addEventListener('click', () => {
   const nums = (taller.lista || []).map(x => String(x.whatsapp || '').replace(/\D/g, '')).filter(n => n.length >= 10);
