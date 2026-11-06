@@ -75,10 +75,6 @@ input:focus,select:focus{border-color:var(--hope);outline:none}
 .me .avatar{flex:0 0 52px;height:52px;border-radius:50%;background:var(--hope);color:var(--hope-ink);display:grid;place-items:center;font:800 20px var(--f-display)}
 footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
 .cupos-tag{font-size:14px;font-weight:800;color:var(--hope)}
-.apoyo{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:14px}
-.apoyo img{width:52px;height:auto;flex:0 0 52px}
-.apoyo .k{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
-.apoyo b{font-family:var(--f-display)}
 .prog{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .prog li{display:flex;gap:10px;align-items:baseline;font-size:15.5px;line-height:1.35}
 .prog .m{flex:0 0 2.4em;font-weight:800;color:var(--hope);font-variant-numeric:tabular-nums}
@@ -114,14 +110,6 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
         <a class="btn ghost" id="t-maps" href="#" target="_blank" rel="noopener">Cómo llegar</a>
       </div>
       <p id="t-preguntas" hidden></p>
-    </div>
-
-    <div class="apoyo" id="t-apoyo" hidden>
-      <img id="t-logo-apoyo" alt="Escudo de la República del Ecuador" width="52" height="62">
-      <div>
-        <p class="k">Auspiciado por</p>
-        <p><b id="t-apoyo-txt"></b></p>
-      </div>
     </div>
 
     <section>
@@ -272,12 +260,6 @@ function pintarDatos(){
     a.rel = "noopener";
     a.textContent = tallerWhatsappBonito();
     p.appendChild(a);
-  }
-  if (!tallerPendiente(TALLER.apoyo)){
-    $("#t-apoyo").hidden = false;
-    $("#t-apoyo-txt").textContent = TALLER.lugar;
-    const logo = TALLER.logoApoyo || "escudo-ecuador.svg";
-    $("#t-logo-apoyo").src = logo;
   }
   $("#btn-cal").href = tallerCalendarioUrl();
   $("#btn-invitar").href = tallerInvitarUrl();

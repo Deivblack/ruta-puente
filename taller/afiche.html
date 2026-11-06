@@ -81,9 +81,6 @@ h1{
   margin-top:auto; padding-top:0.1in; border-top:3px solid #1a2420;
   font-size:12pt; font-weight:700; display:flex; align-items:center; justify-content:space-between; gap:12px;
 }
-.apoyo-lockup{display:flex; align-items:center; gap:10px; min-width:0}
-.apoyo-lockup img{height:0.52in; width:auto}
-.apoyo-lockup span{line-height:1.2}
 @media print{
   html, body{width:8.5in; height:11in; background:#fff}
   .hoja{box-shadow:none}
@@ -123,10 +120,6 @@ h1{
     </div>
   </div>
   <div class="pie">
-    <div class="apoyo-lockup" id="a-apoyo-wrap" hidden>
-      <img id="a-logo" src="escudo-ecuador.svg" width="48" height="58" alt="Escudo de la República del Ecuador">
-      <span id="a-apoyo"></span>
-    </div>
     <span>Ruta Puente · deivblack.github.io/ruta-puente</span>
   </div>
 </div>
@@ -145,12 +138,6 @@ h1{
     v.appendChild(document.createTextNode(line));
   });
   document.getElementById("a-url").textContent = TALLER_URL_CORTA;
-  if (!tallerPendiente(TALLER.apoyo)){
-    document.getElementById("a-apoyo-wrap").hidden = false;
-    const a = document.getElementById("a-apoyo");
-    a.textContent = TALLER.apoyo;
-    if (TALLER.logoApoyo) document.getElementById("a-logo").src = TALLER.logoApoyo;
-  }
   const marca = document.getElementById("marca");
   if (tallerEsBorrador()) marca.hidden = false;
   else marca.remove();

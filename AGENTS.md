@@ -33,7 +33,7 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 │   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos, WhatsApp
 │   ├── index.html    → Página pública de inscripción
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
-│   ├── escudo-ecuador.svg / .png → escudo nacional (Wikimedia Commons, CC0) para el lockup del Consulado
+│   ├── escudo-ecuador.svg / .png → archivo guardado; no se muestra (el apoyo va solo en el copy de WhatsApp)
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
 │   ├── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
 │   └── artes/        → imágenes y copy para grupos (cuadrado + estado + copy-whatsapp.txt)
@@ -135,7 +135,7 @@ URLs públicas:
 - Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos, cuposLimitados, whatsapp) y vuelve a exportar el PDF del afiche.
 - `cuposLimitados: true` muestra “Cupos limitados” sin cerrar el formulario. Solo cierra (lista de espera) si `cupos > 0` y se llena.
 - `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
-- Logo del Consulado: el 20 nov 2026 está auspiciado por el Consulado General del Ecuador en Houston. En la landing se usa el escudo nacional (`taller/escudo-ecuador.svg`, CC0). En las artes de WhatsApp se usa el PNG del propio sitio del Consulado (`taller/artes/logo-consulado-escudo.png`, cancilleria.gob.ec/houston). No inventar un sello falso. Si el Consulado entrega un lockup oficial, reemplaza ese PNG.
+- No poner logo ni escudo del Consulado en landing, afiche ni artes. El apoyo se dice solo en el copy de WhatsApp (`taller/artes/copy-whatsapp.txt`). El lugar del taller sí puede ser el Consulado (es la dirección).
 - Artes para grupos: `taller/artes/whatsapp-cuadrado.png` (grupos), `whatsapp-estado.png` (estado), texto en `copy-whatsapp.txt`. El QR y el enlace llevan `?utm=whatsapp`.
 
 ### Diagnóstico de inglés (`ingles/`)

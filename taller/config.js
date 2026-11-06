@@ -10,8 +10,8 @@ const TALLER = {
   modalidad: "Presencial",
   cupos: 0,                         // 0 = no cerrar el formulario; el aviso de cupos usa cuposLimitados
   cuposLimitados: true,
-  apoyo: "Auspiciado por el Consulado General del Ecuador en Houston",
-  logoApoyo: "escudo-ecuador.svg",  // escudo nacional (Wikimedia Commons, CC0); lockup del Consulado
+  apoyo: "Con el apoyo del Consulado de Ecuador en Houston", // solo en el copy de WhatsApp, no en las imágenes
+  logoApoyo: "",
   whatsapp: "18322533555",          // preguntas; mismo número público de Ruta Puente
   inicioISO: "2026-11-20T14:00:00-06:00",
   finISO: "2026-11-20T15:30:00-06:00"

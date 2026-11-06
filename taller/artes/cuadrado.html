@@ -21,20 +21,11 @@ html,body{margin:0;padding:0;background:#10241e}
   display:flex;flex-direction:column;justify-content:space-between;gap:18px;
 }
 .top,.pie{display:flex;flex-direction:column;gap:14px}
-.tricolor{position:absolute;left:0;right:0;top:0;height:10px;display:flex}
-.tricolor i{flex:1;display:block}
-.tricolor i:nth-child(1){background:#FFDD00}
-.tricolor i:nth-child(2){background:#034EA2}
-.tricolor i:nth-child(3){background:#ED1C24}
-.head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:8px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand svg{width:54px;height:54px}
 .brand b{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:32px;font-weight:800;letter-spacing:-.02em}
 .brand b span{color:#7dcea0}
-.cons{display:flex;align-items:center;gap:10px;max-width:340px;text-align:left}
-.cons img{width:54px;height:54px;object-fit:contain}
-.cons small{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#c9d7d0;font-weight:800}
-.cons strong{display:block;font-size:15px;line-height:1.15;font-weight:800}
 .pill{
   align-self:flex-start;background:#e8b04b;color:#1a2420;
   font-weight:800;font-size:20px;letter-spacing:.08em;
@@ -86,22 +77,14 @@ h1{
 </head>
 <body>
 <div class="pieza">
-  <div class="tricolor" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="top">
   <div class="head">
     <div class="brand">
       <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#7dcea0" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#f4f7f4" stroke-width="5" stroke-linecap="round"/></svg>
       <b>Ruta <span>Puente</span></b>
     </div>
-    <div class="cons">
-      <img src="logo-consulado-escudo.png" alt="Escudo del Ecuador">
-      <div>
-        <small>Auspiciado por</small>
-        <strong>Consulado del Ecuador en Houston</strong>
-      </div>
-    </div>
+    <span class="pill">TALLER GRATUITO · 90 MIN</span>
   </div>
-  <span class="pill">TALLER GRATUITO · 90 MIN</span>
   <h1>¿Cómo se llama tu cargo en inglés?</h1>
   <p class="lead">Si estudiaste una profesión y hoy trabajas en otra, sales con algo hecho.</p>
   </div>
