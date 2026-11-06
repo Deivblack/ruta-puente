@@ -17,8 +17,8 @@ html,body{margin:0;padding:0;background:#10241e}
     linear-gradient(180deg,#1a4638 0%, #10241e 48%, #0d1c18 100%);
   color:#f4f7f4;
   font-family:"Nunito",system-ui,sans-serif;
-  padding:56px 56px 48px;
-  display:flex;flex-direction:column;gap:22px;
+  padding:52px 52px 44px;
+  display:flex;flex-direction:column;gap:18px;
 }
 .tricolor{position:absolute;left:0;right:0;top:0;height:12px;display:flex}
 .tricolor i{flex:1}
@@ -27,52 +27,63 @@ html,body{margin:0;padding:0;background:#10241e}
 .tricolor i:nth-child(3){background:#ED1C24}
 .head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:12px}
 .brand{display:flex;align-items:center;gap:12px}
-.brand svg{width:64px;height:64px}
-.brand b{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:36px;font-weight:800}
+.brand svg{width:58px;height:58px}
+.brand b{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:34px;font-weight:800}
 .brand b span{color:#7dcea0}
 .cons{display:flex;align-items:center;gap:12px;max-width:380px}
-.cons img{width:70px;height:70px;object-fit:contain}
-.cons small{display:block;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9d7d0;font-weight:800}
-.cons strong{display:block;font-size:18px;line-height:1.15;font-weight:800}
+.cons img{width:64px;height:64px;object-fit:contain}
+.cons small{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#c9d7d0;font-weight:800}
+.cons strong{display:block;font-size:17px;line-height:1.15;font-weight:800}
 .pill{
   align-self:flex-start;background:#e8b04b;color:#1a2420;
-  font-weight:800;font-size:24px;letter-spacing:.08em;
-  padding:10px 20px;border-radius:999px;
+  font-weight:800;font-size:22px;letter-spacing:.08em;
+  padding:9px 18px;border-radius:999px;
 }
 h1{
   font-family:"Bricolage Grotesque",system-ui,sans-serif;
-  font-size:76px;line-height:.95;margin:4px 0 0;font-weight:800;letter-spacing:-.03em;
+  font-size:70px;line-height:.95;margin:0;font-weight:800;letter-spacing:-.03em;
 }
-.lead{font-size:30px;line-height:1.28;font-weight:700;color:#d7e6df;margin:0}
-.bens{display:flex;flex-direction:column;gap:14px}
+.lead{font-size:28px;line-height:1.28;font-weight:700;color:#d7e6df;margin:0}
+.bens{display:flex;flex-direction:column;gap:12px}
 .bens div{
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  border-radius:20px;padding:18px 20px;
-  display:flex;gap:16px;align-items:center;
-  font-size:30px;font-weight:800;line-height:1.2;
+  border-radius:18px;padding:16px 18px;
+  display:flex;gap:14px;align-items:center;
+  font-size:28px;font-weight:800;line-height:1.2;
 }
 .bens .n{
-  flex:0 0 44px;height:44px;border-radius:50%;
+  flex:0 0 42px;height:42px;border-radius:50%;
   background:#e8b04b;color:#1a2420;
   display:grid;place-items:center;
-  font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:24px;
+  font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:22px;
 }
-.bens em{display:block;font-style:normal;font-size:20px;font-weight:700;color:#c9d7d0;margin-top:2px}
+.bens em{display:block;font-style:normal;font-size:18px;font-weight:700;color:#c9d7d0;margin-top:2px}
 .dato{
   background:rgba(232,176,75,.14);border:2px solid #e8b04b;border-radius:24px;
-  padding:22px 24px;
+  padding:20px 22px;
 }
-.dato b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:34px;line-height:1.15}
-.dato span{display:block;font-size:24px;font-weight:800;margin-top:8px;color:#e8d9b0}
-.punch{font-size:32px;font-weight:800;color:#e8b04b;margin:8px 0 0;line-height:1.25}
+.dato b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:32px;line-height:1.15}
+.dato span{display:block;font-size:22px;font-weight:800;margin-top:6px;color:#e8d9b0}
+.me{
+  display:flex;align-items:center;gap:18px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(232,176,75,.45);
+  border-radius:999px;padding:10px 24px 10px 10px;
+}
+.me img{
+  width:156px;height:156px;border-radius:50%;object-fit:cover;
+  border:4px solid #e8b04b;flex:0 0 156px;
+}
+.me small{display:block;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:#e8b04b;font-weight:800}
+.me b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:32px;line-height:1.1;margin-top:2px}
+.me span{display:block;font-size:22px;font-weight:700;color:#d7e6df;margin-top:4px}
 .foot{
-  margin-top:auto;display:flex;align-items:center;gap:24px;
-  background:#f4f7f4;color:#1a2420;border-radius:28px;padding:22px;
+  margin-top:auto;display:flex;align-items:center;gap:22px;
+  background:#f4f7f4;color:#1a2420;border-radius:28px;padding:20px;
 }
-.foot img{width:210px;height:210px;background:#fff;border-radius:16px}
-.foot strong{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:36px;line-height:1.1}
-.foot span{display:block;font-size:22px;font-weight:800;margin-top:8px;word-break:break-all}
-.foot em{display:block;font-style:normal;margin-top:10px;font-size:22px;font-weight:800;color:#2e7d5b}
+.foot img{width:200px;height:200px;background:#fff;border-radius:16px}
+.foot strong{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:34px;line-height:1.1}
+.foot span{display:block;font-size:20px;font-weight:800;margin-top:8px;word-break:break-all}
+.foot em{display:block;font-style:normal;margin-top:8px;font-size:22px;font-weight:800;color:#2e7d5b}
 </style>
 </head>
 <body>
@@ -104,11 +115,18 @@ h1{
     <b>Viernes 13 de noviembre · 2:00 – 3:30 p. m.</b>
     <span>Consulado General del Ecuador · 2603 Augusta Dr #810, Houston</span>
   </div>
-  <p class="punch">No es una charla. Sales con algo hecho.</p>
-  <div class="foot">
-    <img src="qr-whatsapp.png" width="210" height="210" alt="Código QR para inscribirse">
+  <div class="me">
+    <img src="david.jpg" alt="David Moreno Abril">
     <div>
-      <strong>Inscríbete. Cupos limitados.</strong>
+      <small>Te acompaña</small>
+      <b>David Moreno Abril</b>
+      <span>Fundador de Ruta Puente · Houston</span>
+    </div>
+  </div>
+  <div class="foot">
+    <img src="qr-whatsapp.png" width="200" height="200" alt="Código QR para inscribirse">
+    <div>
+      <strong>Inscríbete gratis. Cupos limitados.</strong>
       <span>deivblack.github.io/ruta-puente/taller/</span>
       <em>Preguntas: 832-253-3555</em>
     </div>
