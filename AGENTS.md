@@ -35,7 +35,8 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
 │   ├── escudo-ecuador.svg / .png → escudo nacional (Wikimedia Commons, CC0) para el lockup del Consulado
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
-│   └── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
+│   ├── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
+│   └── artes/        → imágenes y copy para grupos (cuadrado + estado + copy-whatsapp.txt)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
 │   ├── index.html    → 5 escenas + resultado y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
@@ -134,7 +135,8 @@ URLs públicas:
 - Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos, cuposLimitados, whatsapp) y vuelve a exportar el PDF del afiche.
 - `cuposLimitados: true` muestra “Cupos limitados” sin cerrar el formulario. Solo cierra (lista de espera) si `cupos > 0` y se llena.
 - `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
-- Logo del Consulado: el 13 nov 2026 está auspiciado por el Consulado General del Ecuador en Houston. Se usa el escudo nacional (`taller/escudo-ecuador.svg`, CC0 en Wikimedia Commons) junto al texto de `TALLER.apoyo`. No inventar un sello falso. Para otros aliados, no pongas su logo hasta que David lo pida.
+- Logo del Consulado: el 13 nov 2026 está auspiciado por el Consulado General del Ecuador en Houston. En la landing se usa el escudo nacional (`taller/escudo-ecuador.svg`, CC0). En las artes de WhatsApp se usa el PNG del propio sitio del Consulado (`taller/artes/logo-consulado-escudo.png`, cancilleria.gob.ec/houston). No inventar un sello falso. Si el Consulado entrega un lockup oficial, reemplaza ese PNG.
+- Artes para grupos: `taller/artes/whatsapp-cuadrado.png` (grupos), `whatsapp-estado.png` (estado), texto en `copy-whatsapp.txt`. El QR y el enlace llevan `?utm=whatsapp`.
 
 ### Diagnóstico de inglés (`ingles/`)
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
