@@ -25,10 +25,12 @@ body{
   position:relative; overflow:hidden;
   border: none;
 }
+[hidden]{display:none!important}
 .marca{
-  position:absolute; inset:0; display:grid; place-items:center;
+  position:absolute; inset:0; display:none;
   pointer-events:none; z-index:2;
 }
+.marca:not([hidden]){display:grid; place-items:center;}
 .marca span{
   font-family:"Bricolage Grotesque","Segoe UI",sans-serif;
   font-weight:800; font-size:92pt; letter-spacing:.08em;
@@ -64,12 +66,12 @@ h1{
   padding:0.18in 0.22in; margin-top:0.06in;
 }
 .bloque .k{font-size:12pt; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#2e7d5b; margin:0}
-.bloque .v{font-family:"Bricolage Grotesque","Segoe UI",sans-serif; font-size:22pt; font-weight:800; margin:4px 0 0; line-height:1.15}
+.bloque .v{font-family:"Bricolage Grotesque","Segoe UI",sans-serif; font-size:16pt; font-weight:800; margin:4px 0 0; line-height:1.2}
 .qr-wrap{
   display:flex; align-items:center; gap:0.22in; margin-top:0.08in;
 }
 .qr-wrap img{
-  width:2.6in; height:2.6in; background:#fff;
+  width:2.15in; height:2.15in; background:#fff;
   border:8px solid #fff; outline:3px solid #1a2420;
 }
 .qr-txt{display:flex; flex-direction:column; gap:8px}
@@ -77,8 +79,11 @@ h1{
 .qr-txt span{font-size:16pt; font-weight:800; word-break:break-all}
 .pie{
   margin-top:auto; padding-top:0.1in; border-top:3px solid #1a2420;
-  font-size:13pt; font-weight:700; display:flex; flex-direction:column; gap:4px;
+  font-size:12pt; font-weight:700; display:flex; align-items:center; justify-content:space-between; gap:12px;
 }
+.apoyo-lockup{display:flex; align-items:center; gap:10px; min-width:0}
+.apoyo-lockup img{height:0.52in; width:auto}
+.apoyo-lockup span{line-height:1.2}
 @media print{
   html, body{width:8.5in; height:11in; background:#fff}
   .hoja{box-shadow:none}
@@ -102,9 +107,9 @@ h1{
   <h1>¿Cómo se llama tu cargo en inglés?</h1>
   <p class="sub">Para profesionales latinos que hoy trabajan en algo distinto a lo que estudiaron.</p>
   <ul class="takes">
-    <li><span class="n">1</span><span>Tu cargo en inglés y cómo te buscan los reclutadores.</span></li>
-    <li><span class="n">2</span><span>Qué debe tener un CV para EE. UU. (y qué quitar).</span></li>
-    <li><span class="n">3</span><span>Tu siguiente paso para aplicar esta semana.</span></li>
+    <li><span class="n">1</span><span>Tu cargo en inglés.</span></li>
+    <li><span class="n">2</span><span>Un logro para tu CV, con número.</span></li>
+    <li><span class="n">3</span><span>Tu presentación de 30 s y tu plan de 7 días.</span></li>
   </ul>
   <div class="bloque">
     <p class="k">Cuándo y dónde</p>
@@ -118,26 +123,37 @@ h1{
     </div>
   </div>
   <div class="pie">
-    <span id="a-apoyo" hidden></span>
+    <div class="apoyo-lockup" id="a-apoyo-wrap" hidden>
+      <img id="a-logo" src="escudo-ecuador.svg" width="48" height="58" alt="Escudo de la República del Ecuador">
+      <span id="a-apoyo"></span>
+    </div>
     <span>Ruta Puente · deivblack.github.io/ruta-puente</span>
   </div>
 </div>
 <script src="config.js"></script>
 <script>
 (function(){
-  const bits = [TALLER.fecha];
-  bits.push(TALLER.hora);
-  bits.push(TALLER.lugar);
-  if (!tallerPendiente(TALLER.direccion)) bits.push(TALLER.direccion);
-  bits.push(TALLER.modalidad || "Presencial");
-  document.getElementById("a-cuando").textContent = bits.join(" · ");
+  const v = document.getElementById("a-cuando");
+  v.textContent = "";
+  const lines = [TALLER.fecha + (tallerPendiente(TALLER.hora) ? "" : " · " + TALLER.hora)];
+  if (!tallerPendiente(TALLER.lugar)) lines.push(TALLER.lugar);
+  if (!tallerPendiente(TALLER.direccion)) lines.push(TALLER.direccion);
+  if (TALLER.cuposLimitados || TALLER.cupos > 0) lines.push("Cupos limitados · Presencial");
+  else lines.push(TALLER.modalidad || "Presencial");
+  lines.forEach(function(line, i){
+    if (i) v.appendChild(document.createElement("br"));
+    v.appendChild(document.createTextNode(line));
+  });
   document.getElementById("a-url").textContent = TALLER_URL_CORTA;
   if (!tallerPendiente(TALLER.apoyo)){
+    document.getElementById("a-apoyo-wrap").hidden = false;
     const a = document.getElementById("a-apoyo");
-    a.hidden = false;
     a.textContent = TALLER.apoyo;
+    if (TALLER.logoApoyo) document.getElementById("a-logo").src = TALLER.logoApoyo;
   }
-  if (tallerEsBorrador()) document.getElementById("marca").hidden = false;
+  const marca = document.getElementById("marca");
+  if (tallerEsBorrador()) marca.hidden = false;
+  else marca.remove();
 })();
 </script>
 </body>
