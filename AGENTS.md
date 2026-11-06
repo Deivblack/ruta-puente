@@ -29,12 +29,13 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
-├── taller/           → Inscripción y afiche del taller (13 nov 2026)
-│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos
+├── taller/           → Inscripción y afiche del taller (13 nov 2026, Consulado Ecuador Houston)
+│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos, WhatsApp
 │   ├── index.html    → Página pública de inscripción
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
+│   ├── escudo-ecuador.svg / .png → escudo nacional (Wikimedia Commons, CC0) para el lockup del Consulado
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
-│   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
+│   └── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
 │   ├── index.html    → 5 escenas + resultado y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
@@ -130,9 +131,10 @@ URLs públicas:
 
 ### Taller (`taller/`)
 - Datos en **un solo archivo** `taller/config.js` (`TALLER`). Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**.
-- Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos) y vuelve a exportar el PDF del afiche.
+- Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos, cuposLimitados, whatsapp) y vuelve a exportar el PDF del afiche.
+- `cuposLimitados: true` muestra “Cupos limitados” sin cerrar el formulario. Solo cierra (lista de espera) si `cupos > 0` y se llena.
 - `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
-- No usar logo ni escudo del Consulado ni de otras instituciones: solo texto de `TALLER.apoyo` cuando David lo confirme.
+- Logo del Consulado: el 13 nov 2026 está auspiciado por el Consulado General del Ecuador en Houston. Se usa el escudo nacional (`taller/escudo-ecuador.svg`, CC0 en Wikimedia Commons) junto al texto de `TALLER.apoyo`. No inventar un sello falso. Para otros aliados, no pongas su logo hasta que David lo pida.
 
 ### Diagnóstico de inglés (`ingles/`)
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.

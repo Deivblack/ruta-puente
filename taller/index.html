@@ -75,6 +75,15 @@ input:focus,select:focus{border-color:var(--hope);outline:none}
 .me .avatar{flex:0 0 52px;height:52px;border-radius:50%;background:var(--hope);color:var(--hope-ink);display:grid;place-items:center;font:800 20px var(--f-display)}
 footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
 .cupos-tag{font-size:14px;font-weight:800;color:var(--hope)}
+.apoyo{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:14px}
+.apoyo img{width:52px;height:auto;flex:0 0 52px}
+.apoyo .k{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+.apoyo b{font-family:var(--f-display)}
+.prog{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.prog li{display:flex;gap:10px;align-items:baseline;font-size:15.5px;line-height:1.35}
+.prog .m{flex:0 0 2.4em;font-weight:800;color:var(--hope);font-variant-numeric:tabular-nums}
+.meta a{font-weight:700}
+.dir{font-size:15px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -98,19 +107,43 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
       <span class="gratis">Gratis</span>
       <div><b id="t-fecha"></b></div>
       <div id="t-cuando"></div>
+      <div class="dir" id="t-dir"></div>
       <div id="t-modalidad"></div>
+      <span class="cupos-tag" id="t-cupos" hidden></span>
       <div class="row" id="t-maps-row" hidden>
         <a class="btn ghost" id="t-maps" href="#" target="_blank" rel="noopener">Cómo llegar</a>
       </div>
-      <span class="cupos-tag" id="t-cupos" hidden></span>
+      <p id="t-preguntas" hidden></p>
+    </div>
+
+    <div class="apoyo" id="t-apoyo" hidden>
+      <img id="t-logo-apoyo" alt="Escudo de la República del Ecuador" width="52" height="62">
+      <div>
+        <p class="k">Auspiciado por</p>
+        <p><b id="t-apoyo-txt"></b></p>
+      </div>
     </div>
 
     <section>
       <h2 class="sec">Qué te llevas</h2>
+      <p class="lead" style="margin-bottom:12px">En 90 minutos sales con esto, listo para usar:</p>
       <ul class="takes">
-        <li><span class="n" aria-hidden="true">1</span><span>Tu cargo en inglés y cómo te buscan los reclutadores.</span></li>
-        <li><span class="n" aria-hidden="true">2</span><span>Qué debe tener un CV para EE. UU. (y qué quitar).</span></li>
-        <li><span class="n" aria-hidden="true">3</span><span>Tu siguiente paso para empezar a aplicar esta semana.</span></li>
+        <li><span class="n" aria-hidden="true">1</span><span>Tu cargo en inglés (uno meta y dos alternativas).</span></li>
+        <li><span class="n" aria-hidden="true">2</span><span>Un logro reescrito para tu CV, con número.</span></li>
+        <li><span class="n" aria-hidden="true">3</span><span>Tu presentación de 30 segundos, practicada.</span></li>
+        <li><span class="n" aria-hidden="true">4</span><span>Tu plan de 7 días: 3 empresas, 3 aplicaciones y 2 contactos.</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="sec">Cómo va</h2>
+      <ul class="prog">
+        <li><span class="m">10'</span><span>Tu experiencia sí vale</span></li>
+        <li><span class="m">20'</span><span>Tu cargo en inglés</span></li>
+        <li><span class="m">20'</span><span>Tu CV para EE. UU.</span></li>
+        <li><span class="m">15'</span><span>Preséntate en 30 segundos</span></li>
+        <li><span class="m">15'</span><span>Tu plan de 7 días</span></li>
+        <li><span class="m">10'</span><span>Agenda tu siguiente llamada</span></li>
       </ul>
     </section>
 
@@ -217,14 +250,34 @@ function pintarDatos(){
   $("#t-cuando").textContent = (horaOk && lugarOk)
     ? cuando.join(" · ")
     : "Hora y lugar: te avisamos por WhatsApp";
+  $("#t-dir").textContent = dirOk ? TALLER.direccion : "";
   const maps = tallerMapsUrl();
   if (maps){
     $("#t-maps-row").hidden = false;
     $("#t-maps").href = maps;
   }
-  if (TALLER.cupos > 0){
+  if (TALLER.cuposLimitados || TALLER.cupos > 0){
     $("#t-cupos").hidden = false;
     $("#t-cupos").textContent = "Cupos limitados";
+  }
+  const wa = tallerWhatsappUrl("Hola David, tengo una pregunta sobre el taller del 13 de noviembre.");
+  if (wa){
+    const p = $("#t-preguntas");
+    p.hidden = false;
+    p.textContent = "";
+    p.appendChild(document.createTextNode("¿Preguntas? WhatsApp "));
+    const a = document.createElement("a");
+    a.href = wa;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = tallerWhatsappBonito();
+    p.appendChild(a);
+  }
+  if (!tallerPendiente(TALLER.apoyo)){
+    $("#t-apoyo").hidden = false;
+    $("#t-apoyo-txt").textContent = TALLER.lugar;
+    const logo = TALLER.logoApoyo || "escudo-ecuador.svg";
+    $("#t-logo-apoyo").src = logo;
   }
   $("#btn-cal").href = tallerCalendarioUrl();
   $("#btn-invitar").href = tallerInvitarUrl();
@@ -321,7 +374,8 @@ function confirmar(d){
   $("#done-title").textContent = nombre ? ("¡Listo, " + nombre + "!") : "¡Listo!";
   $("#done-text").textContent = listaEspera
     ? "Te apuntamos en lista de espera. Te escribimos por WhatsApp si se abre un cupo, o para el próximo taller."
-    : "Te esperamos el 13 de noviembre.";
+    : ("Te esperamos el " + TALLER.fecha + (tallerPendiente(TALLER.hora) ? "." : ", " + TALLER.hora + ".") +
+      (tallerPendiente(TALLER.lugar) ? "" : " En " + TALLER.lugar + "."));
   done.scrollIntoView({block:"center"});
 }
 
