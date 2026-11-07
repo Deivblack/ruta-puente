@@ -68,6 +68,7 @@ function crearPestanaEnlaces() {
     ['Qué es', 'Enlace', 'Para qué'],
     ['Landing con formulario', 'https://deivblack.github.io/ruta-puente/', 'Compartir en redes y por WhatsApp'],
     ['Taller 20 nov (inscripción)', TALLER_URL, 'Página pública del taller. Afiche: ' + TALLER_URL.replace(/\/$/, '') + '/afiche.html'],
+    ['Kit de difusión del taller', KIT_URL, 'Privado: pide la clave de la Bitácora. Textos para copiar y recordatorios'],
     ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado en la pestaña Ingles'],
     ['Enlace personal de cada persona', 'Columna "enlace" en la pestaña Respuestas', 'Mandárselo por WhatsApp en la llamada'],
     ['App con datos de ejemplo', APP_URL, 'Ver la app tal como la ve alguien sin código'],
@@ -189,8 +190,11 @@ function calcularPrioridad(d) {
 const HOJA_TALLER = 'Taller';
 const COL_TALLER = [
   'fecha', 'nombre', 'whatsapp', 'correo', 'profesion', 'ciudad', 'zip',
-  'fuente', 'consentimiento', 'en_ruta_puente', 'asistio', 'notas'
+  'fuente', 'consentimiento', 'en_ruta_puente', 'asistio', 'notas', 'recordatorios'
 ];
+// Igual que taller/config.js. Si cambias el cupo, cámbialo en los dos lugares.
+const TALLER_CUPOS = 13;
+const KIT_URL = 'https://deivblack.github.io/ruta-puente/taller/kit.html';
 
 function hojaTaller() {
   const libro = SpreadsheetApp.getActiveSpreadsheet();
@@ -256,6 +260,119 @@ function contarTaller() {
   return { inscritos: inscritos, espera: espera, lista: lista };
 }
 
+function ymdScript(d) {
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function esEsperaTaller(notas) {
+  return /lista de espera/i.test(String(notas || ''));
+}
+
+function confirmoTaller(notas) {
+  const s = String(notas || '').trim();
+  if (/^s[ií]$/i.test(s)) return true;
+  return /(^|[^A-Za-zÁÉÍÓÚáéíóúÑñ])S[IÍ]([^A-Za-zÁÉÍÓÚáéíóúÑñ]|$)/.test(s);
+}
+
+function asistioTaller(v) {
+  return /^s[ií]\b/i.test(String(v || '').trim());
+}
+
+// Datos del kit. Solo se entrega con la clave (accion "kit"). No va en doGet.
+function resumenTaller() {
+  const h = hojaTaller();
+  const out = {
+    inscritos: 0, espera: 0, confirmados: 0, asistentes: 0,
+    cupos: TALLER_CUPOS, lleno: false, porFuente: {},
+    nuevosAyer: { total: 0, porFuente: {} }, personas: []
+  };
+  if (h.getLastRow() < 2) {
+    out.lleno = false;
+    return out;
+  }
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift().map(String);
+  const i = function (n) { return cab.indexOf(n); };
+  const ayerDate = new Date();
+  ayerDate.setDate(ayerDate.getDate() - 1);
+  const ayer = ymdScript(ayerDate);
+  datos.forEach(function (r, idx) {
+    const nombre = String(i('nombre') >= 0 ? r[i('nombre')] : '').trim();
+    const whatsapp = String(i('whatsapp') >= 0 ? r[i('whatsapp')] : '').trim();
+    if (!nombre && !whatsapp) return;
+    const notas = i('notas') >= 0 ? r[i('notas')] : '';
+    const espera = esEsperaTaller(notas);
+    const fuente = String((i('fuente') >= 0 ? r[i('fuente')] : '') || 'Sin fuente').trim() || 'Sin fuente';
+    const fecha = i('fecha') >= 0 ? r[i('fecha')] : '';
+    const dia = fecha instanceof Date ? ymdScript(fecha) : String(fecha).slice(0, 10);
+    if (espera) out.espera++;
+    else out.inscritos++;
+    if (!espera && confirmoTaller(notas)) out.confirmados++;
+    const fue = asistioTaller(i('asistio') >= 0 ? r[i('asistio')] : '');
+    if (fue) out.asistentes++;
+    if (!espera) out.porFuente[fuente] = (out.porFuente[fuente] || 0) + 1;
+    if (dia === ayer) {
+      out.nuevosAyer.total++;
+      out.nuevosAyer.porFuente[fuente] = (out.nuevosAyer.porFuente[fuente] || 0) + 1;
+    }
+    out.personas.push({
+      fila: idx + 2,
+      nombre: nombre,
+      whatsapp: whatsapp,
+      profesion: i('profesion') >= 0 ? String(r[i('profesion')] || '') : '',
+      fuente: fuente,
+      espera: espera,
+      confirmo: !espera && confirmoTaller(notas),
+      asistio: fue ? 'Sí' : '',
+      recordatorios: i('recordatorios') >= 0 ? String(r[i('recordatorios')] || '') : ''
+    });
+  });
+  out.lleno = out.inscritos >= TALLER_CUPOS;
+  return out;
+}
+
+function kitTaller() {
+  const r = resumenTaller();
+  r.ok = true;
+  return r;
+}
+
+function marcarRecordatorioTaller(d) {
+  const h = hojaTaller();
+  const fila = parseInt(d && d.fila, 10);
+  const id = String((d && d.id) || '').replace(/[^a-z0-9\-]/gi, '').slice(0, 40);
+  const wa = digitos10(d && d.whatsapp);
+  if (!id || fila < 2 || fila > h.getLastRow()) return { ok: false, error: 'fila' };
+  const cab = h.getRange(1, 1, 1, h.getLastColumn()).getValues()[0].map(String);
+  const cWa = cab.indexOf('whatsapp') + 1;
+  const cRec = cab.indexOf('recordatorios') + 1;
+  if (!cWa || !cRec) return { ok: false, error: 'columna' };
+  if (digitos10(h.getRange(fila, cWa).getValue()) !== wa) return { ok: false, error: 'persona' };
+  const actual = String(h.getRange(fila, cRec).getValue() || '');
+  const partes = actual.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  if (partes.indexOf(id) < 0) partes.push(id);
+  h.getRange(fila, cRec).setValue(limpiar(partes.join(',')));
+  return { ok: true, recordatorios: partes.join(',') };
+}
+
+// Borra solo filas cuyo nombre es PRUEBA o empieza por "PRUEBA ". Ejecutar a mano desde el editor.
+function borrarPruebaTaller() {
+  const h = hojaTaller();
+  if (h.getLastRow() < 2) { Logger.log('Nada que borrar'); return; }
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift().map(String);
+  const iNom = cab.indexOf('nombre');
+  let n = 0;
+  for (let f = datos.length - 1; f >= 0; f--) {
+    const nom = String(datos[f][iNom] || '').trim();
+    if (nom === 'PRUEBA' || nom.indexOf('PRUEBA ') === 0) {
+      h.deleteRow(f + 2);
+      n++;
+    }
+  }
+  Logger.log('Filas PRUEBA borradas: ' + n);
+}
+
 function guardarTaller(p) {
   if (p.website || !p.nombre) return { ok: false };
   hojaTaller();
@@ -271,7 +388,8 @@ function guardarTaller(p) {
     consentimiento: p.consentimiento ? 'Sí' : '',
     en_ruta_puente: enRutaPuente(p.whatsapp),
     asistio: '',
-    notas: limpiar(p.notas)
+    notas: limpiar(p.notas),
+    recordatorios: ''
   };
   hojaTaller().appendRow(COL_TALLER.map(c => d[c]));
   try { enviarCorreoTaller(d); } catch (err) { console.error(err); }
@@ -943,6 +1061,8 @@ function bitacora(txt) {
   if (b.accion === 'guardar') return salida(guardarEntrevista(b.datos || {}));
   if (b.accion === 'guardar_estado') return salida(guardarEstado(b.datos || {}));
   if (b.accion === 'revisar_agenda') return salida(revisarAgenda());
+  if (b.accion === 'kit') return salida(kitTaller());
+  if (b.accion === 'kit_recordatorio') return salida(marcarRecordatorioTaller(b.datos || {}));
   return salida({ ok: false, error: 'accion' });
 }
 

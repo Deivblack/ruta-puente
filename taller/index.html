@@ -319,11 +319,12 @@ function confirmar(d){
   const done = $("#done"); done.hidden = false;
   const nombre = (d.nombre || "").trim().split(/\s+/)[0] || "";
   $("#done-title").textContent = nombre ? ("¡Listo, " + nombre + "!") : "¡Listo!";
-  const cuando = TALLER.fecha + (tallerPendiente(TALLER.hora) ? "" : ", " + TALLER.hora);
-  const donde = tallerPendiente(TALLER.lugar) ? "" : " En " + TALLER.lugar + ".";
+  const fechaBaja = TALLER.fecha.charAt(0).toLowerCase() + TALLER.fecha.slice(1);
+  const horaTxt = tallerPendiente(TALLER.hora) ? "" : (", " + String(TALLER.hora).replace(/\.\s*$/, ""));
+  const donde = tallerPendiente(TALLER.lugar) ? "" : (" Lugar: " + TALLER.lugar + ".");
   $("#done-text").textContent = listaEspera
     ? "Te apuntamos en lista de espera. Te escribimos por WhatsApp si se abre un cupo, o para el próximo taller."
-    : ("Te esperamos el " + cuando + "." + donde);
+    : ("Te esperamos el " + fechaBaja + horaTxt + "." + donde);
   done.scrollIntoView({block:"center"});
 }
 

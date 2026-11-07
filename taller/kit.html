@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Kit de difusión · Ruta Puente</title>
+<link rel="icon" href="../logo-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#f5f7f4; --surface:#fff; --ink:#1f2a26; --muted:#5d6c66; --line:#dde5e0;
+  --hope:#2e7d5b; --hope-soft:#e1efe7; --hope-ink:#fff; --sun:#e8b04b; --sun-soft:#fbf0d9;
+  --err:#b4462f;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111a17; --surface:#18241f; --ink:#e7efea; --muted:#a2b2ab; --line:#2a3a33;
+  --hope:#5fbf8f; --hope-soft:#1f3a2e; --hope-ink:#0f1a15; --sun:#f0c062; --sun-soft:#3a3120; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 var(--f-body);padding:0 16px 64px}
+.wrap{max-width:560px;margin:0 auto}
+h1,h2{font-family:var(--f-display);line-height:1.15;margin:0}
+p{margin:0}
+a{color:var(--hope)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0}
+.brand{font:800 20px var(--f-display)}
+.link{background:none;border:0;color:var(--hope);font:700 15px var(--f-body);padding:8px 0;cursor:pointer}
+.login{max-width:420px;margin:12vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.login h1{font-size:1.5rem}
+.login p{color:var(--muted);font-size:.95rem}
+label{font-weight:800}
+input[type=password],input[type=search],input[type=text]{font:17px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+input:focus{border-color:var(--hope);outline:none}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;font:800 17px var(--f-body);border:0;border-radius:999px;padding:12px 18px;cursor:pointer;text-decoration:none;background:var(--hope);color:var(--hope-ink);text-align:center}
+.btn.ghost{background:transparent;color:var(--hope);border:2px solid var(--line)}
+.btn:disabled{opacity:.55}
+.acciones{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 12px}
+.sec{font-size:1.35rem;margin:22px 0 10px}
+.muted{color:var(--muted);font-size:.92rem}
+.err{color:var(--err);font-weight:800}
+.msg{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px}
+.banner{background:var(--sun-soft);border:2px solid var(--sun);border-radius:14px;padding:14px;font-weight:800;margin:0 0 12px}
+.num{font:800 2rem var(--f-display);line-height:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{background:var(--hope-soft);border-radius:999px;padding:4px 10px;font-weight:800;font-size:.85rem}
+.persona{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.persona b{font-family:var(--f-display)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 10px}
+summary{font-weight:800;cursor:pointer}
+.nota{font-size:.9rem;color:var(--muted);margin-top:6px}
+.hit{padding:10px 0;border-top:1px solid var(--line)}
+.toast{position:fixed;left:16px;right:16px;bottom:16px;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-weight:800;text-align:center}
+.demo{font-size:.85rem;font-weight:800;color:var(--hope)}
+</style>
+</head>
+<body>
+<form class="login" id="login" hidden method="post" action="#">
+  <h1>Kit de difusión</h1>
+  <p>Página privada. Escribe la clave de la Bitácora. Este celular la recordará.</p>
+  <label for="clave">Clave</label>
+  <input type="password" id="clave" autocomplete="current-password" autocapitalize="off" spellcheck="false" required>
+  <span class="err" id="login-err" hidden></span>
+  <button class="btn" id="login-btn" type="submit">Entrar</button>
+</form>
+
+<div class="wrap" id="main" hidden>
+  <header class="top">
+    <div class="brand">Kit de difusión</div>
+    <button class="link" id="logout" type="button">Salir</button>
+  </header>
+  <p class="demo" id="demo-fecha" hidden></p>
+  <div class="banner" id="lleno" hidden>CUPO LLENO – usa las versiones de lista de espera</div>
+  <div class="banner" id="script-viejo" hidden>La clave está bien. El contador y los recordatorios se prenden cuando despliegues el Apps Script. Los textos de hoy ya se pueden copiar.</div>
+
+  <h2 class="sec" id="hoy-titulo">Hoy te toca</h2>
+  <div id="hoy"></div>
+
+  <h2 class="sec">Contador</h2>
+  <div class="card" id="contador"></div>
+
+  <h2 class="sec" id="recordatorios">Recordatorios a inscritos</h2>
+  <div id="recs"></div>
+
+  <h2 class="sec">Respuesta rápida del Reto del cargo</h2>
+  <div class="card">
+    <label for="q">Profesión</label>
+    <input type="search" id="q" placeholder="Ej.: contadora, enfermera, ingeniero civil" autocomplete="off">
+    <div id="hits"></div>
+  </div>
+
+  <h2 class="sec">Calendario completo</h2>
+  <details id="cal">
+    <summary>Ver los 13 mensajes</summary>
+    <div id="cal-body"></div>
+  </details>
+
+  <h2 class="sec">Enlaces por canal</h2>
+  <div id="canales"></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="config.js"></script>
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
+const $ = s => document.querySelector(s);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+if (/[?&]clave=/.test(location.search)) {
+  const q = new URLSearchParams(location.search);
+  q.delete("clave");
+  const rest = q.toString();
+  history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + location.hash);
+}
+let clave = store.get("rp-bit-clave") || "";
+let pack = null;
+let bancoRevisar = true;
+let datos = null;
+let modoTextos = false;
+
+const TITLES = {
+  "contador": {en:"Staff Accountant", alt:["Senior Accountant","Accounting Specialist"]},
+  "jefe de capacitacion": {en:"Training Manager", alt:["L&D Manager","Learning & Development Specialist"]},
+  "recursos humanos": {en:"HR Generalist", alt:["HR Analyst","HR Coordinator"]},
+  "ingeniero civil": {en:"Civil Engineer (EIT)", alt:["Project Engineer","Field Engineer"]},
+  "ingeniero industrial": {en:"Industrial Engineer", alt:["Process Improvement Engineer","Operations Analyst"]},
+  "ingeniero de sistemas": {en:"IT Support Specialist", alt:["Systems Analyst","Implementation Specialist"]},
+  "abogado": {en:"Paralegal / Legal Assistant", alt:["Compliance Analyst","Contract Administrator"]},
+  "medico": {en:"Clinical Research Coordinator", alt:["Medical Assistant","Patient Navigator"]},
+  "enfermero": {en:"Patient Care Technician", alt:["Certified Nursing Assistant","Patient Navigator"]},
+  "maestro": {en:"Teacher", alt:["Bilingual Teacher","Teaching Assistant"]},
+  "docente": {en:"Teacher", alt:["Bilingual Teacher","Teaching Assistant"]},
+  "ventas": {en:"Sales Manager", alt:["Account Manager","Business Development Rep"]},
+  "administrador": {en:"Operations Coordinator", alt:["Business Analyst","Office Manager"]},
+  "psicologo organizacional": {en:"People Operations Specialist", alt:["HR Business Partner","Talent Development Specialist"]},
+  "psicologo": {en:"Case Manager", alt:["Behavioral Health Technician","Recruiter"]},
+  "bodega": {en:"Warehouse Supervisor", alt:["Inventory Control Specialist","Logistics Coordinator"]},
+  "ingeniero electromecanico": {en:"Electromechanical Engineer", alt:["Maintenance Engineer","Automation Technician"]},
+  "ciberseguridad": {en:"Cybersecurity Analyst", alt:["SOC Analyst","Information Security Analyst"]},
+  "turismo": {en:"Guest Services Coordinator", alt:["Hotel Operations Coordinator","Destination Marketing Coordinator"]},
+  "hoteleria": {en:"Hotel Operations Coordinator", alt:["Front Desk Supervisor","Guest Services Manager"]},
+  "marketing de destinos": {en:"Destination Marketing Coordinator", alt:["Tourism Marketing Specialist","Communications Coordinator"]}
+};
+const BUSCAR = [
+  ["contador","Contador"],["contador","Contadora"],["jefe de capacitacion","Jefe de capacitación"],
+  ["recursos humanos","Recursos humanos"],["ingeniero civil","Ingeniero civil"],["ingeniero civil","Ingeniera civil"],
+  ["ingeniero industrial","Ingeniero industrial"],["ingeniero de sistemas","Ingeniero de sistemas"],
+  ["abogado","Abogado"],["abogado","Abogada"],["medico","Médico"],["enfermero","Enfermero"],
+  ["enfermero","Enfermera"],["maestro","Maestro"],["maestro","Maestra"],["docente","Docente"],
+  ["ventas","Ventas"],["administrador","Administrador"],["administrador","Administradora"],
+  ["psicologo organizacional","Psicólogo organizacional"],["psicologo","Psicólogo"],["psicologo","Psicóloga"],
+  ["bodega","Bodega"],["bodega","Almacén"],["ingeniero electromecanico","Ingeniero electromecánico"],
+  ["ciberseguridad","Ciberseguridad"],["turismo","Turismo"],["hoteleria","Hotelería"],
+  ["marketing de destinos","Marketing de destinos"],["recursos humanos","RR. HH."]
+];
+
+function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+function el(tag, cls, text){
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast.h); toast.h = setTimeout(() => { t.hidden = true; }, 2200);
+}
+function fechaVista(){
+  const q = new URLSearchParams(location.search).get("fecha") || "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(q)) return q;
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function etiquetaFecha(iso){
+  if (!iso) return "Cuando puedas";
+  const p = iso.split("-");
+  const d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  return d.toLocaleDateString("es", {weekday:"long", day:"numeric", month:"short"});
+}
+function urlDe(m){
+  if (m && m.link === "formulario") return "https://deivblack.github.io/ruta-puente/";
+  if (m && m.utm) return TALLER_URL + "?utm=" + m.utm;
+  return "";
+}
+function llenar(texto, extra){
+  extra = extra || {};
+  const apoyo = tallerApoyoConfirmado() ? (TALLER.apoyo + ".") : "";
+  const maps = (typeof tallerMapsUrl === "function" && tallerMapsUrl()) || "";
+  let t = String(texto || "");
+  t = t.split("{nombre}").join(extra.nombre || "");
+  t = t.split("{apoyo}").join(apoyo);
+  t = t.split("{link}").join(extra.link || "");
+  t = t.split("{maps}").join(maps);
+  t = t.split("{lugar}").join(tallerPendiente(TALLER.lugar) ? "[POR CONFIRMAR]" : TALLER.lugar);
+  t = t.split("{direccion}").join(tallerPendiente(TALLER.direccion) ? "[POR CONFIRMAR]" : TALLER.direccion);
+  t = t.split("{estacionamiento}").join(TALLER.estacionamiento || "[POR CONFIRMAR]");
+  t = t.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").replace(/Hola\s+\./g, "Hola.");
+  return t.trim();
+}
+function textoMensaje(m, llenoForzado){
+  const lleno = llenoForzado && m.cambiaConCupo;
+  if (m.elige === "banco"){
+    if (bancoRevisar) return lleno ? m.cupoLleno : m.texto;
+    return lleno ? (m.cupoLlenoIngles || m.cupoLleno) : (m.textoIngles || m.texto);
+  }
+  return lleno ? m.cupoLleno : m.texto;
+}
+function primerNombre(nombre){
+  const p = String(nombre || "").trim().split(/\s+/)[0] || "";
+  return p.slice(0, 40);
+}
+function waHref(texto, numero){
+  let n = String(numero || "").replace(/\D/g, "");
+  if (n.length === 10) n = "1" + n;
+  const base = n ? ("https://wa.me/" + n) : "https://wa.me/";
+  return base + "?text=" + encodeURIComponent(texto);
+}
+function copiar(texto, btn){
+  const marcar = ok => {
+    if (!btn) return;
+    const prev = btn.dataset.prev || "Copiar";
+    btn.textContent = ok ? "Copiado" : "Seleccionado";
+    setTimeout(() => { btn.textContent = prev; }, 1600);
+    if (!ok) toast("El texto quedó seleccionado. Mantenlo pulsado y elige Copiar.");
+  };
+  if (btn && !btn.dataset.prev) btn.dataset.prev = btn.textContent;
+  let ok = false;
+  const ta = document.createElement("textarea");
+  ta.value = texto;
+  ta.setAttribute("readonly", "");
+  ta.style.position = "fixed";
+  ta.style.left = "0";
+  ta.style.top = "0";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  ta.remove();
+  if (ok) { marcar(true); return; }
+  const card = (btn && btn.closest) ? btn.closest("article, .hit, .card") : null;
+  const msg = card ? card.querySelector(".msg") : null;
+  if (msg) {
+    const rango = document.createRange();
+    rango.selectNodeContents(msg);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(rango);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(() => marcar(true)).catch(() => marcar(false));
+    return;
+  }
+  marcar(false);
+}
+function botones(texto, numero){
+  const box = el("div", "acciones");
+  const copy = el("button", "btn", "Copiar");
+  copy.type = "button";
+  copy.addEventListener("click", () => copiar(texto, copy));
+  const wa = el("a", "btn ghost", "Abrir WhatsApp");
+  wa.href = waHref(texto, numero || "");
+  wa.target = "_blank";
+  wa.rel = "noopener";
+  box.appendChild(copy); box.appendChild(wa);
+  return box;
+}
+function orden(a, b){
+  if (a.fecha !== b.fecha) return a.fecha < b.fecha ? -1 : 1;
+  return String(a.hora || "").localeCompare(String(b.hora || ""));
+}
+function tarjeta(m, lleno){
+  const card = el("article", "card");
+  const tit = (m.hora ? m.hora + " · " : "") + m.titulo;
+  card.appendChild(el("h3", null, etiquetaFecha(m.fecha) + " · " + m.canal));
+  card.appendChild(el("p", null, tit));
+  if (m.nota) card.appendChild(el("p", "nota", m.nota));
+  if (m.encuesta){
+    const lineas = [m.encuesta.pregunta].concat((m.encuesta.opciones || []).map(o => "· " + o));
+    card.appendChild(el("p", "msg", lineas.join("\n")));
+    const c = el("button", "btn ghost", "Copiar encuesta");
+    c.type = "button";
+    c.style.marginTop = "8px";
+    c.addEventListener("click", () => copiar(lineas.join("\n"), c));
+    card.appendChild(c);
+  }
+  if (m.guion){
+    card.appendChild(el("p", "nota", "Guion para grabar (45–60 s)"));
+    card.appendChild(el("p", "msg", m.guion));
+    const g = el("button", "btn ghost", "Copiar guion");
+    g.type = "button";
+    g.style.marginTop = "8px";
+    g.addEventListener("click", () => copiar(m.guion, g));
+    card.appendChild(g);
+  }
+  const cuerpo = llenar(textoMensaje(m, lleno), { link: urlDe(m) });
+  if (lleno && m.cambiaConCupo) card.appendChild(el("p", "nota", "Versión de cupo lleno"));
+  card.appendChild(el("p", "msg", cuerpo));
+  card.appendChild(botones(cuerpo, ""));
+  return card;
+}
+
+function pintarHoy(){
+  const hoy = fechaVista();
+  const box = $("#hoy");
+  box.textContent = "";
+  const demo = $("#demo-fecha");
+  const q = new URLSearchParams(location.search).get("fecha");
+  if (q && q === hoy){ demo.hidden = false; demo.textContent = "Vista de prueba: " + etiquetaFecha(hoy) + ". No es el día real del celular."; }
+  else demo.hidden = true;
+  const lleno = !!(datos && datos.lleno);
+  const todos = (pack.mensajes || []).slice().sort(orden);
+  const delDia = todos.filter(m => m.fecha === hoy);
+  if (!delDia.length){
+    $("#hoy-titulo").textContent = "Hoy descansa";
+    const prox = todos.find(m => m.fecha && m.fecha > hoy);
+    box.appendChild(el("p", "muted", prox
+      ? ("La próxima: " + etiquetaFecha(prox.fecha) + " · " + prox.titulo + ". No la mandes hoy.")
+      : "No queda ningún mensaje en el calendario."));
+    if (prox) box.appendChild(tarjeta(prox, lleno));
+    return;
+  }
+  $("#hoy-titulo").textContent = "Hoy te toca";
+  delDia.forEach(m => box.appendChild(tarjeta(m, lleno)));
+}
+function pintarContador(){
+  const box = $("#contador");
+  box.textContent = "";
+  if (modoTextos || !datos){
+    box.appendChild(el("p", null, "Todavía no puedo leer la hoja."));
+    return;
+  }
+  const cupos = datos.cupos || TALLER.cupos || 0;
+  box.appendChild(el("p", "num", (datos.inscritos || 0) + " / " + cupos));
+  box.appendChild(el("p", "muted", "Inscritos / cupo · " + (datos.espera || 0) + " en lista de espera"));
+  box.appendChild(el("p", null, "Confirmados (SÍ): " + (datos.confirmados || 0)));
+  const chips = el("div", "chips");
+  const fuentes = datos.porFuente || {};
+  const claves = Object.keys(fuentes);
+  if (!claves.length) chips.appendChild(el("span", "chip", "Sin inscripciones todavía"));
+  claves.forEach(k => chips.appendChild(el("span", "chip", k + " " + fuentes[k])));
+  box.appendChild(chips);
+  $("#lleno").hidden = !datos.lleno;
+}
+function genteDe(m){
+  const personas = (datos && datos.personas) || [];
+  if (m.audiencia === "inscritos") return personas.filter(p => !p.espera);
+  if (m.audiencia === "confirmados") return personas.filter(p => p.confirmo);
+  if (m.audiencia === "espera") return personas.filter(p => p.espera);
+  if (m.audiencia === "asistentes") return personas.filter(p => p.asistio === "Sí");
+  return [];
+}
+function yaEnviado(p, id){
+  return String(p.recordatorios || "").split(",").map(s => s.trim()).indexOf(id) >= 0;
+}
+function pintarRecs(){
+  const box = $("#recs");
+  box.textContent = "";
+  const hoy = fechaVista();
+  const esDia = hoy === "2026-11-19" || hoy === "2026-11-20" || hoy === "2026-11-21";
+  $("#recordatorios").hidden = !esDia;
+  box.hidden = !esDia;
+  if (!esDia) return;
+  if (modoTextos || !datos){
+    box.appendChild(el("p", "muted", "La lista de personas aparece cuando el Apps Script esté desplegado."));
+    return;
+  }
+  const delDia = (pack.mensajes || []).filter(m => m.fecha === hoy && ["inscritos","confirmados","espera","asistentes"].indexOf(m.audiencia) >= 0);
+  if (!delDia.length){ box.appendChild(el("p", "muted", "Hoy no hay recordatorios individuales.")); return; }
+  delDia.forEach(m => {
+    const bloque = el("section", "card");
+    bloque.appendChild(el("h3", null, (m.hora ? m.hora + " · " : "") + m.titulo));
+    if (m.nota) bloque.appendChild(el("p", "nota", m.nota));
+    if (m.soloSiCancelacion && (datos.lleno || !(datos.espera > 0))){
+      bloque.appendChild(el("p", null, "No mandes este mensaje: no se ha liberado un lugar."));
+      box.appendChild(bloque);
+      return;
+    }
+    const gente = genteDe(m);
+    if (!gente.length){
+      const vacio = m.audiencia === "confirmados"
+        ? "Nadie tiene SÍ en la columna notas."
+        : (m.audiencia === "asistentes" ? "Nadie tiene Sí en la columna asistio." : "No hay personas en esta lista.");
+      bloque.appendChild(el("p", null, vacio));
+      box.appendChild(bloque);
+      return;
+    }
+    gente.forEach(p => {
+      const row = el("div", "persona");
+      row.appendChild(el("b", null, p.nombre || "Sin nombre"));
+      const nom = primerNombre(p.nombre);
+      const cuerpo = llenar(textoMensaje(m, false), { nombre: nom, link: urlDe(m) });
+      row.appendChild(el("p", "msg", cuerpo));
+      const wa = el("a", "btn", "WhatsApp a " + (nom || "esta persona"));
+      wa.href = waHref(cuerpo, p.whatsapp);
+      wa.target = "_blank"; wa.rel = "noopener";
+      row.appendChild(wa);
+      const mark = el("button", "btn ghost", yaEnviado(p, m.id) ? "Enviado" : "Marcar enviado");
+      mark.type = "button";
+      mark.disabled = yaEnviado(p, m.id);
+      mark.addEventListener("click", () => marcar(p, m.id, mark));
+      row.appendChild(mark);
+      bloque.appendChild(row);
+    });
+    box.appendChild(bloque);
+  });
+}
+async function marcar(p, id, btn){
+  btn.disabled = true; btn.textContent = "Guardando…";
+  try{
+    const r = await api({ accion:"kit_recordatorio", datos:{ fila:p.fila, whatsapp:p.whatsapp, id:id } });
+    if (!r.ok) throw new Error(r.error || "error");
+    p.recordatorios = r.recordatorios || ((p.recordatorios ? p.recordatorios + "," : "") + id);
+    btn.textContent = "Enviado";
+    toast("Quedó marcado.");
+  }catch(e){
+    btn.disabled = false; btn.textContent = "Marcar enviado";
+    toast("No se pudo guardar. Intenta de nuevo.");
+  }
+}
+function pintarBusqueda(){
+  const q = norm($("#q").value);
+  const box = $("#hits");
+  box.textContent = "";
+  if (q.length < 2) return;
+  const vistos = {};
+  const hits = BUSCAR.filter(par => {
+    const ok = norm(par[1]).indexOf(q) >= 0 || norm(par[0]).indexOf(q) >= 0;
+    if (!ok || vistos[par[1]]) return false;
+    vistos[par[1]] = true;
+    return true;
+  }).slice(0, 8);
+  if (!hits.length){
+    box.appendChild(el("p", "nota", "No está en las 30. Pídele que la escriba con otras palabras."));
+    return;
+  }
+  hits.forEach(par => {
+    const t = TITLES[par[0]];
+    const row = el("div", "hit");
+    const alt = (t.alt || []).slice(0, 2).join(" o ");
+    let frase = par[1] + ": en inglés se busca como " + t.en + ".";
+    if (alt) frase += " También aparece como " + alt + ".";
+    row.appendChild(el("p", null, par[1] + " → " + t.en));
+    const b = el("button", "btn ghost", "Copiar respuesta");
+    b.type = "button";
+    b.style.marginTop = "8px";
+    b.addEventListener("click", () => copiar(frase, b));
+    row.appendChild(b);
+    box.appendChild(row);
+  });
+}
+function pintarCalendario(){
+  const box = $("#cal-body");
+  box.textContent = "";
+  const lleno = !!(datos && datos.lleno);
+  (pack.mensajes || []).slice().sort(orden).forEach(m => {
+    const d = document.createElement("details");
+    const s = document.createElement("summary");
+    s.textContent = (m.fecha ? etiquetaFecha(m.fecha) : "Cuando puedas") + (m.hora ? " " + m.hora : "") + " · " + m.titulo;
+    d.appendChild(s);
+    d.appendChild(el("p", "nota", "Para difundir"));
+    d.appendChild(el("p", "msg", llenar(textoMensaje(m, false), { link: urlDe(m) })));
+    d.appendChild(el("p", "nota", "Cupo lleno"));
+    const pleno = m.elige === "banco"
+      ? (bancoRevisar ? m.cupoLleno : (m.cupoLlenoIngles || m.cupoLleno))
+      : m.cupoLleno;
+    d.appendChild(el("p", "msg", llenar(pleno, { link: urlDe(m) })));
+    if (lleno && m.cambiaConCupo) d.appendChild(el("p", "nota", "Hoy corresponde la versión de cupo lleno."));
+    box.appendChild(d);
+  });
+}
+function pintarCanales(){
+  const box = $("#canales");
+  box.textContent = "";
+  (pack.canales || []).forEach(c => {
+    const card = el("article", "card");
+    const url = TALLER_URL + "?utm=" + c.utm;
+    card.appendChild(el("h3", null, c.nombre));
+    card.appendChild(el("p", "msg", url));
+    const b = el("button", "btn", "Copiar");
+    b.type = "button";
+    b.addEventListener("click", () => copiar(url, b));
+    card.appendChild(b);
+    box.appendChild(card);
+  });
+}
+function pintar(){
+  pintarHoy(); pintarContador(); pintarRecs(); pintarCalendario(); pintarCanales();
+}
+async function api(body){
+  const r = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify(Object.assign({ clave: clave }, body)) });
+  return r.json();
+}
+function mostrarLogin(msg){
+  $("#main").hidden = true; $("#login").hidden = false;
+  if (msg){ $("#login-err").textContent = msg; $("#login-err").hidden = false; }
+}
+async function entrar(){
+  if (!clave) return mostrarLogin();
+  $("#login-btn").disabled = true; $("#login-err").hidden = true;
+  let r;
+  try { r = await api({ accion:"kit" }); }
+  catch (e) { $("#login-btn").disabled = false; return mostrarLogin("No hay conexión. Revisa tu internet e intenta de nuevo."); }
+  $("#login-btn").disabled = false;
+  if (!r || !r.ok){
+    if (r && r.error === "accion"){
+      modoTextos = true; datos = null;
+    } else {
+      store.del("rp-bit-clave"); clave = "";
+      return mostrarLogin(r && r.error === "clave" ? "Esa clave no es correcta." : "La hoja respondió con un error.");
+    }
+  } else {
+    modoTextos = false; datos = r;
+  }
+  store.set("rp-bit-clave", clave);
+  try {
+    pack = await (await fetch("kit-mensajes.json")).json();
+    const banco = await (await fetch("../ingles/banco.json")).json();
+    const lista = Array.isArray(banco) ? banco : [];
+    bancoRevisar = lista.some(it => it && it.revisar === true);
+  } catch (e) {
+    return mostrarLogin("No pude cargar los mensajes. Recarga la página.");
+  }
+  $("#script-viejo").hidden = !modoTextos;
+  $("#login").hidden = true; $("#main").hidden = false;
+  pintar();
+}
+$("#login").addEventListener("submit", e => { e.preventDefault(); clave = $("#clave").value.trim(); entrar(); });
+$("#logout").addEventListener("click", () => { store.del("rp-bit-clave"); clave = ""; datos = null; mostrarLogin(); });
+$("#q").addEventListener("input", pintarBusqueda);
+if (clave) entrar(); else mostrarLogin();
+</script>
+</body>
+</html>
