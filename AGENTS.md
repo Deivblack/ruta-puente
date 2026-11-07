@@ -11,7 +11,7 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ## 2. Reglas que no se rompen
 1. **Costo cero.** Nada de servicios de pago, licencias, servidores ni bases de datos nuevas. El stack es: GitHub Pages + Google Apps Script + Google Sheets + Google Drive. Si algo requiere pagar, detente y pregunta.
 2. **Sin dependencias ni build.** HTML, CSS y JavaScript puros. Cada página es **un solo archivo** `index.html` con su CSS y JS dentro. Lo único externo permitido: Google Fonts. Nada de npm en el sitio, ni React, ni Tailwind, ni bundlers.
-3. **Nunca subas secretos al repo.** El repo es **público**. La clave de la Bitácora vive en Script Properties (`BITACORA_CLAVE`) y no se escribe en ningún archivo. Tampoco correos personales, números de teléfono reales ni datos de personas. Operaciones privadas en `ruta-puente-ops/` (repo privado aparte; nunca subir datos de personas a este repo).
+3. **Nunca subas secretos al repo.** El repo es **público**. La clave de la Bitácora vive en Script Properties (`BITACORA_CLAVE`) y no se escribe en ningún archivo. Tampoco correos personales, números de teléfono reales ni datos de personas. El trabajo de **ops** (datos sensibles) vive fuera de este repo, en la carpeta local `ruta-puente-ops` y en un repo **privado**; no se copia aquí ni se publica en GitHub Pages. `.gitignore` ignora `ruta-puente-ops/`.
 4. **Privacidad por diseño.** Nunca crees campos ni preguntes por: estatus migratorio, visas, SSN, pasaporte, cédula, cuentas bancarias, antecedentes penales o información médica. Para elegibilidad solo existe "¿Puedes trabajar legalmente en EE. UU.? (Sí/No)".
 5. **No rompas lo que ya está en uso:**
    - La URL del Apps Script (`SCRIPT_URL`) no cambia: siempre se despliega como **nueva versión de la misma implementación**, nunca como implementación nueva.
@@ -29,6 +29,17 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
+├── taller/           → Inscripción y afiche del taller (13 nov 2026)
+│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos
+│   ├── index.html    → Página pública de inscripción
+│   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
+│   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
+│   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
+├── ingles/           → Diagnóstico de inglés para el trabajo
+│   ├── index.html    → 5 escenas + resultado y plan de 7 días
+│   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
+│   ├── recursos.json → recursos gratuitos del resultado (David completa URLs)
+│   └── README.md     → cómo editar ítems
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
 └── README.md
@@ -37,11 +48,17 @@ URLs públicas:
 - Landing: https://deivblack.github.io/ruta-puente/
 - App (ejemplo, sin código): https://deivblack.github.io/ruta-puente/app/
 - Bitácora: https://deivblack.github.io/ruta-puente/bitacora/
+- Taller: https://deivblack.github.io/ruta-puente/taller/
+- Afiche: https://deivblack.github.io/ruta-puente/taller/afiche.html
+- Inglés: https://deivblack.github.io/ruta-puente/ingles/
 
 ## 4. Arquitectura
 ```
 [Landing + formulario] --POST form-urlencoded--> [Apps Script doPost] --> Hoja "Respuestas"
                                                         └--> Correo a David con la ficha de entrevista
+[Taller /taller/] --POST form-urlencoded form=taller--> [doPost → guardarTaller] --> Hoja "Taller" + correo
+[Taller] --GET ?taller=estado--> {ok, inscritos, espera}  (para cupos; sin datos personales)
+[Ingles /ingles/] --POST form-urlencoded form=ingles--> pestaña "Ingles" (solo con codigo; sin audio)
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
 [Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David (conteo por estado + atrasados)
@@ -80,6 +97,9 @@ URLs públicas:
 ### API del Apps Script
 - `GET ?codigo=<10 hex>` → `{ok, persona:{nombre (solo primer nombre), pais, profesion, anios_exp, ciudad, zip, barrera, estado}}`. Solo lectura y datos mínimos: **no agregues campos sensibles aquí** (la URL es pública).
 - `POST` form-urlencoded (formulario) → guarda fila, envía ficha. Ignora envíos con `website` (honeypot) o sin `nombre`.
+- `POST` form-urlencoded `form=taller` → pestaña **Taller**. Columnas: `fecha, nombre, whatsapp, correo, profesion, ciudad, zip, fuente, consentimiento, en_ruta_puente, asistio, notas`. `en_ruta_puente` = Sí si los últimos 10 dígitos del WhatsApp ya están en Respuestas. Si `notas = lista de espera`, no cuenta como cupo. Correo a David: "Inscripción taller: [nombre]".
+- `GET ?taller=estado` → `{ok, inscritos, espera}` (público, sin nombres ni teléfonos). La página compara con `TALLER.cupos` en `taller/config.js`.
+- `POST` form-urlencoded `form=ingles` → pestaña **Ingles**. Columnas: `fecha, codigo, nivel_general, lectura, escucha, vocabulario, escritura, oral_auto, autoeficacia_antes`. Solo si `codigo` existe en Respuestas. Nunca audio ni respuestas sueltas. Niveles: Empezando, Funcional, Seguro, Profesional.
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
@@ -98,12 +118,28 @@ URLs públicas:
 - Sin código válido, muestra el ejemplo `EJEMPLO` (María) con la etiqueta "Ejemplo".
 - Estado local (localStorage, siempre dentro de try/catch): `rp-wins`, `rp-apps`, `rp-ok-<codigo>`, `rp-ok-<codigo>-copy`, `rp-cv-<codigo>`.
 - Diccionario `TITLES`: cargo en español → cargo en EE. UU., alternativas, palabras clave y "carriles".
+- En nivelación: enlace "Haz tu diagnóstico de inglés (10 min)" a `/ingles/?c=`.
 
 ### Bitácora (bitacora/index.html)
 - Pide la clave una vez y la guarda en el celular (`rp-bit-clave`). Borradores por persona en `rp-bit-draft-<codigo>`.
 - 6 bloques del guion + "Tus notas" + decisión calculada en vivo.
 - Filtros: Para hoy (`proximo_fecha` ≤ hoy), Sin contactar (`estado` = Nuevo), Todos.
 - Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
+- Contador "Taller 13 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
+- Chip en la tarjeta: "Inglés: Funcional (4 nov)" si hay fila en la pestaña Ingles.
+
+### Taller (`taller/`)
+- Datos en **un solo archivo** `taller/config.js` (`TALLER`). Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**.
+- Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos) y vuelve a exportar el PDF del afiche.
+- `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
+- No usar logo ni escudo del Consulado ni de otras instituciones: solo texto de `TALLER.apoyo` cuando David lo confirme.
+
+### Diagnóstico de inglés (`ingles/`)
+- Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
+- Ítems en `ingles/banco.json`. Recursos en `ingles/recursos.json`. Cómo editar: `ingles/README.md`.
+- Escala: Empezando · Funcional · Seguro · Profesional (orientativo A1–A2 / B1 / B2 / C1; no es certificación).
+- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y no envía nada.
+- Todos los ítems y los 2 recursos de ejemplo salen con `"revisar": true` hasta que David los apruebe y complete URLs reales. No inventar enlaces.
 
 ## 6. Cómo trabajar y publicar
 ### Sitio (GitHub Pages)

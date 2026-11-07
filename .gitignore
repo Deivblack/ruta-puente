@@ -1,10 +1,12 @@
-# Repo privado de operaciones (datos de personas, .env, playbooks)
+# Carpeta local de ops (información sensible). Nunca al repo público ni a GitHub Pages.
 ruta-puente-ops/
+/ops/
 
 # Clasp / Apps Script (IDs y credenciales — no subir al repo público)
 .clasp.json
 .clasprc.json
 apps-script/.clasp.json
+apps-script/.clasprc.json
 
 # Secretos
 .env

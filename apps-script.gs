@@ -12,6 +12,8 @@ function crearClaveBitacora() {
 
 // Ejecuta esta función (botón Ejecutar) cuando quieras poner al día la hoja: códigos, enlaces, columnas nuevas y pestaña Enlaces
 function actualizarHoja() {
+  hojaTaller();
+  hojaIngles();
   const hoja = asegurarColumnas();
   const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
   const cCod = cab.indexOf('codigo') + 1, cEnl = cab.indexOf('enlace') + 1, cNom = cab.indexOf('nombre') + 1;
@@ -28,6 +30,7 @@ function actualizarHoja() {
 }
 
 const APP_URL = 'https://deivblack.github.io/ruta-puente/app/';
+const TALLER_URL = 'https://deivblack.github.io/ruta-puente/taller/';
 
 function nuevoCodigo() {
   return Utilities.getUuid().replace(/-/g, '').slice(0, 10);
@@ -35,7 +38,12 @@ function nuevoCodigo() {
 
 // La app pide los datos de una persona con su código: solo lectura y solo los campos mínimos
 function doGet(e) {
-  const c = String((e && e.parameter && (e.parameter.codigo || e.parameter.c)) || '').trim();
+  const p = (e && e.parameter) || {};
+  if (String(p.taller || '') === 'estado') {
+    const t = contarTaller();
+    return salida({ ok: true, inscritos: t.inscritos, espera: t.espera });
+  }
+  const c = String(p.codigo || p.c || '').trim();
   if (!/^[a-f0-9]{10}$/.test(c)) return salida({ ok: false });
   const datos = obtenerHoja().getDataRange().getValues();
   const cab = datos.shift();
@@ -59,6 +67,8 @@ function crearPestanaEnlaces() {
   const filas = [
     ['Qué es', 'Enlace', 'Para qué'],
     ['Landing con formulario', 'https://deivblack.github.io/ruta-puente/', 'Compartir en redes y por WhatsApp'],
+    ['Taller 13 nov (inscripción)', TALLER_URL, 'Página pública del taller. Afiche: ' + TALLER_URL.replace(/\/$/, '') + '/afiche.html'],
+    ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado en la pestaña Ingles'],
     ['Enlace personal de cada persona', 'Columna "enlace" en la pestaña Respuestas', 'Mandárselo por WhatsApp en la llamada'],
     ['App con datos de ejemplo', APP_URL, 'Ver la app tal como la ve alguien sin código'],
     ['Esta hoja', libro.getUrl(), 'Respuestas, estados y enlaces'],
@@ -146,6 +156,8 @@ function doPost(e) {
     // La Bitácora manda JSON como texto; el formulario de la landing manda campos normales
     if (e && e.postData && String(e.postData.type).indexOf('text/plain') === 0) return bitacora(e.postData.contents);
     const p = (e && e.parameter) || {};
+    if (p.form === 'taller') return salida(guardarTaller(p));
+    if (p.form === 'ingles') return salida(guardarIngles(p));
     if (p.website || !p.nombre) return salida({ ok: false }); // bots o envíos vacíos
     const hoja = obtenerHoja();
     const d = Object.assign({}, p);
@@ -170,6 +182,206 @@ function calcularPrioridad(d) {
   if (d.autorizado === 'No') return 'Fuera de perfil';
   const pts = (d.titulo && d.titulo !== 'No' ? 1 : 0) + (d.busco_12m === 'Sí' ? 1 : 0) + (d.autorizado === 'Sí' ? 1 : 0);
   return pts === 3 ? 'Alta' : pts === 2 ? 'Media' : 'Baja';
+}
+
+/* ---------- Taller 13 nov (pestaña Taller) ---------- */
+
+const HOJA_TALLER = 'Taller';
+const COL_TALLER = [
+  'fecha', 'nombre', 'whatsapp', 'correo', 'profesion', 'ciudad', 'zip',
+  'fuente', 'consentimiento', 'en_ruta_puente', 'asistio', 'notas'
+];
+
+function hojaTaller() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName(HOJA_TALLER);
+  if (!h) h = libro.insertSheet(HOJA_TALLER);
+  if (h.getLastRow() === 0) {
+    h.appendRow(COL_TALLER);
+    h.setFrozenRows(1);
+    h.getRange(1, 1, 1, COL_TALLER.length).setFontWeight('bold').setBackground('#e1efe7');
+  } else {
+    const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    COL_TALLER.forEach(c => {
+      if (cab.indexOf(c) < 0) {
+        const col = h.getLastColumn() + 1;
+        h.getRange(1, col).setValue(c).setFontWeight('bold').setBackground('#e1efe7');
+        cab.push(c);
+      }
+    });
+  }
+  return h;
+}
+
+function digitos10(tel) {
+  const n = String(tel || '').replace(/\D/g, '');
+  return n.length >= 10 ? n.slice(-10) : n;
+}
+
+function enRutaPuente(whatsapp) {
+  const d10 = digitos10(whatsapp);
+  if (d10.length !== 10) return 'No';
+  const hoja = obtenerHoja();
+  if (hoja.getLastRow() < 2) return 'No';
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const iWa = cab.indexOf('whatsapp');
+  if (iWa < 0) return 'No';
+  for (let i = 0; i < datos.length; i++) {
+    if (digitos10(datos[i][iWa]) === d10) return 'Sí';
+  }
+  return 'No';
+}
+
+function contarTaller() {
+  const h = hojaTaller();
+  if (h.getLastRow() < 2) return { inscritos: 0, espera: 0, lista: [] };
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  let inscritos = 0, espera = 0;
+  const lista = [];
+  datos.forEach(r => {
+    if (!r[i('nombre')] && !r[i('whatsapp')]) return;
+    const notas = String(r[i('notas')] || '');
+    const esEspera = /lista de espera/i.test(notas);
+    if (esEspera) espera++;
+    else inscritos++;
+    lista.push({
+      nombre: r[i('nombre')] || '',
+      whatsapp: r[i('whatsapp')] || '',
+      espera: esEspera
+    });
+  });
+  return { inscritos: inscritos, espera: espera, lista: lista };
+}
+
+function guardarTaller(p) {
+  if (p.website || !p.nombre) return { ok: false };
+  hojaTaller();
+  const d = {
+    fecha: new Date(),
+    nombre: limpiar(p.nombre),
+    whatsapp: limpiar(digitos10(p.whatsapp)),
+    correo: limpiar(p.correo),
+    profesion: limpiar(p.profesion),
+    ciudad: limpiar(p.ciudad),
+    zip: limpiar(p.zip),
+    fuente: limpiar(p.fuente),
+    consentimiento: p.consentimiento ? 'Sí' : '',
+    en_ruta_puente: enRutaPuente(p.whatsapp),
+    asistio: '',
+    notas: limpiar(p.notas)
+  };
+  hojaTaller().appendRow(COL_TALLER.map(c => d[c]));
+  try { enviarCorreoTaller(d); } catch (err) { console.error(err); }
+  return { ok: true };
+}
+
+function enviarCorreoTaller(d) {
+  const espera = /lista de espera/i.test(String(d.notas || ''));
+  const html =
+    '<div style="font-family:Arial,sans-serif;max-width:560px;color:#1d2b26;line-height:1.5">' +
+    '<div style="font-size:20px;font-weight:bold">Inscripción taller · 13 nov</div>' +
+    '<p><b>' + esc(d.nombre) + '</b>' + (espera ? ' · lista de espera' : '') + '</p>' +
+    '<ul>' +
+    '<li>WhatsApp: ' + esc(d.whatsapp) + '</li>' +
+    '<li>Correo: ' + esc(d.correo || '—') + '</li>' +
+    '<li>Profesión: ' + esc(d.profesion) + '</li>' +
+    '<li>Ciudad / ZIP: ' + esc(d.ciudad) + ' · ' + esc(d.zip) + '</li>' +
+    '<li>Fuente: ' + esc(d.fuente || '—') + '</li>' +
+    '<li>Ya está en Ruta Puente: <b>' + esc(d.en_ruta_puente) + '</b></li>' +
+    '</ul>' +
+    '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja (pestaña Taller)</a></p></div>';
+  MailApp.sendEmail({
+    to: Session.getEffectiveUser().getEmail(),
+    subject: 'Inscripción taller: ' + d.nombre,
+    body: 'Taller: ' + d.nombre + ' · ' + d.whatsapp + ' · en Ruta Puente: ' + d.en_ruta_puente,
+    htmlBody: html,
+    name: 'Ruta Puente'
+  });
+}
+
+/* ---------- Diagnóstico de inglés (pestaña Ingles) ---------- */
+
+const HOJA_INGLES = 'Ingles';
+const COL_INGLES = [
+  'fecha', 'codigo', 'nivel_general', 'lectura', 'escucha', 'vocabulario',
+  'escritura', 'oral_auto', 'autoeficacia_antes'
+];
+const NIVELES_INGLES = ['Empezando', 'Funcional', 'Seguro', 'Profesional'];
+
+function hojaIngles() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName(HOJA_INGLES);
+  if (!h) h = libro.insertSheet(HOJA_INGLES);
+  if (h.getLastRow() === 0) {
+    h.appendRow(COL_INGLES);
+    h.setFrozenRows(1);
+    h.getRange(1, 1, 1, COL_INGLES.length).setFontWeight('bold').setBackground('#e1efe7');
+  } else {
+    const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    COL_INGLES.forEach(c => {
+      if (cab.indexOf(c) < 0) {
+        const col = h.getLastColumn() + 1;
+        h.getRange(1, col).setValue(c).setFontWeight('bold').setBackground('#e1efe7');
+        cab.push(c);
+      }
+    });
+  }
+  return h;
+}
+
+function nivelInglesOk(v) {
+  return NIVELES_INGLES.indexOf(String(v || '')) >= 0 ? String(v) : '';
+}
+
+function guardarIngles(p) {
+  const codigo = String(p.codigo || '').trim();
+  if (!/^[a-f0-9]{10}$/i.test(codigo)) return { ok: false };
+  const hoja = obtenerHoja();
+  if (hoja.getLastRow() < 2) return { ok: false };
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos.shift();
+  const iCod = cab.indexOf('codigo');
+  if (iCod < 0 || !datos.some(r => String(r[iCod]) === codigo)) return { ok: false };
+  const d = {
+    fecha: new Date(),
+    codigo: codigo,
+    nivel_general: nivelInglesOk(p.nivel_general),
+    lectura: nivelInglesOk(p.lectura),
+    escucha: nivelInglesOk(p.escucha),
+    vocabulario: nivelInglesOk(p.vocabulario),
+    escritura: nivelInglesOk(p.escritura),
+    oral_auto: nivelInglesOk(p.oral_auto),
+    autoeficacia_antes: String(parseInt(p.autoeficacia_antes, 10) || '')
+  };
+  hojaIngles().appendRow(COL_INGLES.map(c => c === 'fecha' ? d.fecha : limpiar(d[c])));
+  return { ok: true };
+}
+
+function leerIngles() {
+  const h = hojaIngles();
+  const mapa = {};
+  if (h.getLastRow() < 2) return mapa;
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift();
+  const i = n => cab.indexOf(n);
+  datos.forEach(r => {
+    const codigo = String(r[i('codigo')] || '');
+    if (!codigo) return;
+    const fecha = r[i('fecha')];
+    mapa[codigo] = {
+      nivel: r[i('nivel_general')] || '',
+      fecha: fecha instanceof Date ? fecha.toISOString() : String(fecha || ''),
+      lectura: r[i('lectura')] || '',
+      escucha: r[i('escucha')] || '',
+      vocabulario: r[i('vocabulario')] || '',
+      escritura: r[i('escritura')] || '',
+      oral_auto: r[i('oral_auto')] || ''
+    };
+  });
+  return mapa;
 }
 
 /* ---------- Ficha de entrevista por correo ---------- */
@@ -348,7 +560,8 @@ function resumenSemanal() {
     contar(nuevas, 'Baja') + ' Baja, ' + contar(nuevas, 'Fuera de perfil') + ' fuera de perfil.<br>' +
     'Total: <b>' + filas.length + '</b> respuestas · <b>' + entrevistados + '</b> entrevistadas · meta Sprint 0: 5.</p>' +
     '<p><b>Por estado:</b> ' + (conteoEstados || '—') + '<br>' +
-    '<b>Atrasados</b> (próxima fecha ≤ hoy): <b>' + atrasados + '</b>.</p>' +
+    '<b>Atrasados</b> (próxima fecha ≤ hoy): <b>' + atrasados + '</b>.<br>' +
+    '<b>Inscritos al taller:</b> <b>' + contarTaller().inscritos + '</b>.</p>' +
     (pendientes.length
       ? '<h3>Te falta contactar o entrevistar (' + pendientes.length + ')</h3><table style="border-collapse:collapse;width:100%;font-size:14px"><tr style="background:#e1efe7"><th align="left" style="padding:6px">Nombre</th><th align="left" style="padding:6px">Prioridad</th><th align="left" style="padding:6px">Profesión</th><th align="left" style="padding:6px">Estado</th><th align="left" style="padding:6px">Contacto</th></tr>' + filasHtml + '</table>'
       : '<p>No tienes personas pendientes. Buen momento para publicar otra vez.</p>') +
@@ -674,7 +887,8 @@ function correoDiario() {
     '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26;line-height:1.5">' +
     '<div style="font-size:22px;font-weight:bold">Ruta Puente · A quién escribir hoy</div>' +
     '<p>Resumen: <b>' + llamadas.length + '</b> llamadas hoy · <b>' + lista.length + '</b> con próximo paso · <b>' +
-    huerfanos.length + '</b> reservas sin formulario. Nada se envía solo a las personas.</p>' +
+    huerfanos.length + '</b> reservas sin formulario · <b>Inscritos al taller: ' + contarTaller().inscritos +
+    '</b>. Nada se envía solo a las personas.</p>' +
     cuerpo +
     '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja</a> · ' +
     '<a href="' + BITACORA_URL + '">Abrir la Bitácora</a></p></div>';
@@ -884,7 +1098,10 @@ function listarBitacora() {
     if (ent) { delete ent._fila; p.entrevista = ent; }
     return p;
   });
-  return { ok: true, personas: personas, gate: contarGate(mapa), estados: ESTADOS };
+  const taller = contarTaller();
+  const inglesMap = leerIngles();
+  personas.forEach(p => { p.ingles = inglesMap[p.codigo] || null; });
+  return { ok: true, personas: personas, gate: contarGate(mapa), estados: ESTADOS, taller: taller };
 }
 
 function guardarEntrevista(d) {
