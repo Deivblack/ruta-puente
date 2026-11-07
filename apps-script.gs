@@ -947,11 +947,70 @@ function guardarHuerfanosAgenda(lista) {
   PropertiesService.getScriptProperties().setProperty('AGENDA_HUERFANOS', JSON.stringify(lista || []));
 }
 
+// Títulos cortos para el correo. El texto completo vive en taller/kit-mensajes.json.
+const KIT_AGENDA = [
+  { fecha: '2026-11-09', titulo: 'Reto del cargo, pedido a la embajadora y pedido al Consulado' },
+  { fecha: '2026-11-10', titulo: 'Publicación para grupos de Facebook' },
+  { fecha: '2026-11-11', titulo: 'Encuesta en el grupo de WhatsApp' },
+  { fecha: '2026-11-13', titulo: 'Nota de voz de 45 a 60 segundos' },
+  { fecha: '2026-11-16', titulo: 'Regalo del grupo: el kit elige el ejemplo de CV o el diagnóstico' },
+  { fecha: '2026-11-18', titulo: 'Último llamado e invitar a 1 persona' },
+  { fecha: '2026-11-19', titulo: 'Confirmar el lugar con cada inscrito' },
+  { fecha: '2026-11-20', titulo: 'Recordatorio a las 12:00 y, si se liberó un lugar, la lista de espera a las 12:30' },
+  { fecha: '2026-11-21', titulo: 'Agradecer, mandar el material y el formulario' }
+];
+
+// Solo informa. No crea ni borra activadores.
+function auditarTriggers() {
+  const conteo = {};
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    const n = t.getHandlerFunction();
+    conteo[n] = (conteo[n] || 0) + 1;
+  });
+  const dup = Object.keys(conteo).filter(function (k) { return conteo[k] > 1; });
+  Logger.log('Triggers: ' + JSON.stringify(conteo));
+  if (dup.length) Logger.log('DUPLICADOS: ' + dup.join(', '));
+  else Logger.log('Sin activadores duplicados.');
+  return dup;
+}
+
+function textoFuentes(obj) {
+  const ks = Object.keys(obj || {});
+  if (!ks.length) return 'ninguno';
+  return ks.map(function (k) { return k + ' ' + obj[k]; }).join(', ');
+}
+
+function bloqueTallerCorreo() {
+  const hoy = ymdScript(new Date());
+  if (hoy < '2026-11-07' || hoy > '2026-11-21') return null;
+  const resumen = resumenTaller();
+  const delDia = KIT_AGENDA.filter(function (x) { return x.fecha === hoy; });
+  let prox = null;
+  KIT_AGENDA.forEach(function (x) { if (!prox && x.fecha > hoy) prox = x; });
+  const aRecordatorios = hoy === '2026-11-19' || hoy === '2026-11-20' || hoy === '2026-11-21';
+  const link = KIT_URL + (aRecordatorios ? '#recordatorios' : '');
+  let tarea = 'Hoy descansas. No quedan mensajes del taller.';
+  if (delDia.length) tarea = delDia.map(function (x) { return x.titulo; }).join('. ');
+  else if (prox) tarea = 'Hoy descansas. La próxima: ' + prox.titulo + ' (' + prox.fecha + ').';
+  const ayer = resumen.nuevosAyer || { total: 0, porFuente: {} };
+  const html =
+    '<h3 style="margin:18px 0 8px">Taller</h3>' +
+    '<p><b>Hoy te toca:</b> ' + esc(tarea) + '</p>' +
+    '<p><a href="' + link + '">Abrir el kit de difusión</a></p>' +
+    '<p>Inscritos: <b>' + resumen.inscritos + ' / ' + resumen.cupos + '</b>' +
+    (resumen.espera ? ' · espera ' + resumen.espera : '') +
+    ' · confirmados (SÍ): <b>' + resumen.confirmados + '</b>. Ayer: <b>' + ayer.total +
+    '</b> (' + esc(textoFuentes(ayer.porFuente)) + ').</p>';
+  return { html: html, lleno: !!resumen.lleno, tarea: tarea, inscritos: resumen.inscritos, cupos: resumen.cupos };
+}
+
 function correoDiario() {
+  const duplicados = auditarTriggers();
   const lista = pendientesHoy();
   const llamadas = llamadasHoyDesdeHoja();
   const huerfanos = leerHuerfanosAgenda();
-  if (!lista.length && !llamadas.length && !huerfanos.length) {
+  const taller = bloqueTallerCorreo();
+  if (!lista.length && !llamadas.length && !huerfanos.length && !taller) {
     Logger.log('Correo diario: nadie para hoy; no se envía.');
     return;
   }
@@ -1001,20 +1060,31 @@ function correoDiario() {
     });
   }
   const total = lista.length + llamadas.length + huerfanos.length;
+  const avisoLleno = taller && taller.lleno
+    ? '<p style="margin:0 0 12px;padding:10px 12px;background:#fbf0d9;border:2px solid #e8b04b;font-weight:bold">CUPO LLENO. Usa las versiones de lista de espera en el kit.</p>'
+    : '';
+  const avisoDup = duplicados.length
+    ? '<p style="color:#b4462f">Hay activadores duplicados: ' + esc(duplicados.join(', ')) + '. No se creó ninguno nuevo.</p>'
+    : '';
   const html =
     '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26;line-height:1.5">' +
+    avisoLleno +
     '<div style="font-size:22px;font-weight:bold">Ruta Puente · A quién escribir hoy</div>' +
     '<p>Resumen: <b>' + llamadas.length + '</b> llamadas hoy · <b>' + lista.length + '</b> con próximo paso · <b>' +
-    huerfanos.length + '</b> reservas sin formulario · <b>Inscritos al taller: ' + contarTaller().inscritos +
+    huerfanos.length + '</b> reservas sin formulario · <b>Inscritos al taller: ' + (taller ? taller.inscritos : contarTaller().inscritos) +
     '</b>. Nada se envía solo a las personas.</p>' +
+    (taller ? taller.html : '') +
     cuerpo +
+    avisoDup +
     '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja</a> · ' +
     '<a href="' + BITACORA_URL + '">Abrir la Bitácora</a></p></div>';
 
   MailApp.sendEmail({
     to: Session.getEffectiveUser().getEmail(),
-    subject: 'Ruta Puente · ' + total + ' para hoy',
-    body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length,
+    subject: total ? ('Ruta Puente · ' + total + ' para hoy') : 'Ruta Puente · Taller de hoy',
+    body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length +
+      (taller ? '\nTaller: ' + taller.tarea + '. Inscritos ' + taller.inscritos + '/' + taller.cupos + '.' : '') +
+      (taller && taller.lleno ? '\nCUPO LLENO. Usa las versiones de lista de espera.' : ''),
     htmlBody: html,
     name: 'Ruta Puente'
   });
