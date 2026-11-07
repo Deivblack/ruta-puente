@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Taller gratuito · ¿Cómo se llama tu cargo en inglés? · Ruta Puente</title>
-<meta name="description" content="Taller gratuito para profesionales latinos en EE. UU.: tu cargo en inglés y tu CV listo para aplicar. Viernes 13 de noviembre de 2026.">
+<meta name="description" content="Taller gratuito para profesionales latinos en EE. UU.: tu cargo en inglés y tu CV listo para aplicar. Viernes 20 de noviembre de 2026.">
 <meta property="og:title" content="Taller gratuito · Ruta Puente">
-<meta property="og:description" content="¿Cómo se llama tu cargo en inglés? Viernes 13 de noviembre de 2026. Gratis.">
+<meta property="og:description" content="¿Cómo se llama tu cargo en inglés? Viernes 20 de noviembre de 2026, 2:00 p. m. Gratis.">
 <link rel="icon" href="../logo-icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -319,9 +319,11 @@ function confirmar(d){
   const done = $("#done"); done.hidden = false;
   const nombre = (d.nombre || "").trim().split(/\s+/)[0] || "";
   $("#done-title").textContent = nombre ? ("¡Listo, " + nombre + "!") : "¡Listo!";
+  const cuando = TALLER.fecha + (tallerPendiente(TALLER.hora) ? "" : ", " + TALLER.hora);
+  const donde = tallerPendiente(TALLER.lugar) ? "" : " En " + TALLER.lugar + ".";
   $("#done-text").textContent = listaEspera
     ? "Te apuntamos en lista de espera. Te escribimos por WhatsApp si se abre un cupo, o para el próximo taller."
-    : "Te esperamos el 13 de noviembre.";
+    : ("Te esperamos el " + cuando + "." + donde);
   done.scrollIntoView({block:"center"});
 }
 

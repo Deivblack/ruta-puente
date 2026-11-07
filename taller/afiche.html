@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Afiche · Taller Ruta Puente · 13 nov 2026</title>
+<title>Afiche · Taller Ruta Puente · 20 nov 2026</title>
 <link rel="icon" href="../logo-icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito:wght@600;700;800&display=swap">
@@ -118,7 +118,6 @@ h1{
     </div>
   </div>
   <div class="pie">
-    <span id="a-apoyo" hidden></span>
     <span>Ruta Puente · deivblack.github.io/ruta-puente</span>
   </div>
 </div>
@@ -132,11 +131,6 @@ h1{
   bits.push(TALLER.modalidad || "Presencial");
   document.getElementById("a-cuando").textContent = bits.join(" · ");
   document.getElementById("a-url").textContent = TALLER_URL_CORTA;
-  if (!tallerPendiente(TALLER.apoyo)){
-    const a = document.getElementById("a-apoyo");
-    a.hidden = false;
-    a.textContent = TALLER.apoyo;
-  }
   if (tallerEsBorrador()) document.getElementById("marca").hidden = false;
 })();
 </script>

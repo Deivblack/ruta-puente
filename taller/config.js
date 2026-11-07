@@ -1,17 +1,18 @@
-// Único lugar para los datos del taller del 13 de noviembre.
-// Cambia aquí hora, lugar, dirección, apoyo y cupos. La página y el afiche leen esto.
+// Único lugar para los datos del taller del 20 de noviembre.
+// Cambia aquí hora, lugar, dirección, apoyo y cupos. La página, el afiche y el kit leen esto.
 const TALLER = {
   titulo: "¿Cómo se llama tu cargo en inglés?",
   subtitulo: "Taller gratuito para profesionales latinos: tu cargo en EE. UU. y tu CV listo para aplicar",
-  fecha: "Viernes 13 de noviembre de 2026",
-  hora: "[POR CONFIRMAR]",          // ej. "6:30 p. m. – 8:00 p. m."
-  lugar: "[POR CONFIRMAR]",         // nombre del lugar
-  direccion: "[POR CONFIRMAR]",     // dirección para Google Maps
-  modalidad: "Presencial",          // o "Presencial y en línea"
-  cupos: 0,                         // 0 = sin límite; si es > 0, mostrar "cupos limitados" y cerrar al llenarse
-  apoyo: "[POR CONFIRMAR]",         // texto de aliados, solo si lo aprueban
-  inicioISO: "2026-11-13T18:30:00-06:00", // botón de calendario; actualizar con la hora real
-  finISO: "2026-11-13T20:00:00-06:00"
+  fecha: "Viernes 20 de noviembre de 2026",
+  hora: "2:00 p. m. – 3:30 p. m.",
+  lugar: "Consulado General del Ecuador en Houston",
+  direccion: "2603 Augusta Dr #810, Houston, TX 77057",
+  modalidad: "Presencial",
+  cupos: 13,                        // 10 sillas; 13 cierra la inscripción (inasistencias). 0 = sin límite
+  apoyo: "Con el apoyo del Consulado de Ecuador en Houston", // solo en mensajes; no va en el afiche
+  estacionamiento: "[POR CONFIRMAR]",
+  inicioISO: "2026-11-20T14:00:00-06:00",
+  finISO: "2026-11-20T15:30:00-06:00"
 };
 
 const TALLER_URL = "https://deivblack.github.io/ruta-puente/taller/";
@@ -23,7 +24,11 @@ function tallerPendiente(v) {
 }
 
 function tallerEsBorrador() {
-  return ["hora", "lugar", "direccion", "apoyo"].some(k => tallerPendiente(TALLER[k]));
+  return ["hora", "lugar", "direccion"].some(k => tallerPendiente(TALLER[k]));
+}
+
+function tallerApoyoConfirmado() {
+  return !tallerPendiente(TALLER.apoyo);
 }
 
 function tallerCalendarioUrl() {

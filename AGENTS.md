@@ -29,7 +29,7 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
-├── taller/           → Inscripción y afiche del taller (13 nov 2026)
+├── taller/           → Inscripción y afiche del taller (20 nov 2026, 2:00–3:30 p. m., cupos 13)
 │   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos
 │   ├── index.html    → Página pública de inscripción
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
@@ -125,14 +125,14 @@ URLs públicas:
 - 6 bloques del guion + "Tus notas" + decisión calculada en vivo.
 - Filtros: Para hoy (`proximo_fecha` ≤ hoy), Sin contactar (`estado` = Nuevo), Todos.
 - Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
-- Contador "Taller 13 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
+- Contador "Taller 20 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
 - Chip en la tarjeta: "Inglés: Funcional (4 nov)" si hay fila en la pestaña Ingles.
 
 ### Taller (`taller/`)
 - Datos en **un solo archivo** `taller/config.js` (`TALLER`). Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**.
 - Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos) y vuelve a exportar el PDF del afiche.
 - `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
-- No usar logo ni escudo del Consulado ni de otras instituciones: solo texto de `TALLER.apoyo` cuando David lo confirme.
+- No usar logo ni escudo del Consulado ni de otras instituciones. El texto de `TALLER.apoyo` va solo en mensajes de WhatsApp, no en el afiche.
 
 ### Diagnóstico de inglés (`ingles/`)
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
