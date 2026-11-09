@@ -242,6 +242,19 @@ const $ = s => document.querySelector(s);
 const CODIGO = (new URLSearchParams(location.search).get("c")||"").trim();
 const PRUEBAS = (new URLSearchParams(location.search).get("prueba")||"").split(/[,+]/).map(s=>s.trim()).filter(Boolean);
 function hayPrueba(k){ return PRUEBAS.indexOf(k)>=0; }
+const UTM = (new URLSearchParams(location.search).get("utm")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,32) || "directo";
+function enviarEvento(evento){
+  if (PRUEBAS.length) return;
+  if (!/^(inicio|fin|cupo)$/.test(evento)) return;
+  if (!SCRIPT_URL.startsWith("https://")) return;
+  try{
+    const k = "rp-ingles-ev-"+evento;
+    if (sessionStorage.getItem(k)) return;
+    sessionStorage.setItem(k, "1");
+  }catch(e){}
+  const body = new URLSearchParams({form:"ingles_evento", evento:evento, utm:UTM, fecha:new Date().toISOString()});
+  fetch(SCRIPT_URL, {method:"POST", mode:"no-cors", body}).catch(()=>{});
+}
 const LINEA_TALLER = {
   vocabulario: "Te enseño cómo se llama tu cargo en inglés y qué palabras usan las vacantes de tu área.",
   lectura: "Te enseño a leer una vacante en inglés y sacar qué piden de verdad.",
@@ -326,6 +339,7 @@ $("#btn-start").addEventListener("click", ()=>{
     if (!S.profesion) S.profesion = $("#prof").selectedOptions[0].textContent;
   }
   S.escena=1; S.nivel="intermedio"; S.racha=0; S.usados={}; S.cola=[];
+  enviarEvento("inicio");
   siguienteItem();
 });
 
@@ -614,6 +628,7 @@ $("#btn-fin").addEventListener("click", ()=>{
   const labels = {lectura:"lectura",escucha:"escucha",vocabulario:"vocabulario de trabajo",escritura:"escritura (correos)",oral_auto:"presentación oral"};
   pintarResultado(general, niveles, peor, labels[peor]);
   pintarTarjetaTaller(peor);
+  enviarEvento("fin");
   const payload = {
     codigo: CODIGO, fecha: new Date().toISOString().slice(0,10),
     nivel_general: general, lectura: niveles.lectura, escucha: niveles.escucha,
@@ -725,6 +740,7 @@ function pintarTarjetaTaller(peor){
   });
 }
 $("#btn-pdf").addEventListener("click", ()=> window.print());
+$("#btn-cupo").addEventListener("click", ()=> enviarEvento("cupo"));
 init().then(()=>{
   if (!hayPrueba("resultado")) return;
   S.auto = 3; S.carril = "general"; S.cargo = "professional";

@@ -36,9 +36,10 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 │   ├── escudo-ecuador.svg / .png → archivo guardado; no se muestra (el apoyo va solo en el copy de WhatsApp)
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
 │   ├── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
+│   ├── kit.html      → enlaces del diagnóstico con utm + conteo (noindex)
 │   └── artes/        → imágenes y copy para grupos (cuadrado + estado + copy-whatsapp.txt)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
-│   ├── index.html    → 5 escenas + resultado y plan de 7 días
+│   ├── index.html    → 5 escenas + resultado, tarjeta del taller y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
 │   ├── recursos.json → recursos gratuitos del resultado (David completa URLs)
 │   └── README.md     → cómo editar ítems
@@ -53,6 +54,7 @@ URLs públicas:
 - Taller: https://deivblack.github.io/ruta-puente/taller/
 - Afiche: https://deivblack.github.io/ruta-puente/taller/afiche.html
 - Inglés: https://deivblack.github.io/ruta-puente/ingles/
+- Kit de difusión: https://deivblack.github.io/ruta-puente/taller/kit.html
 
 ## 4. Arquitectura
 ```
@@ -61,6 +63,8 @@ URLs públicas:
 [Taller /taller/] --POST form-urlencoded form=taller--> [doPost → guardarTaller] --> Hoja "Taller" + correo
 [Taller] --GET ?taller=estado--> {ok, inscritos, espera}  (para cupos; sin datos personales)
 [Ingles /ingles/] --POST form-urlencoded form=ingles--> pestaña "Ingles" (solo con codigo; sin audio)
+[Ingles] --POST form-urlencoded form=ingles_evento--> pestaña "Ingles_eventos" (inicio|fin|cupo + utm; sin nombre ni respuestas)
+[Kit /taller/kit.html] --GET ?ingles_eventos=resumen--> conteo por canal (público, sin datos personales)
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
 [Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David (conteo por estado + atrasados)
@@ -102,6 +106,8 @@ URLs públicas:
 - `POST` form-urlencoded `form=taller` → pestaña **Taller**. Columnas: `fecha, nombre, whatsapp, correo, profesion, ciudad, zip, fuente, consentimiento, en_ruta_puente, asistio, notas`. `en_ruta_puente` = Sí si los últimos 10 dígitos del WhatsApp ya están en Respuestas. Si `notas = lista de espera`, no cuenta como cupo. Correo a David: "Inscripción taller: [nombre]".
 - `GET ?taller=estado` → `{ok, inscritos, espera}` (público, sin nombres ni teléfonos). La página compara con `TALLER.cupos` en `taller/config.js`.
 - `POST` form-urlencoded `form=ingles` → pestaña **Ingles**. Columnas: `fecha, codigo, nivel_general, lectura, escucha, vocabulario, escritura, oral_auto, autoeficacia_antes`. Solo si `codigo` existe en Respuestas. Nunca audio ni respuestas sueltas. Niveles: Empezando, Funcional, Seguro, Profesional.
+- `POST` form-urlencoded `form=ingles_evento` → pestaña **Ingles_eventos**. Columnas: `fecha, evento, utm`. `evento` = `inicio` | `fin` | `cupo`. `utm` se limpia a `[a-z0-9_-]` (si viene vacío: `directo`). Sin nombre, sin código, sin respuestas.
+- `GET ?ingles_eventos=resumen` → `{ok, total:{inicio,fin,cupo}, canales:{utm:{inicio,fin,cupo}}}`. Público; solo conteos.
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
@@ -137,12 +143,17 @@ URLs públicas:
 - `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
 - No poner logo ni escudo del Consulado en landing, afiche ni artes. El apoyo se dice solo en el copy de WhatsApp (`taller/artes/copy-whatsapp.txt`). El lugar del taller sí puede ser el Consulado (es la dirección).
 - Artes para grupos: `taller/artes/whatsapp-cuadrado.png` (grupos), `whatsapp-estado.png` (estado), texto en `copy-whatsapp.txt`. El QR y el enlace llevan `?utm=whatsapp`.
+- Kit de difusión (noindex): `taller/kit.html`. Copia `ingles/?utm=whatsapp|tiktok|estado` y muestra inicios / terminados / clics en «Reservar mi cupo» por canal.
 
 ### Diagnóstico de inglés (`ingles/`)
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
 - Ítems en `ingles/banco.json`. Recursos en `ingles/recursos.json`. Cómo editar: `ingles/README.md`.
 - Escala: Empezando · Funcional · Seguro · Profesional (orientativo A1–A2 / B1 / B2 / C1; no es certificación).
-- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y no envía nada.
+- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y **no envía datos personales**.
+- Entradas: landing `ingles/?utm=landing`, taller `ingles/?utm=taller`, kit `ingles/?utm=whatsapp|tiktok|estado`.
+- Resultado: tarjeta del taller (fecha/hora/lugar/cupos de `taller/config.js`). Botón «Reservar mi cupo» → `taller/?utm=ingles`. Si `inscritos >= cupos` (y `cupos > 0`), el botón pasa a lista de espera. Si la fecha ya pasó, se oculta. WhatsApp: «Recibir mi plan por WhatsApp»; si la tarjeta está visible, el texto termina «Quiero info del taller del 20.»
+- Medición: POST `ingles_evento` inicio (Empezar), fin (resultado) y cupo (clic en Reservar). Sin nombre ni respuestas. Conteos en el kit.
+- Pruebas locales: `ingles/?prueba=resultado` muestra el mapa; `prueba=lleno` y `prueba=pasado` fuerzan cupos o fecha. No mandan eventos.
 - Todos los ítems y los 2 recursos de ejemplo salen con `"revisar": true` hasta que David los apruebe y complete URLs reales. No inventar enlaces.
 
 ## 6. Cómo trabajar y publicar

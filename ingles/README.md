@@ -39,7 +39,13 @@ Si la profesión coincide (contador, ingeniero, sistemas, hotel, docente, salud,
 ## Resultado
 Escala: **Empezando · Funcional · Seguro · Profesional** (orientativo A1–A2 / B1 / B2 / C1). No es certificación.
 
-Con `?c=` de la app, al terminar se guarda en la pestaña **Ingles** (hace falta desplegar el Apps Script). Sin código no se envía nada. El audio nunca se sube.
+Con `?c=` de la app, al terminar se guarda en la pestaña **Ingles** (hace falta desplegar el Apps Script). Sin código no se envía ningún dato personal. El audio nunca se sube.
+
+El resultado muestra una tarjeta del taller (lee `taller/config.js`). «Reservar mi cupo» abre `/taller/?utm=ingles`. El WhatsApp dice «Recibir mi plan por WhatsApp» y, si el taller sigue vigente, agrega «Quiero info del taller del 20.»
+
+Cada inicio, final y clic en cupo se cuenta en la pestaña **Ingles_eventos** (solo `evento` + `utm`). El kit `taller/kit.html` copia los enlaces `?utm=whatsapp|tiktok|estado` y muestra el conteo.
+
+Para revisar en el celular sin hacer las 5 escenas: `ingles/?prueba=resultado`. Suma `lleno` o `pasado` para ver lista de espera o la tarjeta oculta. Esas pruebas no mandan eventos.
 
 ## Marca de revisión
 Mientras un ítem o recurso tenga `"revisar": true`, David debe leerlo antes de usarlo con personas reales.

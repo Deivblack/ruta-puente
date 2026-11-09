@@ -14,6 +14,7 @@ function crearClaveBitacora() {
 function actualizarHoja() {
   hojaTaller();
   hojaIngles();
+  hojaInglesEventos();
   const hoja = asegurarColumnas();
   const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
   const cCod = cab.indexOf('codigo') + 1, cEnl = cab.indexOf('enlace') + 1, cNom = cab.indexOf('nombre') + 1;
@@ -43,6 +44,9 @@ function doGet(e) {
     const t = contarTaller();
     return salida({ ok: true, inscritos: t.inscritos, espera: t.espera });
   }
+  if (String(p.ingles_eventos || '') === 'resumen') {
+    return salida(resumenInglesEventos());
+  }
   const c = String(p.codigo || p.c || '').trim();
   if (!/^[a-f0-9]{10}$/.test(c)) return salida({ ok: false });
   const datos = obtenerHoja().getDataRange().getValues();
@@ -68,7 +72,8 @@ function crearPestanaEnlaces() {
     ['Qué es', 'Enlace', 'Para qué'],
     ['Landing con formulario', 'https://deivblack.github.io/ruta-puente/', 'Compartir en redes y por WhatsApp'],
     ['Taller 20 nov (inscripción)', TALLER_URL, 'Página pública del taller. Afiche: ' + TALLER_URL.replace(/\/$/, '') + '/afiche.html'],
-    ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado en la pestaña Ingles'],
+    ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado en la pestaña Ingles. utm=landing|taller|whatsapp|tiktok|estado'],
+    ['Kit de difusión (diagnóstico)', TALLER_URL.replace(/\/$/, '') + '/kit.html', 'Enlaces con utm y conteo de inicios/finales/cupo. Sin datos personales'],
     ['Enlace personal de cada persona', 'Columna "enlace" en la pestaña Respuestas', 'Mandárselo por WhatsApp en la llamada'],
     ['App con datos de ejemplo', APP_URL, 'Ver la app tal como la ve alguien sin código'],
     ['Esta hoja', libro.getUrl(), 'Respuestas, estados y enlaces'],
@@ -158,6 +163,7 @@ function doPost(e) {
     const p = (e && e.parameter) || {};
     if (p.form === 'taller') return salida(guardarTaller(p));
     if (p.form === 'ingles') return salida(guardarIngles(p));
+    if (p.form === 'ingles_evento') return salida(guardarInglesEvento(p));
     if (p.website || !p.nombre) return salida({ ok: false }); // bots o envíos vacíos
     const hoja = obtenerHoja();
     const d = Object.assign({}, p);
@@ -382,6 +388,63 @@ function leerIngles() {
     };
   });
   return mapa;
+}
+
+/* ---------- Eventos del diagnóstico (sin datos personales) ---------- */
+
+const HOJA_INGLES_EVENTOS = 'Ingles_eventos';
+const COL_INGLES_EVENTOS = ['fecha', 'evento', 'utm'];
+const EVENTOS_INGLES_OK = { inicio: 1, fin: 1, cupo: 1 };
+
+function utmInglesLimpio(v) {
+  const s = String(v || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 32);
+  return s || 'directo';
+}
+
+function hojaInglesEventos() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName(HOJA_INGLES_EVENTOS);
+  if (!h) h = libro.insertSheet(HOJA_INGLES_EVENTOS);
+  if (h.getLastRow() === 0) {
+    h.appendRow(COL_INGLES_EVENTOS);
+    h.setFrozenRows(1);
+    h.getRange(1, 1, 1, COL_INGLES_EVENTOS.length).setFontWeight('bold').setBackground('#e1efe7');
+  } else {
+    const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    COL_INGLES_EVENTOS.forEach(c => {
+      if (cab.indexOf(c) < 0) {
+        const col = h.getLastColumn() + 1;
+        h.getRange(1, col).setValue(c).setFontWeight('bold').setBackground('#e1efe7');
+        cab.push(c);
+      }
+    });
+  }
+  return h;
+}
+
+function guardarInglesEvento(p) {
+  const evento = String(p.evento || '');
+  if (!EVENTOS_INGLES_OK[evento]) return { ok: false };
+  hojaInglesEventos().appendRow([new Date(), evento, utmInglesLimpio(p.utm)]);
+  return { ok: true };
+}
+
+function resumenInglesEventos() {
+  const total = { inicio: 0, fin: 0, cupo: 0 };
+  const canales = {};
+  const h = hojaInglesEventos();
+  if (h.getLastRow() < 2) return { ok: true, total: total, canales: canales };
+  const datos = h.getDataRange().getValues();
+  datos.shift();
+  datos.forEach(r => {
+    const evento = String(r[1] || '');
+    const utm = String(r[2] || 'directo') || 'directo';
+    if (!EVENTOS_INGLES_OK[evento]) return;
+    if (!canales[utm]) canales[utm] = { inicio: 0, fin: 0, cupo: 0 };
+    canales[utm][evento]++;
+    total[evento]++;
+  });
+  return { ok: true, total: total, canales: canales };
 }
 
 /* ---------- Ficha de entrevista por correo ---------- */

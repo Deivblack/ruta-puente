@@ -35,6 +35,10 @@ p{margin:0}
 .url{font-weight:700;word-break:break-all;font-size:15px}
 .btn{display:inline-flex;align-items:center;justify-content:center;font:800 16px var(--f-body);border:0;border-radius:999px;padding:12px 18px;cursor:pointer;background:var(--hope);color:var(--hope-ink)}
 .ok{font-weight:800;color:var(--hope);min-height:1.2em}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+td:nth-child(n+2),th:nth-child(n+2){text-align:right;font-variant-numeric:tabular-nums}
 footer{padding:28px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
 </style>
 </head>
@@ -68,6 +72,16 @@ footer{padding:28px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
     <p class="ok" hidden></p>
   </article>
 
+  <h2 style="margin-top:28px">Por canal</h2>
+  <p class="hint" style="margin:8px 0 12px">Inicios, terminados y clics en «Reservar mi cupo». Sin nombres ni respuestas. Hace falta desplegar el Apps Script.</p>
+  <div class="card" id="metricas">
+    <p class="hint" id="met-estado">Cargando conteo…</p>
+    <table id="met-tabla" hidden>
+      <thead><tr><th>Canal</th><th>Inicios</th><th>Terminados</th><th>Cupo</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
   <footer>Solo para armar mensajes. Sin datos personales.</footer>
 </div>
 <script>
@@ -89,6 +103,31 @@ document.querySelectorAll("[data-copy]").forEach(btn => {
     if (ok){ ok.hidden = false; ok.textContent = "Copiado."; }
   });
 });
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
+(async () => {
+  const est = document.getElementById("met-estado");
+  const tabla = document.getElementById("met-tabla");
+  try{
+    const d = await (await fetch(SCRIPT_URL + "?ingles_eventos=resumen")).json();
+    if (!d || !d.ok){ est.textContent = "Aún no hay conteo. Despliega el Apps Script (misma URL, nueva versión)."; return; }
+    const canales = d.canales || {};
+    const keys = Object.keys(canales);
+    const tb = tabla.querySelector("tbody");
+    const fila = (nombre, c) => {
+      const tr = document.createElement("tr");
+      [nombre, c.inicio||0, c.fin||0, c.cupo||0].forEach(v => {
+        const td = document.createElement("td"); td.textContent = String(v); tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    };
+    keys.sort().forEach(k => fila(k, canales[k]));
+    fila("Total", d.total || {inicio:0, fin:0, cupo:0});
+    est.hidden = true;
+    tabla.hidden = false;
+  }catch(e){
+    est.textContent = "No se pudo leer el conteo. Revisa internet o si ya se desplegó el script.";
+  }
+})();
 </script>
 </body>
 </html>
