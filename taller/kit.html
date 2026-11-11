@@ -103,6 +103,14 @@ summary{font-weight:800;cursor:pointer}
 
   <h2 class="sec">Enlaces por canal</h2>
   <div id="canales"></div>
+
+  <h2 class="sec">Diagnóstico de inglés</h2>
+  <p class="muted">Gancho para grupos. En textos al público usa «querida comunidad».</p>
+  <div id="ingles-gancho"></div>
+  <div id="ingles-metricas" hidden>
+    <p class="muted" id="ingles-met-estado"></p>
+    <div id="ingles-met-tabla"></div>
+  </div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -493,8 +501,31 @@ function pintarCanales(){
     box.appendChild(card);
   });
 }
+function pintarInglesGancho(){
+  const box = $("#ingles-gancho");
+  if (!box) return;
+  box.textContent = "";
+  const base = "https://deivblack.github.io/ruta-puente/ingles/?utm=";
+  const gancho = "Querida comunidad: ¿tu inglés alcanza para trabajar en tu profesión aquí? Descúbrelo en 10 minutos, gratis.\n\n" + base + "whatsapp";
+  const items = [
+    { titulo: "Copy para el grupo (WhatsApp)", texto: gancho },
+    { titulo: "Enlace WhatsApp", texto: base + "whatsapp" },
+    { titulo: "Enlace TikTok", texto: base + "tiktok" },
+    { titulo: "Enlace estado / historia", texto: base + "estado" }
+  ];
+  items.forEach(it => {
+    const card = el("article", "card");
+    card.appendChild(el("h3", null, it.titulo));
+    card.appendChild(el("p", "msg", it.texto));
+    const b = el("button", "btn", "Copiar");
+    b.type = "button";
+    b.addEventListener("click", () => copiar(it.texto, b));
+    card.appendChild(b);
+    box.appendChild(card);
+  });
+}
 function pintar(){
-  pintarHoy(); pintarContador(); pintarRecs(); pintarCalendario(); pintarCanales();
+  pintarHoy(); pintarContador(); pintarRecs(); pintarCalendario(); pintarCanales(); pintarInglesGancho();
 }
 async function api(body){
   const r = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify(Object.assign({ clave: clave }, body)) });
