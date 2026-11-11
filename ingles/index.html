@@ -191,7 +191,7 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
     <p class="aviso" id="res-rev" hidden>Los recursos y varios ítems están marcados para que David los revise antes de usarlos con más personas.</p>
     <div class="row no-print">
       <button class="btn" id="btn-pdf" type="button">Descargar mi resultado (PDF)</button>
-      <a class="btn ghost" id="btn-wa" href="#" target="_blank" rel="noopener">Compartir con David por WhatsApp</a>
+      <a class="btn ghost" id="btn-wa" href="#" target="_blank" rel="noopener">Recibir mi plan por WhatsApp</a>
       <a class="btn ghost" id="btn-ruta" href="../">Volver a mi ruta</a>
     </div>
   </section>
@@ -250,6 +250,7 @@ const LINEA_TALLER = {
   oral_auto: "Te enseño tu presentación de 30 segundos, practicada en el taller."
 };
 let tallerTarjetaVisible = false;
+let ultimoRes = null;
 let banco = [], recursos = [];
 let S = {
   nombre:"", profesion:"", carril:"general", cargo:"professional", anios:"",
@@ -662,9 +663,19 @@ function pintarResultado(general, niveles, peor, peorLabel){
     const p=document.createElement("p"); p.className="hint"; p.textContent=(r.para_que||"")+(r.nivel?" · "+r.nivel:"");
     li.appendChild(p); ul.appendChild(li);
   });
-  const txt = "Hola David, soy "+(S.nombre||"una persona de Ruta Puente")+". Hice el diagnóstico de inglés. Nivel general: "+general+". Mi habilidad más baja: "+peorLabel+" ("+niveles[peor]+").";
-  $("#btn-wa").href = "https://wa.me/"+WA+"?text="+encodeURIComponent(txt);
+  ultimoRes = {general, niveles, peor, peorLabel};
+  armarWhatsApp();
   $("#btn-ruta").href = CODIGO ? ("../app/?c="+encodeURIComponent(CODIGO)) : "../";
+}
+function armarWhatsApp(){
+  if (!ultimoRes) return;
+  const {general, niveles, peor, peorLabel} = ultimoRes;
+  let txt = "Hola David, soy "+(S.nombre||"una persona de Ruta Puente")+". Hice el diagnóstico de inglés. Nivel general: "+general+". Mi habilidad más baja: "+peorLabel+" ("+niveles[peor]+").";
+  if (tallerTarjetaVisible){
+    const dia = tallerDiaCorto().replace(/^\S+\s+/, "") || "20";
+    txt += " Quiero info del taller del "+dia+".";
+  }
+  $("#btn-wa").href = "https://wa.me/"+WA+"?text="+encodeURIComponent(txt);
 }
 function tallerDiaCorto(){
   const f = String((typeof TALLER==="object" && TALLER.fecha) || "");
@@ -692,6 +703,7 @@ function pintarTarjetaTaller(peor){
   tallerTarjetaVisible = false;
   if (!card || typeof TALLER!=="object" || tallerYaPaso()){
     if (card) card.hidden = true;
+    armarWhatsApp();
     return;
   }
   $("#taller-h").textContent = "Tu siguiente paso: el taller gratis del " + tallerDiaCorto();
@@ -706,6 +718,7 @@ function pintarTarjetaTaller(peor){
   btn.textContent = "Reservar mi cupo";
   card.hidden = false;
   tallerTarjetaVisible = true;
+  armarWhatsApp();
   tallerCuposLlenos().then(lleno => {
     if (!tallerTarjetaVisible || !lleno) return;
     const dia = tallerDiaCorto().replace(/^\S+\s+/, "") || "20";
