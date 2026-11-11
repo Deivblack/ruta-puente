@@ -62,8 +62,8 @@ URLs públicas:
 [Taller /taller/] --POST form-urlencoded form=taller--> [doPost → guardarTaller] --> Hoja "Taller" + correo
 [Taller] --GET ?taller=estado--> {ok, inscritos, espera}  (para cupos; sin datos personales)
 [Ingles /ingles/] --POST form-urlencoded form=ingles--> pestaña "Ingles" (solo con codigo; sin audio)
-[Ingles] --POST form-urlencoded form=ingles_evento--> pestaña "Ingles_eventos" (inicio|fin|cupo + utm; sin nombre ni respuestas)
-[Kit] --GET ?ingles_eventos=resumen--> conteo por canal (público, sin datos personales)
+[Ingles] --POST form-urlencoded form=ingles_evento--> pestaña "Ingles_eventos" (visita, inicio, escena_1–5, fin, clics; utm + id_anon; sin nombre ni respuestas)
+[Kit / Bitácora] --GET ?ingles_eventos=resumen--> visitas únicas, embudo y clics por canal (público, solo conteos)
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
 [Kit /taller/kit.html] --POST JSON {clave, accion:"kit"}--> contador y recordatorios de la pestaña "Taller"
@@ -108,8 +108,8 @@ URLs públicas:
 - `POST` text/plain JSON `{clave, accion:"kit"}` → contador, fuentes, confirmados y la lista (nombre y WhatsApp). Nunca por `doGet` ni con la clave en la URL.
 - `POST` text/plain JSON `{clave, accion:"kit_recordatorio", datos:{fila, whatsapp, id}}` → anota el id en `recordatorios`.
 - `POST` form-urlencoded `form=ingles` → pestaña **Ingles**. Columnas: `fecha, codigo, nivel_general, lectura, escucha, vocabulario, escritura, oral_auto, autoeficacia_antes`. Solo si `codigo` existe en Respuestas. Nunca audio ni respuestas sueltas. Niveles: Empezando, Funcional, Seguro, Profesional.
-- `POST` form-urlencoded `form=ingles_evento` → pestaña **Ingles_eventos**. Columnas: `fecha, evento, utm`. `evento` = `inicio` | `fin` | `cupo`. `utm` se limpia a `[a-z0-9_-]` (si viene vacío: `directo`). Sin nombre, sin código, sin respuestas.
-- `GET ?ingles_eventos=resumen` → `{ok, total:{inicio,fin,cupo}, canales:{utm:{inicio,fin,cupo}}}`. Público; solo conteos.
+- `POST` form-urlencoded `form=ingles_evento` → pestaña **Ingles_eventos**. Columnas: `fecha_hora, evento, utm, id_anon, carril, dispositivo, recurso`. `evento` = `visita` | `inicio` | `escena_1`…`escena_5` | `fin` | `clic_cupo` | `clic_whatsapp` | `clic_pdf` | `clic_recurso` (el nombre del recurso va en `recurso`). `utm` vacío → `directo`. `id_anon` = número en localStorage (`rp-ingles-anon`), para uniques, no visitas repetidas. `dispositivo` = `movil` | `escritorio`. Si llega el evento viejo `cupo`, se guarda como `clic_cupo`. Si la hoja aún dice `fecha`, `actualizarHoja()` la renombra a `fecha_hora` y agrega columnas. Sin nombre, sin código, sin respuestas, sin audio. `?prueba=` o `c=PRUEBA` no envían.
+- `GET ?ingles_eventos=resumen` → `{ok, periodos:{hoy,ayer,d7,total}}` con visitas únicas, iniciaron, terminaron, % que termina, clics cupo/WhatsApp, `por_canal` (whatsapp, tiktok, estado, landing, taller, directo) y `embudo` (visita → inicio → escena_3 → fin → clic_cupo). Público; solo conteos. Sigue incluyendo `total`/`canales` viejos por si el kit no se actualizó.
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
@@ -137,10 +137,11 @@ URLs públicas:
 - Panel "Estado y próximo paso": selector de estado, próximo paso/fecha, notas; guarda con `guardar_estado`.
 - Contador "Taller 20 nov: N inscritos" y botón para copiar la lista de WhatsApp (solo con la clave).
 - Chip en la tarjeta: "Inglés: Funcional (4 nov)" si hay fila en la pestaña Ingles.
+- Tarjeta **Diagnóstico de inglés**: visitas únicas, iniciaron, terminaron, % que termina, clics al taller y a WhatsApp, por canal, para hoy / 7 días / total, más el embudo. Lee `GET ?ingles_eventos=resumen` (sin clave; solo conteos).
 
 ### Taller (`taller/`)
 - Datos en **un solo archivo** `taller/config.js` (`TALLER`). Fecha: viernes 20 de noviembre de 2026, 2:00–3:30 p. m. (`inicioISO`/`finISO`). `cupos: 13`. La confirmación de la inscripción lee la fecha de aquí. El texto de `TALLER.apoyo` va solo en los mensajes de WhatsApp, no en el afiche ni con logo.
-- `taller/kit.html` (noindex) pide la misma clave que la Bitácora y la manda por POST. Muestra la tarea del día (Copiar y Abrir WhatsApp), el contador, los recordatorios del 19 al 21, el buscador de cargos, los enlaces `?utm=` del taller y los del diagnóstico (`ingles/?utm=whatsapp|tiktok|estado`). Si `inscritos >= cupos`, los mensajes de difusión pasan a su versión de cupo lleno. `?fecha=AAAA-MM-DD` solo sirve para ensayar el día; no lleva la clave. En textos al público: «querida comunidad», no «paisanos».
+- `taller/kit.html` (noindex) pide la misma clave que la Bitácora y la manda por POST. Muestra la tarea del día (Copiar y Abrir WhatsApp), el contador, los recordatorios del 19 al 21, el buscador de cargos, los enlaces `?utm=` del taller y los del diagnóstico (`ingles/?utm=whatsapp|tiktok|estado`). Tarjeta **Diagnóstico de inglés** (mismo reporte que la Bitácora). El enlace de prueba para David es `ingles/?utm=whatsapp&prueba=1` (no cuenta). Si `inscritos >= cupos`, los mensajes de difusión pasan a su versión de cupo lleno. `?fecha=AAAA-MM-DD` solo sirve para ensayar el día; no lleva la clave. En textos al público: «querida comunidad», no «paisanos».
 - Los textos están en `taller/kit-mensajes.json`. El lunes 16 el kit mira `ingles/banco.json`: si hay ítems con `revisar: true`, manda el ejemplo de CV; si no, ofrece el diagnóstico.
 - Para publicar hora/lugar: edita `config.js` y vuelve a exportar el PDF del afiche. El PNG y el PDF que ya están en el repo pueden seguir diciendo la fecha vieja hasta que los exportes de nuevo.
 - `?utm=afiche` (y whatsapp, facebook, consulado, embajadora, radio) se guarda en `fuente`. No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
@@ -153,8 +154,8 @@ URLs públicas:
 - Entradas: landing `ingles/?utm=landing`, taller `ingles/?utm=taller`, kit `ingles/?utm=whatsapp|tiktok|estado`.
 - Resultado: tarjeta del taller (fecha/hora/lugar/cupos de `taller/config.js`). Botón «Reservar mi cupo» → `taller/?utm=ingles`. Si `inscritos >= cupos` (y `cupos > 0`), el botón pasa a lista de espera. Si la fecha ya pasó, se oculta. WhatsApp: «Recibir mi plan por WhatsApp»; si la tarjeta está visible, el texto termina «Quiero info del taller del 20.»
 - Recursos del resultado: 3 de `ingles/recursos.json` — los 2 que mejor cubren la habilidad más baja (`oral_auto` → `oral`) y siempre Interview Warmup de Google (si ya está en los 2, se suma el siguiente). Cada uno: nombre, una línea de qué hacer, botón Abrir (`target=_blank`, `rel=noopener`). El PDF escribe la URL completa.
-- Medición: POST `ingles_evento` inicio (Empezar), fin (resultado) y cupo (clic en Reservar). Sin nombre ni respuestas. Conteos en el kit. Hace falta desplegar el Apps Script.
-- Pruebas locales: `ingles/?prueba=resultado` muestra el mapa; suma `,lectura` / `,escucha` / `,vocabulario` / `,escritura` / `,oral` para forzar esa habilidad como la más baja. `prueba=lleno` y `prueba=pasado` fuerzan cupos o fecha. No mandan eventos.
+- Medición: POST `ingles_evento` con `navigator.sendBeacon` (si falla, `fetch` keepalive): visita, inicio, escena_1…5, fin, clic_cupo, clic_whatsapp, clic_pdf, clic_recurso. `id_anon` en localStorage. Kit y Bitácora leen el resumen. El correo diario (~7:30) agrega «Diagnóstico ayer: X visitas, Y terminaron, Z clics al taller». Hace falta desplegar el Apps Script (no lo hagas hasta que David lo pida) y correr `actualizarHoja()` para las columnas nuevas.
+- Pruebas locales: cualquier `?prueba=` (incluye `prueba=1`) o `?c=PRUEBA` no manda eventos. `ingles/?prueba=1,resultado` muestra el mapa. Suma `,lectura` / `,escucha` / `,vocabulario` / `,escritura` / `,oral` para forzar esa habilidad como la más baja. `prueba=lleno` y `prueba=pasado` fuerzan cupos o fecha. Enlaces de David para revisar: `ingles/?prueba=1` y `ingles/?utm=whatsapp&prueba=1`.
 - Los ítems de `banco.json` siguen con `"revisar": true` hasta que David los apruebe. Los 5 recursos ya tienen URL. Google retiró Interview Warmup; el enlace apunta a la guía de entrevistas de Grow with Google.
 
 ## 6. Cómo trabajar y publicar
@@ -184,7 +185,7 @@ Publicar un cambio del script:
 - `activarOnEditEstado()` → trigger instalable al editar `estado` + lista desplegable ampliada.
 - `migrarEstados()` / `migrarEstados(false)` → simulación (default) o aplica Entrevistado a quienes ya tienen fila en Entrevistas.
 - `migrarCiudad()` / `migrarCiudad(false)` → simulación (default) o copia ZIP de 5 dígitos desde `ciudad` a `zip`.
-- `correoDiario()` / `activarCorreoDiario()` / `pruebaCorreoDiario()` → “a quién escribir hoy” (~7:30 a. m.). Del 7 al 21 de noviembre incluye la sección **Taller** (tarea del día, enlace al kit, inscritos/cupo y nuevos de ayer). Los días 19, 20 y 21 el enlace abre `#recordatorios`. Si el cupo está lleno, la primera línea lo dice. No crea un activador nuevo. `auditarTriggers()` solo anota en el registro si hay duplicados.
+- `correoDiario()` / `activarCorreoDiario()` / `pruebaCorreoDiario()` → “a quién escribir hoy” (~7:30 a. m.). Del 7 al 21 de noviembre incluye la sección **Taller** (tarea del día, enlace al kit, inscritos/cupo y nuevos de ayer). Los días 19, 20 y 21 el enlace abre `#recordatorios`. Si el cupo está lleno, la primera línea lo dice. Siempre agrega «Diagnóstico ayer: X visitas, Y terminaron, Z clics al taller». No crea un activador nuevo. `auditarTriggers()` solo anota en el registro si hay duplicados.
 - `revisarAgenda()` / `activarRevisarAgenda()` → cada hora lee Calendar; pide permiso Calendar.
 - `subirCv()` → recepción de CV (pide permiso Drive la primera vez).
 - `seguimientoEmpleo()` → correo diario a David con hitos 7/30/60/90 pendientes y mensaje sugerido de WhatsApp (no escribe a usuarios).
