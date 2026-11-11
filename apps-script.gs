@@ -14,6 +14,7 @@ function crearClaveBitacora() {
 function actualizarHoja() {
   hojaTaller();
   hojaIngles();
+  hojaInglesEventos();
   const hoja = asegurarColumnas();
   const cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
   const cCod = cab.indexOf('codigo') + 1, cEnl = cab.indexOf('enlace') + 1, cNom = cab.indexOf('nombre') + 1;
@@ -43,6 +44,9 @@ function doGet(e) {
     const t = contarTaller();
     return salida({ ok: true, inscritos: t.inscritos, espera: t.espera });
   }
+  if (String(p.ingles_eventos || '') === 'resumen') {
+    return salida(resumenInglesEventos());
+  }
   const c = String(p.codigo || p.c || '').trim();
   if (!/^[a-f0-9]{10}$/.test(c)) return salida({ ok: false });
   const datos = obtenerHoja().getDataRange().getValues();
@@ -68,7 +72,8 @@ function crearPestanaEnlaces() {
     ['Qué es', 'Enlace', 'Para qué'],
     ['Landing con formulario', 'https://deivblack.github.io/ruta-puente/', 'Compartir en redes y por WhatsApp'],
     ['Taller 20 nov (inscripción)', TALLER_URL, 'Página pública del taller. Afiche: ' + TALLER_URL.replace(/\/$/, '') + '/afiche.html'],
-    ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado en la pestaña Ingles'],
+    ['Kit de difusión del taller', KIT_URL, 'Privado: pide la clave de la Bitácora. Textos para copiar y recordatorios'],
+    ['Diagnóstico de inglés', 'https://deivblack.github.io/ruta-puente/ingles/', 'Inglés para el trabajo. Con ?c=codigo guarda el resultado. utm=landing|taller|whatsapp|tiktok|estado'],
     ['Enlace personal de cada persona', 'Columna "enlace" en la pestaña Respuestas', 'Mandárselo por WhatsApp en la llamada'],
     ['App con datos de ejemplo', APP_URL, 'Ver la app tal como la ve alguien sin código'],
     ['Esta hoja', libro.getUrl(), 'Respuestas, estados y enlaces'],
@@ -158,6 +163,7 @@ function doPost(e) {
     const p = (e && e.parameter) || {};
     if (p.form === 'taller') return salida(guardarTaller(p));
     if (p.form === 'ingles') return salida(guardarIngles(p));
+    if (p.form === 'ingles_evento') return salida(guardarInglesEvento(p));
     if (p.website || !p.nombre) return salida({ ok: false }); // bots o envíos vacíos
     const hoja = obtenerHoja();
     const d = Object.assign({}, p);
@@ -189,8 +195,11 @@ function calcularPrioridad(d) {
 const HOJA_TALLER = 'Taller';
 const COL_TALLER = [
   'fecha', 'nombre', 'whatsapp', 'correo', 'profesion', 'ciudad', 'zip',
-  'fuente', 'consentimiento', 'en_ruta_puente', 'asistio', 'notas'
+  'fuente', 'consentimiento', 'en_ruta_puente', 'asistio', 'notas', 'recordatorios'
 ];
+// Igual que taller/config.js. Si cambias el cupo, cámbialo en los dos lugares.
+const TALLER_CUPOS = 13;
+const KIT_URL = 'https://deivblack.github.io/ruta-puente/taller/kit.html';
 
 function hojaTaller() {
   const libro = SpreadsheetApp.getActiveSpreadsheet();
@@ -256,6 +265,119 @@ function contarTaller() {
   return { inscritos: inscritos, espera: espera, lista: lista };
 }
 
+function ymdScript(d) {
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function esEsperaTaller(notas) {
+  return /lista de espera/i.test(String(notas || ''));
+}
+
+function confirmoTaller(notas) {
+  const s = String(notas || '').trim();
+  if (/^s[ií]$/i.test(s)) return true;
+  return /(^|[^A-Za-zÁÉÍÓÚáéíóúÑñ])S[IÍ]([^A-Za-zÁÉÍÓÚáéíóúÑñ]|$)/.test(s);
+}
+
+function asistioTaller(v) {
+  return /^s[ií]\b/i.test(String(v || '').trim());
+}
+
+// Datos del kit. Solo se entrega con la clave (accion "kit"). No va en doGet.
+function resumenTaller() {
+  const h = hojaTaller();
+  const out = {
+    inscritos: 0, espera: 0, confirmados: 0, asistentes: 0,
+    cupos: TALLER_CUPOS, lleno: false, porFuente: {},
+    nuevosAyer: { total: 0, porFuente: {} }, personas: []
+  };
+  if (h.getLastRow() < 2) {
+    out.lleno = false;
+    return out;
+  }
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift().map(String);
+  const i = function (n) { return cab.indexOf(n); };
+  const ayerDate = new Date();
+  ayerDate.setDate(ayerDate.getDate() - 1);
+  const ayer = ymdScript(ayerDate);
+  datos.forEach(function (r, idx) {
+    const nombre = String(i('nombre') >= 0 ? r[i('nombre')] : '').trim();
+    const whatsapp = String(i('whatsapp') >= 0 ? r[i('whatsapp')] : '').trim();
+    if (!nombre && !whatsapp) return;
+    const notas = i('notas') >= 0 ? r[i('notas')] : '';
+    const espera = esEsperaTaller(notas);
+    const fuente = String((i('fuente') >= 0 ? r[i('fuente')] : '') || 'Sin fuente').trim() || 'Sin fuente';
+    const fecha = i('fecha') >= 0 ? r[i('fecha')] : '';
+    const dia = fecha instanceof Date ? ymdScript(fecha) : String(fecha).slice(0, 10);
+    if (espera) out.espera++;
+    else out.inscritos++;
+    if (!espera && confirmoTaller(notas)) out.confirmados++;
+    const fue = asistioTaller(i('asistio') >= 0 ? r[i('asistio')] : '');
+    if (fue) out.asistentes++;
+    if (!espera) out.porFuente[fuente] = (out.porFuente[fuente] || 0) + 1;
+    if (dia === ayer) {
+      out.nuevosAyer.total++;
+      out.nuevosAyer.porFuente[fuente] = (out.nuevosAyer.porFuente[fuente] || 0) + 1;
+    }
+    out.personas.push({
+      fila: idx + 2,
+      nombre: nombre,
+      whatsapp: whatsapp,
+      profesion: i('profesion') >= 0 ? String(r[i('profesion')] || '') : '',
+      fuente: fuente,
+      espera: espera,
+      confirmo: !espera && confirmoTaller(notas),
+      asistio: fue ? 'Sí' : '',
+      recordatorios: i('recordatorios') >= 0 ? String(r[i('recordatorios')] || '') : ''
+    });
+  });
+  out.lleno = out.inscritos >= TALLER_CUPOS;
+  return out;
+}
+
+function kitTaller() {
+  const r = resumenTaller();
+  r.ok = true;
+  return r;
+}
+
+function marcarRecordatorioTaller(d) {
+  const h = hojaTaller();
+  const fila = parseInt(d && d.fila, 10);
+  const id = String((d && d.id) || '').replace(/[^a-z0-9\-]/gi, '').slice(0, 40);
+  const wa = digitos10(d && d.whatsapp);
+  if (!id || fila < 2 || fila > h.getLastRow()) return { ok: false, error: 'fila' };
+  const cab = h.getRange(1, 1, 1, h.getLastColumn()).getValues()[0].map(String);
+  const cWa = cab.indexOf('whatsapp') + 1;
+  const cRec = cab.indexOf('recordatorios') + 1;
+  if (!cWa || !cRec) return { ok: false, error: 'columna' };
+  if (digitos10(h.getRange(fila, cWa).getValue()) !== wa) return { ok: false, error: 'persona' };
+  const actual = String(h.getRange(fila, cRec).getValue() || '');
+  const partes = actual.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  if (partes.indexOf(id) < 0) partes.push(id);
+  h.getRange(fila, cRec).setValue(limpiar(partes.join(',')));
+  return { ok: true, recordatorios: partes.join(',') };
+}
+
+// Borra solo filas cuyo nombre es PRUEBA o empieza por "PRUEBA ". Ejecutar a mano desde el editor.
+function borrarPruebaTaller() {
+  const h = hojaTaller();
+  if (h.getLastRow() < 2) { Logger.log('Nada que borrar'); return; }
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift().map(String);
+  const iNom = cab.indexOf('nombre');
+  let n = 0;
+  for (let f = datos.length - 1; f >= 0; f--) {
+    const nom = String(datos[f][iNom] || '').trim();
+    if (nom === 'PRUEBA' || nom.indexOf('PRUEBA ') === 0) {
+      h.deleteRow(f + 2);
+      n++;
+    }
+  }
+  Logger.log('Filas PRUEBA borradas: ' + n);
+}
+
 function guardarTaller(p) {
   if (p.website || !p.nombre) return { ok: false };
   hojaTaller();
@@ -271,7 +393,8 @@ function guardarTaller(p) {
     consentimiento: p.consentimiento ? 'Sí' : '',
     en_ruta_puente: enRutaPuente(p.whatsapp),
     asistio: '',
-    notas: limpiar(p.notas)
+    notas: limpiar(p.notas),
+    recordatorios: ''
   };
   hojaTaller().appendRow(COL_TALLER.map(c => d[c]));
   try { enviarCorreoTaller(d); } catch (err) { console.error(err); }
@@ -382,6 +505,63 @@ function leerIngles() {
     };
   });
   return mapa;
+}
+
+/* ---------- Eventos del diagnóstico (sin datos personales) ---------- */
+
+const HOJA_INGLES_EVENTOS = 'Ingles_eventos';
+const COL_INGLES_EVENTOS = ['fecha', 'evento', 'utm'];
+const EVENTOS_INGLES_OK = { inicio: 1, fin: 1, cupo: 1 };
+
+function utmInglesLimpio(v) {
+  const s = String(v || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 32);
+  return s || 'directo';
+}
+
+function hojaInglesEventos() {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  let h = libro.getSheetByName(HOJA_INGLES_EVENTOS);
+  if (!h) h = libro.insertSheet(HOJA_INGLES_EVENTOS);
+  if (h.getLastRow() === 0) {
+    h.appendRow(COL_INGLES_EVENTOS);
+    h.setFrozenRows(1);
+    h.getRange(1, 1, 1, COL_INGLES_EVENTOS.length).setFontWeight('bold').setBackground('#e1efe7');
+  } else {
+    const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    COL_INGLES_EVENTOS.forEach(c => {
+      if (cab.indexOf(c) < 0) {
+        const col = h.getLastColumn() + 1;
+        h.getRange(1, col).setValue(c).setFontWeight('bold').setBackground('#e1efe7');
+        cab.push(c);
+      }
+    });
+  }
+  return h;
+}
+
+function guardarInglesEvento(p) {
+  const evento = String(p.evento || '');
+  if (!EVENTOS_INGLES_OK[evento]) return { ok: false };
+  hojaInglesEventos().appendRow([new Date(), evento, utmInglesLimpio(p.utm)]);
+  return { ok: true };
+}
+
+function resumenInglesEventos() {
+  const total = { inicio: 0, fin: 0, cupo: 0 };
+  const canales = {};
+  const h = hojaInglesEventos();
+  if (h.getLastRow() < 2) return { ok: true, total: total, canales: canales };
+  const datos = h.getDataRange().getValues();
+  datos.shift();
+  datos.forEach(r => {
+    const evento = String(r[1] || '');
+    const utm = String(r[2] || 'directo') || 'directo';
+    if (!EVENTOS_INGLES_OK[evento]) return;
+    if (!canales[utm]) canales[utm] = { inicio: 0, fin: 0, cupo: 0 };
+    canales[utm][evento]++;
+    total[evento]++;
+  });
+  return { ok: true, total: total, canales: canales };
 }
 
 /* ---------- Ficha de entrevista por correo ---------- */
@@ -829,11 +1009,70 @@ function guardarHuerfanosAgenda(lista) {
   PropertiesService.getScriptProperties().setProperty('AGENDA_HUERFANOS', JSON.stringify(lista || []));
 }
 
+// Títulos cortos para el correo. El texto completo vive en taller/kit-mensajes.json.
+const KIT_AGENDA = [
+  { fecha: '2026-11-09', titulo: 'Reto del cargo, pedido a la embajadora y pedido al Consulado' },
+  { fecha: '2026-11-10', titulo: 'Publicación para grupos de Facebook' },
+  { fecha: '2026-11-11', titulo: 'Encuesta en el grupo de WhatsApp' },
+  { fecha: '2026-11-13', titulo: 'Nota de voz de 45 a 60 segundos' },
+  { fecha: '2026-11-16', titulo: 'Regalo del grupo: el kit elige el ejemplo de CV o el diagnóstico' },
+  { fecha: '2026-11-18', titulo: 'Último llamado e invitar a 1 persona' },
+  { fecha: '2026-11-19', titulo: 'Confirmar el lugar con cada inscrito' },
+  { fecha: '2026-11-20', titulo: 'Recordatorio a las 12:00 y, si se liberó un lugar, la lista de espera a las 12:30' },
+  { fecha: '2026-11-21', titulo: 'Agradecer, mandar el material y el formulario' }
+];
+
+// Solo informa. No crea ni borra activadores.
+function auditarTriggers() {
+  const conteo = {};
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    const n = t.getHandlerFunction();
+    conteo[n] = (conteo[n] || 0) + 1;
+  });
+  const dup = Object.keys(conteo).filter(function (k) { return conteo[k] > 1; });
+  Logger.log('Triggers: ' + JSON.stringify(conteo));
+  if (dup.length) Logger.log('DUPLICADOS: ' + dup.join(', '));
+  else Logger.log('Sin activadores duplicados.');
+  return dup;
+}
+
+function textoFuentes(obj) {
+  const ks = Object.keys(obj || {});
+  if (!ks.length) return 'ninguno';
+  return ks.map(function (k) { return k + ' ' + obj[k]; }).join(', ');
+}
+
+function bloqueTallerCorreo() {
+  const hoy = ymdScript(new Date());
+  if (hoy < '2026-11-07' || hoy > '2026-11-21') return null;
+  const resumen = resumenTaller();
+  const delDia = KIT_AGENDA.filter(function (x) { return x.fecha === hoy; });
+  let prox = null;
+  KIT_AGENDA.forEach(function (x) { if (!prox && x.fecha > hoy) prox = x; });
+  const aRecordatorios = hoy === '2026-11-19' || hoy === '2026-11-20' || hoy === '2026-11-21';
+  const link = KIT_URL + (aRecordatorios ? '#recordatorios' : '');
+  let tarea = 'Hoy descansas. No quedan mensajes del taller.';
+  if (delDia.length) tarea = delDia.map(function (x) { return x.titulo; }).join('. ');
+  else if (prox) tarea = 'Hoy descansas. La próxima: ' + prox.titulo + ' (' + prox.fecha + ').';
+  const ayer = resumen.nuevosAyer || { total: 0, porFuente: {} };
+  const html =
+    '<h3 style="margin:18px 0 8px">Taller</h3>' +
+    '<p><b>Hoy te toca:</b> ' + esc(tarea) + '</p>' +
+    '<p><a href="' + link + '">Abrir el kit de difusión</a></p>' +
+    '<p>Inscritos: <b>' + resumen.inscritos + ' / ' + resumen.cupos + '</b>' +
+    (resumen.espera ? ' · espera ' + resumen.espera : '') +
+    ' · confirmados (SÍ): <b>' + resumen.confirmados + '</b>. Ayer: <b>' + ayer.total +
+    '</b> (' + esc(textoFuentes(ayer.porFuente)) + ').</p>';
+  return { html: html, lleno: !!resumen.lleno, tarea: tarea, inscritos: resumen.inscritos, cupos: resumen.cupos };
+}
+
 function correoDiario() {
+  const duplicados = auditarTriggers();
   const lista = pendientesHoy();
   const llamadas = llamadasHoyDesdeHoja();
   const huerfanos = leerHuerfanosAgenda();
-  if (!lista.length && !llamadas.length && !huerfanos.length) {
+  const taller = bloqueTallerCorreo();
+  if (!lista.length && !llamadas.length && !huerfanos.length && !taller) {
     Logger.log('Correo diario: nadie para hoy; no se envía.');
     return;
   }
@@ -883,20 +1122,31 @@ function correoDiario() {
     });
   }
   const total = lista.length + llamadas.length + huerfanos.length;
+  const avisoLleno = taller && taller.lleno
+    ? '<p style="margin:0 0 12px;padding:10px 12px;background:#fbf0d9;border:2px solid #e8b04b;font-weight:bold">CUPO LLENO. Usa las versiones de lista de espera en el kit.</p>'
+    : '';
+  const avisoDup = duplicados.length
+    ? '<p style="color:#b4462f">Hay activadores duplicados: ' + esc(duplicados.join(', ')) + '. No se creó ninguno nuevo.</p>'
+    : '';
   const html =
     '<div style="font-family:Arial,sans-serif;max-width:720px;color:#1d2b26;line-height:1.5">' +
+    avisoLleno +
     '<div style="font-size:22px;font-weight:bold">Ruta Puente · A quién escribir hoy</div>' +
     '<p>Resumen: <b>' + llamadas.length + '</b> llamadas hoy · <b>' + lista.length + '</b> con próximo paso · <b>' +
-    huerfanos.length + '</b> reservas sin formulario · <b>Inscritos al taller: ' + contarTaller().inscritos +
+    huerfanos.length + '</b> reservas sin formulario · <b>Inscritos al taller: ' + (taller ? taller.inscritos : contarTaller().inscritos) +
     '</b>. Nada se envía solo a las personas.</p>' +
+    (taller ? taller.html : '') +
     cuerpo +
+    avisoDup +
     '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja</a> · ' +
     '<a href="' + BITACORA_URL + '">Abrir la Bitácora</a></p></div>';
 
   MailApp.sendEmail({
     to: Session.getEffectiveUser().getEmail(),
-    subject: 'Ruta Puente · ' + total + ' para hoy',
-    body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length,
+    subject: total ? ('Ruta Puente · ' + total + ' para hoy') : 'Ruta Puente · Taller de hoy',
+    body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length +
+      (taller ? '\nTaller: ' + taller.tarea + '. Inscritos ' + taller.inscritos + '/' + taller.cupos + '.' : '') +
+      (taller && taller.lleno ? '\nCUPO LLENO. Usa las versiones de lista de espera.' : ''),
     htmlBody: html,
     name: 'Ruta Puente'
   });
@@ -943,6 +1193,8 @@ function bitacora(txt) {
   if (b.accion === 'guardar') return salida(guardarEntrevista(b.datos || {}));
   if (b.accion === 'guardar_estado') return salida(guardarEstado(b.datos || {}));
   if (b.accion === 'revisar_agenda') return salida(revisarAgenda());
+  if (b.accion === 'kit') return salida(kitTaller());
+  if (b.accion === 'kit_recordatorio') return salida(marcarRecordatorioTaller(b.datos || {}));
   return salida({ ok: false, error: 'accion' });
 }
 

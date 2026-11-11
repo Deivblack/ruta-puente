@@ -68,15 +68,26 @@ select,input[type=text]{font:17px var(--f-body);color:var(--ink);background:var(
 .niveles div{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--bg);border-radius:12px}
 .plan{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .plan li{background:var(--hope-soft);border-radius:12px;padding:12px 14px}
+.recs li{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.recs .rec-nombre{font-weight:800}
+.recs .rec-url{display:none;font-size:14px;color:var(--muted);word-break:break-all}
 footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
 .aviso{background:var(--sun-soft);border-radius:12px;padding:12px;font-size:15px}
 #rec-ind{font-weight:800;color:var(--hope)}
+.card-taller{
+  background:var(--sun-soft);border:2px solid var(--sun);border-radius:18px;
+  padding:18px;display:flex;flex-direction:column;gap:10px;
+}
+.card-taller h2{font-size:22px}
+.card-taller .cuando{font-size:15px;font-weight:700;color:var(--muted)}
+#btn-cupo{white-space:normal;text-align:center;line-height:1.25}
 @media print{
   body{background:#fff;padding:12px;color:#111}
   .top,.scenes,.no-print,footer,#scr-inicio,#scr-item,#scr-fb,#scr-oral{display:none!important}
   #scr-res{display:flex!important}
   .btn{display:none!important}
   a{color:#111;text-decoration:none}
+  .recs .rec-url{display:block!important}
 }
 </style>
 </head>
@@ -170,21 +181,28 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
     <p id="res-alcance"></p>
     <p class="hint">Es una estimación para orientarte, no una certificación oficial.</p>
     <div class="niveles" id="res-niveles"></div>
+    <aside class="card-taller no-print" id="card-taller" hidden>
+      <h2 id="taller-h"></h2>
+      <p id="taller-linea"></p>
+      <p class="cuando" id="taller-cuando"></p>
+      <a class="btn wide" id="btn-cupo" href="../taller/?utm=ingles">Reservar mi cupo</a>
+    </aside>
     <h2>Tu plan de 7 días</h2>
     <ol class="plan" id="res-plan"></ol>
     <div class="vacante" id="res-guion"></div>
     <h2>Recursos gratuitos</h2>
-    <ul class="plan" id="res-rec"></ul>
+    <ul class="plan recs" id="res-rec"></ul>
     <p class="aviso" id="res-rev" hidden>Los recursos y varios ítems están marcados para que David los revise antes de usarlos con más personas.</p>
     <div class="row no-print">
       <button class="btn" id="btn-pdf" type="button">Descargar mi resultado (PDF)</button>
-      <a class="btn ghost" id="btn-wa" href="#" target="_blank" rel="noopener">Compartir con David por WhatsApp</a>
+      <a class="btn ghost" id="btn-wa" href="#" target="_blank" rel="noopener">Recibir mi plan por WhatsApp</a>
       <a class="btn ghost" id="btn-ruta" href="../">Volver a mi ruta</a>
     </div>
   </section>
 
   <footer>Ruta Puente · Houston · inglés para el trabajo, sin examen</footer>
 </div>
+<script src="../taller/config.js"></script>
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
 const WA = "18322533555";
@@ -204,6 +222,7 @@ const ALCANCE = {
   Seguro: "Puedes seguir una llamada de reclutador y escribir un follow-up claro. Esta semana: entrevistas y vocabulario de tu cargo en inglés.",
   Profesional: "Puedes moverte con soltura en entrevistas y correos de tu área. Afina matices (salario, gaps, liderazgo) y practica con vacantes reales."
 };
+const LABELS_HAB = {lectura:"lectura",escucha:"escucha",vocabulario:"vocabulario de trabajo",escritura:"escritura (correos)",oral_auto:"presentación oral"};
 const CARRIL_DE = [
   ["contador","contabilidad"],["contabl","contabilidad"],["finanz","contabilidad"],
   ["ingeniero","ingenieria"],["ingenieria","ingenieria"],["manufact","ingenieria"],["bodega","ingenieria"],["electromec","ingenieria"],
@@ -226,6 +245,30 @@ const RUBRICA = [
 ];
 const $ = s => document.querySelector(s);
 const CODIGO = (new URLSearchParams(location.search).get("c")||"").trim();
+const PRUEBAS = (new URLSearchParams(location.search).get("prueba")||"").split(/[,+]/).map(s=>s.trim()).filter(Boolean);
+function hayPrueba(k){ return PRUEBAS.indexOf(k)>=0; }
+const UTM = (new URLSearchParams(location.search).get("utm")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,32) || "directo";
+function enviarEvento(evento){
+  if (PRUEBAS.length) return;
+  if (!/^(inicio|fin|cupo)$/.test(evento)) return;
+  if (!SCRIPT_URL.startsWith("https://")) return;
+  try{
+    const k = "rp-ingles-ev-"+evento;
+    if (sessionStorage.getItem(k)) return;
+    sessionStorage.setItem(k, "1");
+  }catch(e){}
+  const body = new URLSearchParams({form:"ingles_evento", evento:evento, utm:UTM, fecha:new Date().toISOString()});
+  fetch(SCRIPT_URL, {method:"POST", mode:"no-cors", body}).catch(()=>{});
+}
+const LINEA_TALLER = {
+  vocabulario: "Te enseño cómo se llama tu cargo en inglés y qué palabras usan las vacantes de tu área.",
+  lectura: "Te enseño a leer una vacante en inglés y sacar qué piden de verdad.",
+  escucha: "Te enseño a seguir la llamada del reclutador y responder con calma.",
+  escritura: "Te enseño a escribir un correo corto de trabajo que se entienda.",
+  oral_auto: "Te enseño tu presentación de 30 segundos, practicada en el taller."
+};
+let tallerTarjetaVisible = false;
+let ultimoRes = null;
 let banco = [], recursos = [];
 let S = {
   nombre:"", profesion:"", carril:"general", cargo:"professional", anios:"",
@@ -301,6 +344,7 @@ $("#btn-start").addEventListener("click", ()=>{
     if (!S.profesion) S.profesion = $("#prof").selectedOptions[0].textContent;
   }
   S.escena=1; S.nivel="intermedio"; S.racha=0; S.usados={}; S.cola=[];
+  enviarEvento("inicio");
   siguienteItem();
 });
 
@@ -586,8 +630,9 @@ $("#btn-fin").addEventListener("click", ()=>{
   const general = NOUT[Math.round(nums.reduce((s,x)=>s+x,0)/nums.length)] || "Funcional";
   let peor = "lectura"; let peorI = 9;
   Object.keys(niveles).forEach(k=>{ if (NOUT.indexOf(niveles[k])<peorI){ peorI=NOUT.indexOf(niveles[k]); peor=k; } });
-  const labels = {lectura:"lectura",escucha:"escucha",vocabulario:"vocabulario de trabajo",escritura:"escritura (correos)",oral_auto:"presentación oral"};
-  pintarResultado(general, niveles, peor, labels[peor]);
+  pintarResultado(general, niveles, peor, LABELS_HAB[peor]);
+  pintarTarjetaTaller(peor);
+  enviarEvento("fin");
   const payload = {
     codigo: CODIGO, fecha: new Date().toISOString().slice(0,10),
     nivel_general: general, lectura: niveles.lectura, escucha: niveles.escucha,
@@ -624,25 +669,142 @@ function pintarResultado(general, niveles, peor, peorLabel){
   const ol = $("#res-plan"); ol.innerHTML="";
   plan7(peor, S.cargo).forEach(t=>{ const li=document.createElement("li"); li.textContent=t; ol.appendChild(li); });
   $("#res-guion").textContent = "Guion de 30 s:\n"+guion();
+  pintarRecursos(peor);
+  ultimoRes = {general, niveles, peor, peorLabel};
+  armarWhatsApp();
+  $("#btn-ruta").href = CODIGO ? ("../app/?c="+encodeURIComponent(CODIGO)) : "../";
+}
+function habDeRecurso(peor){
+  return peor === "oral_auto" ? "oral" : peor;
+}
+function puntajeRecurso(r, hab){
+  const hs = r.habilidades || [];
+  if (hs.indexOf(hab) >= 0) return 2;
+  if (hs.indexOf("general") >= 0) return 1;
+  return 0;
+}
+function elegirRecursos(peor){
+  const hab = habDeRecurso(peor);
+  const lista = (recursos||[]).filter(r => r.nombre && r.url);
+  const ranked = lista.map((r,i)=>({r,i,s:puntajeRecurso(r,hab)}))
+    .sort((a,b)=> b.s - a.s || a.i - b.i)
+    .map(x=>x.r);
+  const top2 = ranked.slice(0,2);
+  const ids = {};
+  top2.forEach(r => { ids[r.id || r.nombre] = true; });
+  const warmup = lista.find(r => r.id === "interview-warmup");
+  const out = top2.slice();
+  if (warmup && !ids[warmup.id]) out.push(warmup);
+  else {
+    for (const r of ranked){
+      if (!ids[r.id || r.nombre]){ out.push(r); break; }
+    }
+  }
+  return out.slice(0,3);
+}
+function pintarRecursos(peor){
   const ul = $("#res-rec"); ul.innerHTML="";
   const hayRev = (recursos||[]).some(r=>r.revisar) || (banco||[]).some(i=>i.revisar);
   $("#res-rev").hidden = !hayRev;
-  (recursos||[]).forEach(r=>{
+  elegirRecursos(peor).forEach(r=>{
     const li=document.createElement("li");
-    const nombre = r.nombre || "Recurso";
-    if (r.url){
-      const a=document.createElement("a"); a.href=r.url; a.target="_blank"; a.rel="noopener"; a.textContent=nombre;
-      li.appendChild(a);
-    } else li.textContent = nombre;
-    const p=document.createElement("p"); p.className="hint"; p.textContent=(r.para_que||"")+(r.nivel?" · "+r.nivel:"");
-    li.appendChild(p); ul.appendChild(li);
+    const nom=document.createElement("strong");
+    nom.className="rec-nombre";
+    nom.textContent=r.nombre;
+    const p=document.createElement("p");
+    p.className="hint";
+    p.textContent=r.para_que || "";
+    const url=document.createElement("p");
+    url.className="rec-url";
+    url.textContent=r.url;
+    const a=document.createElement("a");
+    a.className="btn";
+    a.href=r.url;
+    a.target="_blank";
+    a.rel="noopener";
+    a.textContent="Abrir";
+    li.appendChild(nom);
+    li.appendChild(p);
+    li.appendChild(url);
+    li.appendChild(a);
+    ul.appendChild(li);
   });
-  const txt = "Hola David, soy "+(S.nombre||"una persona de Ruta Puente")+". Hice el diagnóstico de inglés. Nivel general: "+general+". Mi habilidad más baja: "+peorLabel+" ("+niveles[peor]+").";
+}
+function armarWhatsApp(){
+  if (!ultimoRes) return;
+  const {general, niveles, peor, peorLabel} = ultimoRes;
+  let txt = "Hola David, soy "+(S.nombre||"una persona de Ruta Puente")+". Hice el diagnóstico de inglés. Nivel general: "+general+". Mi habilidad más baja: "+peorLabel+" ("+niveles[peor]+").";
+  if (tallerTarjetaVisible){
+    const dia = tallerDiaCorto().replace(/^\S+\s+/, "") || "20";
+    txt += " Quiero info del taller del "+dia+".";
+  }
   $("#btn-wa").href = "https://wa.me/"+WA+"?text="+encodeURIComponent(txt);
-  $("#btn-ruta").href = CODIGO ? ("../app/?c="+encodeURIComponent(CODIGO)) : "../";
+}
+function tallerDiaCorto(){
+  const f = String((typeof TALLER==="object" && TALLER.fecha) || "");
+  const m = f.match(/^(\S+)\s+(\d+)/);
+  return m ? (m[1].toLowerCase() + " " + m[2]) : f;
+}
+function tallerYaPaso(){
+  if (hayPrueba("pasado")) return true;
+  if (typeof TALLER!=="object") return true;
+  const t = Date.parse(TALLER.finISO || TALLER.inicioISO || "");
+  return isNaN(t) ? false : Date.now() > t;
+}
+async function tallerCuposLlenos(){
+  if (hayPrueba("lleno")) return true;
+  if (typeof TALLER!=="object" || !(TALLER.cupos > 0)) return false;
+  if (!SCRIPT_URL.startsWith("https://")) return false;
+  try{
+    const d = await (await fetch(SCRIPT_URL+"?taller=estado")).json();
+    const n = parseInt(d && d.inscritos, 10) || 0;
+    return n >= TALLER.cupos;
+  }catch(e){ return false; }
+}
+function pintarTarjetaTaller(peor){
+  const card = $("#card-taller");
+  tallerTarjetaVisible = false;
+  if (!card || typeof TALLER!=="object" || tallerYaPaso()){
+    if (card) card.hidden = true;
+    armarWhatsApp();
+    return;
+  }
+  $("#taller-h").textContent = "Tu siguiente paso: el taller gratis del " + tallerDiaCorto();
+  $("#taller-linea").textContent = LINEA_TALLER[peor] || LINEA_TALLER.vocabulario;
+  const bits = [TALLER.fecha];
+  if (TALLER.hora && !(typeof tallerPendiente==="function" && tallerPendiente(TALLER.hora))) bits.push(TALLER.hora);
+  if (TALLER.lugar && !(typeof tallerPendiente==="function" && tallerPendiente(TALLER.lugar))) bits.push(TALLER.lugar);
+  if (TALLER.cupos > 0) bits.push("Cupos limitados");
+  $("#taller-cuando").textContent = bits.join(" · ");
+  const btn = $("#btn-cupo");
+  btn.href = "../taller/?utm=ingles";
+  btn.textContent = "Reservar mi cupo";
+  card.hidden = false;
+  tallerTarjetaVisible = true;
+  armarWhatsApp();
+  tallerCuposLlenos().then(lleno => {
+    if (!tallerTarjetaVisible || !lleno) return;
+    const dia = tallerDiaCorto().replace(/^\S+\s+/, "") || "20";
+    btn.textContent = "El taller del " + dia + " se llenó. Únete a la lista para el próximo";
+  });
 }
 $("#btn-pdf").addEventListener("click", ()=> window.print());
-init();
+$("#btn-cupo").addEventListener("click", ()=> enviarEvento("cupo"));
+function peorDePrueba(){
+  const keys = ["lectura","escucha","vocabulario","escritura","oral_auto","oral"];
+  const k = keys.find(x => hayPrueba(x));
+  if (k === "oral") return "oral_auto";
+  return k || "vocabulario";
+}
+init().then(()=>{
+  if (!hayPrueba("resultado")) return;
+  S.auto = 3; S.carril = "general"; S.cargo = "professional";
+  const peor = peorDePrueba();
+  const niveles = {lectura:"Funcional",escucha:"Funcional",vocabulario:"Funcional",escritura:"Funcional",oral_auto:"Funcional"};
+  niveles[peor] = "Empezando";
+  pintarResultado("Funcional", niveles, peor, LABELS_HAB[peor]);
+  pintarTarjetaTaller(peor);
+});
 </script>
 </body>
 </html>

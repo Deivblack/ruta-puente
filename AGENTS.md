@@ -29,18 +29,20 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
-├── taller/           → Inscripción y afiche del taller (20 nov 2026, Consulado Ecuador Houston)
+├── taller/           → Inscripción, afiche y kit del taller (20 nov 2026, 2:00–3:30 p. m., Consulado Ecuador Houston, cupos 13)
 │   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos, WhatsApp
 │   ├── index.html    → Página pública de inscripción
+│   ├── kit.html      → Kit privado (clave de la Bitácora, noindex) para copiar mensajes
+│   ├── kit-mensajes.json → Calendario de textos y versión de cupo lleno
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
 │   ├── escudo-ecuador.svg / .png → archivo guardado; no se muestra (el apoyo va solo en el copy de WhatsApp)
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
 │   ├── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
 │   └── artes/        → imágenes y copy para grupos (cuadrado + estado + copy-whatsapp.txt)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
-│   ├── index.html    → 5 escenas + resultado y plan de 7 días
+│   ├── index.html    → 5 escenas + resultado, tarjeta del taller y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
-│   ├── recursos.json → recursos gratuitos del resultado (David completa URLs)
+│   ├── recursos.json → 5 recursos gratuitos (O*NET, Indeed, USA Learns, guía de entrevistas de Google, CareerOneStop)
 │   └── README.md     → cómo editar ítems
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
@@ -51,6 +53,7 @@ URLs públicas:
 - App (ejemplo, sin código): https://deivblack.github.io/ruta-puente/app/
 - Bitácora: https://deivblack.github.io/ruta-puente/bitacora/
 - Taller: https://deivblack.github.io/ruta-puente/taller/
+- Kit (privado): https://deivblack.github.io/ruta-puente/taller/kit.html
 - Afiche: https://deivblack.github.io/ruta-puente/taller/afiche.html
 - Inglés: https://deivblack.github.io/ruta-puente/ingles/
 
@@ -61,10 +64,13 @@ URLs públicas:
 [Taller /taller/] --POST form-urlencoded form=taller--> [doPost → guardarTaller] --> Hoja "Taller" + correo
 [Taller] --GET ?taller=estado--> {ok, inscritos, espera}  (para cupos; sin datos personales)
 [Ingles /ingles/] --POST form-urlencoded form=ingles--> pestaña "Ingles" (solo con codigo; sin audio)
+[Ingles] --POST form-urlencoded form=ingles_evento--> pestaña "Ingles_eventos" (inicio|fin|cupo + utm; sin nombre ni respuestas)
+[Kit] --GET ?ingles_eventos=resumen--> conteo por canal (público, sin datos personales)
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
+[Kit /taller/kit.html] --POST JSON {clave, accion:"kit"}--> contador y recordatorios de la pestaña "Taller"
 [Trigger lunes 8 a. m.] --> resumenSemanal() --> correo a David (conteo por estado + atrasados)
-[Trigger diario ~7:30 a. m.] --> correoDiario() --> correo a David (proximo_fecha ≤ hoy + plantillas WhatsApp)
+[Trigger diario ~7:30 a. m.] --> correoDiario() --> correo a David (próximos pasos + sección Taller del 7 al 21 nov)
 [Trigger diario 8 a. m.] --> seguimientoEmpleo() --> correo a David (hitos 7/30/60/90)
 [App / Bitácora] --POST JSON accion subir_cv--> Drive "Ruta Puente - CVs" + hoja "CVs"
 ```
@@ -99,9 +105,13 @@ URLs públicas:
 ### API del Apps Script
 - `GET ?codigo=<10 hex>` → `{ok, persona:{nombre (solo primer nombre), pais, profesion, anios_exp, ciudad, zip, barrera, estado}}`. Solo lectura y datos mínimos: **no agregues campos sensibles aquí** (la URL es pública).
 - `POST` form-urlencoded (formulario) → guarda fila, envía ficha. Ignora envíos con `website` (honeypot) o sin `nombre`.
-- `POST` form-urlencoded `form=taller` → pestaña **Taller**. Columnas: `fecha, nombre, whatsapp, correo, profesion, ciudad, zip, fuente, consentimiento, en_ruta_puente, asistio, notas`. `en_ruta_puente` = Sí si los últimos 10 dígitos del WhatsApp ya están en Respuestas. Si `notas = lista de espera`, no cuenta como cupo. Correo a David: "Inscripción taller: [nombre]".
-- `GET ?taller=estado` → `{ok, inscritos, espera}` (público, sin nombres ni teléfonos). La página compara con `TALLER.cupos` en `taller/config.js`.
+- `POST` form-urlencoded `form=taller` → pestaña **Taller**. Columnas: `fecha, nombre, whatsapp, correo, profesion, ciudad, zip, fuente, consentimiento, en_ruta_puente, asistio, notas, recordatorios`. `en_ruta_puente` = Sí si los últimos 10 dígitos del WhatsApp ya están en Respuestas. Si `notas = lista de espera`, no cuenta como cupo. Un SÍ en `notas` cuenta como confirmado. `recordatorios` guarda los ids ya enviados desde el kit. Correo a David: "Inscripción taller: [nombre]".
+- `GET ?taller=estado` → `{ok, inscritos, espera}` (público, sin nombres ni teléfonos). La página compara con `TALLER.cupos` en `taller/config.js` (13).
+- `POST` text/plain JSON `{clave, accion:"kit"}` → contador, fuentes, confirmados y la lista (nombre y WhatsApp). Nunca por `doGet` ni con la clave en la URL.
+- `POST` text/plain JSON `{clave, accion:"kit_recordatorio", datos:{fila, whatsapp, id}}` → anota el id en `recordatorios`.
 - `POST` form-urlencoded `form=ingles` → pestaña **Ingles**. Columnas: `fecha, codigo, nivel_general, lectura, escucha, vocabulario, escritura, oral_auto, autoeficacia_antes`. Solo si `codigo` existe en Respuestas. Nunca audio ni respuestas sueltas. Niveles: Empezando, Funcional, Seguro, Profesional.
+- `POST` form-urlencoded `form=ingles_evento` → pestaña **Ingles_eventos**. Columnas: `fecha, evento, utm`. `evento` = `inicio` | `fin` | `cupo`. `utm` se limpia a `[a-z0-9_-]` (si viene vacío: `directo`). Sin nombre, sin código, sin respuestas.
+- `GET ?ingles_eventos=resumen` → `{ok, total:{inicio,fin,cupo}, canales:{utm:{inicio,fin,cupo}}}`. Público; solo conteos.
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
@@ -131,10 +141,11 @@ URLs públicas:
 - Chip en la tarjeta: "Inglés: Funcional (4 nov)" si hay fila en la pestaña Ingles.
 
 ### Taller (`taller/`)
-- Datos en **un solo archivo** `taller/config.js` (`TALLER`). Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**.
-- Para publicar hora/lugar: edita `config.js` (hora, lugar, direccion, inicioISO, finISO, apoyo, cupos, cuposLimitados, whatsapp) y vuelve a exportar el PDF del afiche.
-- `cuposLimitados: true` muestra “Cupos limitados” sin cerrar el formulario. Solo cierra (lista de espera) si `cupos > 0` y se llena.
-- `?utm=afiche` se guarda en `fuente` (ej. "Afiche"). No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
+- Datos en **un solo archivo** `taller/config.js` (`TALLER`). Fecha: viernes 20 de noviembre de 2026, 2:00–3:30 p. m. (`inicioISO`/`finISO`). `cupos: 13`. Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**. La confirmación de la inscripción lee la fecha de aquí. El texto de `TALLER.apoyo` va solo en los mensajes de WhatsApp, no en el afiche ni con logo.
+- `taller/kit.html` (noindex) pide la misma clave que la Bitácora y la manda por POST. Muestra la tarea del día (Copiar y Abrir WhatsApp), el contador, los recordatorios del 19 al 21, el buscador de cargos, los enlaces `?utm=` del taller y los del diagnóstico (`ingles/?utm=whatsapp|tiktok|estado`). Si `inscritos >= cupos`, los mensajes de difusión pasan a su versión de cupo lleno. `?fecha=AAAA-MM-DD` solo sirve para ensayar el día; no lleva la clave. En textos al público: «querida comunidad», no «paisanos».
+- Los textos están en `taller/kit-mensajes.json`. El lunes 16 el kit mira `ingles/banco.json`: si hay ítems con `revisar: true`, manda el ejemplo de CV; si no, ofrece el diagnóstico.
+- Para publicar hora/lugar: edita `config.js` y vuelve a exportar el PDF del afiche. El PNG y el PDF que ya están en el repo pueden seguir diciendo la fecha vieja hasta que los exportes de nuevo.
+- `?utm=afiche` (y whatsapp, facebook, consulado, embajadora, radio) se guarda en `fuente`. No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
 - No poner logo ni escudo del Consulado en landing, afiche ni artes. El apoyo se dice solo en el copy de WhatsApp (`taller/artes/copy-whatsapp.txt`). El lugar del taller sí puede ser el Consulado (es la dirección).
 - Artes para grupos: `taller/artes/whatsapp-cuadrado.png` (grupos), `whatsapp-estado.png` (estado), texto en `copy-whatsapp.txt`. El QR y el enlace llevan `?utm=whatsapp`.
 
@@ -142,8 +153,13 @@ URLs públicas:
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
 - Ítems en `ingles/banco.json`. Recursos en `ingles/recursos.json`. Cómo editar: `ingles/README.md`.
 - Escala: Empezando · Funcional · Seguro · Profesional (orientativo A1–A2 / B1 / B2 / C1; no es certificación).
-- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y no envía nada.
-- Todos los ítems y los 2 recursos de ejemplo salen con `"revisar": true` hasta que David los apruebe y complete URLs reales. No inventar enlaces.
+- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y **no envía datos personales**.
+- Entradas: landing `ingles/?utm=landing`, taller `ingles/?utm=taller`, kit `ingles/?utm=whatsapp|tiktok|estado`.
+- Resultado: tarjeta del taller (fecha/hora/lugar/cupos de `taller/config.js`). Botón «Reservar mi cupo» → `taller/?utm=ingles`. Si `inscritos >= cupos` (y `cupos > 0`), el botón pasa a lista de espera. Si la fecha ya pasó, se oculta. WhatsApp: «Recibir mi plan por WhatsApp»; si la tarjeta está visible, el texto termina «Quiero info del taller del 20.»
+- Recursos del resultado: 3 de `ingles/recursos.json` — los 2 que mejor cubren la habilidad más baja (`oral_auto` → `oral`) y siempre Interview Warmup de Google (si ya está en los 2, se suma el siguiente). Cada uno: nombre, una línea de qué hacer, botón Abrir (`target=_blank`, `rel=noopener`). El PDF escribe la URL completa.
+- Medición: POST `ingles_evento` inicio (Empezar), fin (resultado) y cupo (clic en Reservar). Sin nombre ni respuestas. Conteos en el kit. Hace falta desplegar el Apps Script.
+- Pruebas locales: `ingles/?prueba=resultado` muestra el mapa; suma `,lectura` / `,escucha` / `,vocabulario` / `,escritura` / `,oral` para forzar esa habilidad como la más baja. `prueba=lleno` y `prueba=pasado` fuerzan cupos o fecha. No mandan eventos.
+- Los ítems de `banco.json` siguen con `"revisar": true` hasta que David los apruebe. Los 5 recursos ya tienen URL. Google retiró Interview Warmup; el enlace apunta a la guía de entrevistas de Grow with Google.
 
 ## 6. Cómo trabajar y publicar
 ### Sitio (GitHub Pages)
@@ -172,7 +188,7 @@ Publicar un cambio del script:
 - `activarOnEditEstado()` → trigger instalable al editar `estado` + lista desplegable ampliada.
 - `migrarEstados()` / `migrarEstados(false)` → simulación (default) o aplica Entrevistado a quienes ya tienen fila en Entrevistas.
 - `migrarCiudad()` / `migrarCiudad(false)` → simulación (default) o copia ZIP de 5 dígitos desde `ciudad` a `zip`.
-- `correoDiario()` / `activarCorreoDiario()` / `pruebaCorreoDiario()` → “a quién escribir hoy” (~7:30 a. m.; incluye Llamadas de hoy y reservas sin formulario).
+- `correoDiario()` / `activarCorreoDiario()` / `pruebaCorreoDiario()` → “a quién escribir hoy” (~7:30 a. m.). Del 7 al 21 de noviembre incluye la sección **Taller** (tarea del día, enlace al kit, inscritos/cupo y nuevos de ayer). Los días 19, 20 y 21 el enlace abre `#recordatorios`. Si el cupo está lleno, la primera línea lo dice. No crea un activador nuevo. `auditarTriggers()` solo anota en el registro si hay duplicados.
 - `revisarAgenda()` / `activarRevisarAgenda()` → cada hora lee Calendar; pide permiso Calendar.
 - `subirCv()` → recepción de CV (pide permiso Drive la primera vez).
 - `seguimientoEmpleo()` → correo diario a David con hitos 7/30/60/90 pendientes y mensaje sugerido de WhatsApp (no escribe a usuarios).

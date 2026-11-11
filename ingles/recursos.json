@@ -1,16 +1,42 @@
 [
   {
-    "nombre": "[POR COMPLETAR] Lectura de vacantes",
-    "url": "",
-    "para_que": "Practicar leer anuncios de trabajo en inglés de tu área",
-    "nivel": "Funcional",
-    "revisar": true
+    "id": "onet",
+    "nombre": "O*NET OnLine",
+    "url": "https://www.onetonline.org/",
+    "para_que": "Busca tu cargo en inglés y lee la lista de tareas: son las mismas palabras que usan las vacantes.",
+    "habilidades": ["lectura", "vocabulario"],
+    "grupo": "lectura_vacantes"
   },
   {
-    "nombre": "[POR COMPLETAR] Preguntas de entrevista",
-    "url": "",
-    "para_que": "Practicar respuestas cortas de entrevista en inglés",
-    "nivel": "Empezando",
-    "revisar": true
+    "id": "indeed",
+    "nombre": "Indeed",
+    "url": "https://www.indeed.com/q-houston,-tx-jobs.html",
+    "para_que": "Lee 3 vacantes reales de tu cargo en Houston y subraya las palabras que se repiten.",
+    "habilidades": ["lectura", "vocabulario"],
+    "grupo": "lectura_vacantes"
+  },
+  {
+    "id": "usa-learns",
+    "nombre": "USA Learns",
+    "url": "https://www.usalearns.org/",
+    "para_que": "Curso gratis de inglés del gobierno, con lecciones de trabajo. Pide crear cuenta gratis.",
+    "habilidades": ["lectura", "escucha", "general"],
+    "grupo": "lectura_vacantes"
+  },
+  {
+    "id": "interview-warmup",
+    "nombre": "Interview Warmup de Google",
+    "url": "https://grow.google/grow-your-career/articles/interview-tips/",
+    "para_que": "Guía gratis de Google para preparar entrevistas: qué investigar, el método STAR y practicar en voz alta.",
+    "habilidades": ["oral", "escucha"],
+    "grupo": "preguntas_entrevista"
+  },
+  {
+    "id": "careeronestop",
+    "nombre": "CareerOneStop: preguntas comunes de entrevista",
+    "url": "https://www.careeronestop.org/JobSearch/Interview/common-interview-questions.aspx",
+    "para_que": "Las preguntas más comunes en EE. UU. y cómo prepararlas. Sitio del Departamento de Trabajo.",
+    "habilidades": ["oral", "escritura"],
+    "grupo": "preguntas_entrevista"
   }
 ]

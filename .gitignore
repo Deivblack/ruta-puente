@@ -2,8 +2,27 @@
 ruta-puente-ops/
 /ops/
 
-# Credenciales de clasp (Apps Script). Contienen IDs y sesión de Google.
+# Clasp / Apps Script (IDs y credenciales — no subir al repo público)
 .clasp.json
 .clasprc.json
 apps-script/.clasp.json
 apps-script/.clasprc.json
+
+# Secretos
+.env
+.env.*
+
+# Node
+node_modules/
+
+# Sistema
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+*$py.class
+*.log
+.idea/
+.vscode/
+*.swp
+*~

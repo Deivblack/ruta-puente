@@ -1,18 +1,19 @@
 // Único lugar para los datos del taller del 20 de noviembre.
-// Cambia aquí hora, lugar, dirección, apoyo y cupos. La página y el afiche leen esto.
+// Cambia aquí hora, lugar, dirección, apoyo y cupos. La página, el afiche y el kit leen esto.
 const TALLER = {
   titulo: "¿Cómo se llama tu cargo en inglés?",
-  subtitulo: "Taller gratuito de 90 minutos: tu cargo en inglés, un logro para el CV, tu presentación y un plan para esta semana.",
+  subtitulo: "Taller gratuito para profesionales latinos: tu cargo en EE. UU. y tu CV listo para aplicar",
   fecha: "Viernes 20 de noviembre de 2026",
   hora: "2:00 p. m. – 3:30 p. m.",
   lugar: "Consulado General del Ecuador en Houston",
   direccion: "2603 Augusta Dr #810, Houston, TX 77057",
   modalidad: "Presencial",
-  cupos: 0,                         // 0 = no cerrar el formulario; el aviso de cupos usa cuposLimitados
-  cuposLimitados: true,
+  cupos: 13,                        // 10 sillas; 13 cierra la inscripción (inasistencias). 0 = sin límite
+  cuposLimitados: true,             // muestra “Cupos limitados”; el cierre usa cupos
   apoyo: "Con el apoyo del Consulado de Ecuador en Houston", // solo en el copy de WhatsApp, no en las imágenes
   logoApoyo: "",
   whatsapp: "18322533555",          // preguntas; mismo número público de Ruta Puente
+  estacionamiento: "[POR CONFIRMAR]",
   inicioISO: "2026-11-20T14:00:00-06:00",
   finISO: "2026-11-20T15:30:00-06:00"
 };
@@ -26,7 +27,11 @@ function tallerPendiente(v) {
 }
 
 function tallerEsBorrador() {
-  return ["hora", "lugar", "direccion", "apoyo"].some(k => tallerPendiente(TALLER[k]));
+  return ["hora", "lugar", "direccion"].some(k => tallerPendiente(TALLER[k]));
+}
+
+function tallerApoyoConfirmado() {
+  return !tallerPendiente(TALLER.apoyo);
 }
 
 function tallerWhatsappUrl(texto) {
