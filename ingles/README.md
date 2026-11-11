@@ -43,9 +43,9 @@ Con `?c=` de la app, al terminar se guarda en la pestaña **Ingles** (hace falta
 
 El resultado muestra una tarjeta del taller (lee `taller/config.js`). «Reservar mi cupo» abre `/taller/?utm=ingles`. El WhatsApp dice «Recibir mi plan por WhatsApp» y, si el taller sigue vigente, agrega «Quiero info del taller del 20.»
 
-Cada inicio, final y clic en cupo se cuenta en la pestaña **Ingles_eventos** (solo `evento` + `utm`). El kit copia los enlaces `?utm=whatsapp|tiktok|estado`. El conteo se ve cuando David despliega el script.
+Los eventos (visita, inicio, cada escena, fin y clics) van a la pestaña **Ingles_eventos** con `utm`, un `id_anon` (número en el celular) y el dispositivo. Nunca nombre, teléfono, respuestas ni audio. El kit y la Bitácora muestran visitas únicas, el embudo y los clics por canal. El correo de la mañana resume el día anterior. Eso se prende cuando David despliega el Apps Script y corre `actualizarHoja()`.
 
-Para revisar en el celular sin hacer las 5 escenas: `ingles/?prueba=resultado`. Suma `,lectura`, `,escucha`, `,vocabulario`, `,escritura` o `,oral` para forzar esa habilidad como la más baja y ver cómo cambian los recursos. Suma `lleno` o `pasado` para ver lista de espera o la tarjeta oculta. Esas pruebas no mandan eventos.
+Para revisar sin contar: `ingles/?prueba=1` o `ingles/?utm=whatsapp&prueba=1`. Para ver el mapa sin las 5 escenas: `ingles/?prueba=1,resultado`. Suma `,lectura`, `,escucha`, `,vocabulario`, `,escritura` o `,oral` para forzar esa habilidad como la más baja y ver cómo cambian los recursos. Suma `lleno` o `pasado` para ver lista de espera o la tarjeta oculta. `?c=PRUEBA` tampoco manda eventos.
 
 Google retiró la herramienta Interview Warmup; el enlace abre la guía de entrevistas de Grow with Google (`grow.google/grow-your-career/articles/interview-tips/`).
 
