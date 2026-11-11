@@ -71,6 +71,13 @@ select,input[type=text]{font:17px var(--f-body);color:var(--ink);background:var(
 footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
 .aviso{background:var(--sun-soft);border-radius:12px;padding:12px;font-size:15px}
 #rec-ind{font-weight:800;color:var(--hope)}
+.card-taller{
+  background:var(--sun-soft);border:2px solid var(--sun);border-radius:18px;
+  padding:18px;display:flex;flex-direction:column;gap:10px;
+}
+.card-taller h2{font-size:22px}
+.card-taller .cuando{font-size:15px;font-weight:700;color:var(--muted)}
+#btn-cupo{white-space:normal;text-align:center;line-height:1.25}
 @media print{
   body{background:#fff;padding:12px;color:#111}
   .top,.scenes,.no-print,footer,#scr-inicio,#scr-item,#scr-fb,#scr-oral{display:none!important}
@@ -170,6 +177,12 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
     <p id="res-alcance"></p>
     <p class="hint">Es una estimación para orientarte, no una certificación oficial.</p>
     <div class="niveles" id="res-niveles"></div>
+    <aside class="card-taller no-print" id="card-taller" hidden>
+      <h2 id="taller-h"></h2>
+      <p id="taller-linea"></p>
+      <p class="cuando" id="taller-cuando"></p>
+      <a class="btn wide" id="btn-cupo" href="../taller/?utm=ingles">Reservar mi cupo</a>
+    </aside>
     <h2>Tu plan de 7 días</h2>
     <ol class="plan" id="res-plan"></ol>
     <div class="vacante" id="res-guion"></div>
@@ -185,6 +198,7 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
 
   <footer>Ruta Puente · Houston · inglés para el trabajo, sin examen</footer>
 </div>
+<script src="../taller/config.js"></script>
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMKLgkkTPKJahu1wvk9TkTeuhYcnjElm7IIQ5jH8PqB51r_LCKzcrWrcLYG4shRt0w/exec";
 const WA = "18322533555";
@@ -226,6 +240,16 @@ const RUBRICA = [
 ];
 const $ = s => document.querySelector(s);
 const CODIGO = (new URLSearchParams(location.search).get("c")||"").trim();
+const PRUEBAS = (new URLSearchParams(location.search).get("prueba")||"").split(/[,+]/).map(s=>s.trim()).filter(Boolean);
+function hayPrueba(k){ return PRUEBAS.indexOf(k)>=0; }
+const LINEA_TALLER = {
+  vocabulario: "Te enseño cómo se llama tu cargo en inglés y qué palabras usan las vacantes de tu área.",
+  lectura: "Te enseño a leer una vacante en inglés y sacar qué piden de verdad.",
+  escucha: "Te enseño a seguir la llamada del reclutador y responder con calma.",
+  escritura: "Te enseño a escribir un correo corto de trabajo que se entienda.",
+  oral_auto: "Te enseño tu presentación de 30 segundos, practicada en el taller."
+};
+let tallerTarjetaVisible = false;
 let banco = [], recursos = [];
 let S = {
   nombre:"", profesion:"", carril:"general", cargo:"professional", anios:"",
@@ -588,6 +612,7 @@ $("#btn-fin").addEventListener("click", ()=>{
   Object.keys(niveles).forEach(k=>{ if (NOUT.indexOf(niveles[k])<peorI){ peorI=NOUT.indexOf(niveles[k]); peor=k; } });
   const labels = {lectura:"lectura",escucha:"escucha",vocabulario:"vocabulario de trabajo",escritura:"escritura (correos)",oral_auto:"presentación oral"};
   pintarResultado(general, niveles, peor, labels[peor]);
+  pintarTarjetaTaller(peor);
   const payload = {
     codigo: CODIGO, fecha: new Date().toISOString().slice(0,10),
     nivel_general: general, lectura: niveles.lectura, escucha: niveles.escucha,
@@ -641,8 +666,62 @@ function pintarResultado(general, niveles, peor, peorLabel){
   $("#btn-wa").href = "https://wa.me/"+WA+"?text="+encodeURIComponent(txt);
   $("#btn-ruta").href = CODIGO ? ("../app/?c="+encodeURIComponent(CODIGO)) : "../";
 }
+function tallerDiaCorto(){
+  const f = String((typeof TALLER==="object" && TALLER.fecha) || "");
+  const m = f.match(/^(\S+)\s+(\d+)/);
+  return m ? (m[1].toLowerCase() + " " + m[2]) : f;
+}
+function tallerYaPaso(){
+  if (hayPrueba("pasado")) return true;
+  if (typeof TALLER!=="object") return true;
+  const t = Date.parse(TALLER.finISO || TALLER.inicioISO || "");
+  return isNaN(t) ? false : Date.now() > t;
+}
+async function tallerCuposLlenos(){
+  if (hayPrueba("lleno")) return true;
+  if (typeof TALLER!=="object" || !(TALLER.cupos > 0)) return false;
+  if (!SCRIPT_URL.startsWith("https://")) return false;
+  try{
+    const d = await (await fetch(SCRIPT_URL+"?taller=estado")).json();
+    const n = parseInt(d && d.inscritos, 10) || 0;
+    return n >= TALLER.cupos;
+  }catch(e){ return false; }
+}
+function pintarTarjetaTaller(peor){
+  const card = $("#card-taller");
+  tallerTarjetaVisible = false;
+  if (!card || typeof TALLER!=="object" || tallerYaPaso()){
+    if (card) card.hidden = true;
+    return;
+  }
+  $("#taller-h").textContent = "Tu siguiente paso: el taller gratis del " + tallerDiaCorto();
+  $("#taller-linea").textContent = LINEA_TALLER[peor] || LINEA_TALLER.vocabulario;
+  const bits = [TALLER.fecha];
+  if (TALLER.hora && !(typeof tallerPendiente==="function" && tallerPendiente(TALLER.hora))) bits.push(TALLER.hora);
+  if (TALLER.lugar && !(typeof tallerPendiente==="function" && tallerPendiente(TALLER.lugar))) bits.push(TALLER.lugar);
+  if (TALLER.cupos > 0) bits.push("Cupos limitados");
+  $("#taller-cuando").textContent = bits.join(" · ");
+  const btn = $("#btn-cupo");
+  btn.href = "../taller/?utm=ingles";
+  btn.textContent = "Reservar mi cupo";
+  card.hidden = false;
+  tallerTarjetaVisible = true;
+  tallerCuposLlenos().then(lleno => {
+    if (!tallerTarjetaVisible || !lleno) return;
+    const dia = tallerDiaCorto().replace(/^\S+\s+/, "") || "20";
+    btn.textContent = "El taller del " + dia + " se llenó. Únete a la lista para el próximo";
+  });
+}
 $("#btn-pdf").addEventListener("click", ()=> window.print());
-init();
+init().then(()=>{
+  if (!hayPrueba("resultado")) return;
+  S.auto = 3; S.carril = "general"; S.cargo = "professional";
+  pintarResultado("Funcional", {
+    lectura:"Funcional", escucha:"Funcional", vocabulario:"Empezando",
+    escritura:"Funcional", oral_auto:"Funcional"
+  }, "vocabulario", "vocabulario de trabajo");
+  pintarTarjetaTaller("vocabulario");
+});
 </script>
 </body>
 </html>
