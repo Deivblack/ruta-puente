@@ -38,7 +38,7 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
 │   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
-│   ├── index.html    → 5 escenas + resultado y plan de 7 días
+│   ├── index.html    → 5 escenas + resultado, tarjeta del taller y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
 │   ├── recursos.json → recursos gratuitos del resultado (David completa URLs)
 │   └── README.md     → cómo editar ítems
@@ -62,6 +62,8 @@ URLs públicas:
 [Taller /taller/] --POST form-urlencoded form=taller--> [doPost → guardarTaller] --> Hoja "Taller" + correo
 [Taller] --GET ?taller=estado--> {ok, inscritos, espera}  (para cupos; sin datos personales)
 [Ingles /ingles/] --POST form-urlencoded form=ingles--> pestaña "Ingles" (solo con codigo; sin audio)
+[Ingles] --POST form-urlencoded form=ingles_evento--> pestaña "Ingles_eventos" (inicio|fin|cupo + utm; sin nombre ni respuestas)
+[Kit] --GET ?ingles_eventos=resumen--> conteo por canal (público, sin datos personales)
 [App personal ?c=codigo] --GET ?codigo=--> [Apps Script doGet] --> datos mínimos de la persona
 [Bitácora] --POST text/plain JSON {clave, accion}--> [Apps Script doPost → bitacora()] --> Hoja "Entrevistas"
 [Kit /taller/kit.html] --POST JSON {clave, accion:"kit"}--> contador y recordatorios de la pestaña "Taller"
@@ -106,6 +108,8 @@ URLs públicas:
 - `POST` text/plain JSON `{clave, accion:"kit"}` → contador, fuentes, confirmados y la lista (nombre y WhatsApp). Nunca por `doGet` ni con la clave en la URL.
 - `POST` text/plain JSON `{clave, accion:"kit_recordatorio", datos:{fila, whatsapp, id}}` → anota el id en `recordatorios`.
 - `POST` form-urlencoded `form=ingles` → pestaña **Ingles**. Columnas: `fecha, codigo, nivel_general, lectura, escucha, vocabulario, escritura, oral_auto, autoeficacia_antes`. Solo si `codigo` existe en Respuestas. Nunca audio ni respuestas sueltas. Niveles: Empezando, Funcional, Seguro, Profesional.
+- `POST` form-urlencoded `form=ingles_evento` → pestaña **Ingles_eventos**. Columnas: `fecha, evento, utm`. `evento` = `inicio` | `fin` | `cupo`. `utm` se limpia a `[a-z0-9_-]` (si viene vacío: `directo`). Sin nombre, sin código, sin respuestas.
+- `GET ?ingles_eventos=resumen` → `{ok, total:{inicio,fin,cupo}, canales:{utm:{inicio,fin,cupo}}}`. Público; solo conteos.
 - `POST` text/plain JSON `{clave, accion:"listar"}` → `{ok, personas[], gate:{dentro, confirman}, estados[]}`. Incluye campos de flujo (`proximo_paso`, `proximo_fecha`, notas, puntajes, etc.).
 - `POST` text/plain JSON `{clave, accion:"guardar", datos:{codigo, ...campos de Entrevistas}}` → crea o actualiza la fila y pone `estado = Entrevistado`.
 - `POST` text/plain JSON `{clave, accion:"guardar_estado", datos:{codigo, estado, proximo_paso?, proximo_fecha?, notas_david?, ...}}` → cambia estado y recalcula próximo paso/fecha.
@@ -136,7 +140,7 @@ URLs públicas:
 
 ### Taller (`taller/`)
 - Datos en **un solo archivo** `taller/config.js` (`TALLER`). Fecha: viernes 20 de noviembre de 2026, 2:00–3:30 p. m. (`inicioISO`/`finISO`). `cupos: 13`. La confirmación de la inscripción lee la fecha de aquí. El texto de `TALLER.apoyo` va solo en los mensajes de WhatsApp, no en el afiche ni con logo.
-- `taller/kit.html` (noindex) pide la misma clave que la Bitácora y la manda por POST. Muestra la tarea del día (Copiar y Abrir WhatsApp), el contador, los recordatorios del 19 al 21, el buscador de cargos y los enlaces `?utm=`. Si `inscritos >= cupos`, los mensajes de difusión pasan a su versión de cupo lleno. `?fecha=AAAA-MM-DD` solo sirve para ensayar el día; no lleva la clave.
+- `taller/kit.html` (noindex) pide la misma clave que la Bitácora y la manda por POST. Muestra la tarea del día (Copiar y Abrir WhatsApp), el contador, los recordatorios del 19 al 21, el buscador de cargos, los enlaces `?utm=` del taller y los del diagnóstico (`ingles/?utm=whatsapp|tiktok|estado`). Si `inscritos >= cupos`, los mensajes de difusión pasan a su versión de cupo lleno. `?fecha=AAAA-MM-DD` solo sirve para ensayar el día; no lleva la clave. En textos al público: «querida comunidad», no «paisanos».
 - Los textos están en `taller/kit-mensajes.json`. El lunes 16 el kit mira `ingles/banco.json`: si hay ítems con `revisar: true`, manda el ejemplo de CV; si no, ofrece el diagnóstico.
 - Para publicar hora/lugar: edita `config.js` y vuelve a exportar el PDF del afiche. El PNG y el PDF que ya están en el repo pueden seguir diciendo la fecha vieja hasta que los exportes de nuevo.
 - `?utm=afiche` (y whatsapp, facebook, consulado, embajadora, radio) se guarda en `fuente`. No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
@@ -145,7 +149,11 @@ URLs públicas:
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
 - Ítems en `ingles/banco.json`. Recursos en `ingles/recursos.json`. Cómo editar: `ingles/README.md`.
 - Escala: Empezando · Funcional · Seguro · Profesional (orientativo A1–A2 / B1 / B2 / C1; no es certificación).
-- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y no envía nada.
+- Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y **no envía datos personales**.
+- Entradas: landing `ingles/?utm=landing`, taller `ingles/?utm=taller`, kit `ingles/?utm=whatsapp|tiktok|estado`.
+- Resultado: tarjeta del taller (fecha/hora/lugar/cupos de `taller/config.js`). Botón «Reservar mi cupo» → `taller/?utm=ingles`. Si `inscritos >= cupos` (y `cupos > 0`), el botón pasa a lista de espera. Si la fecha ya pasó, se oculta. WhatsApp: «Recibir mi plan por WhatsApp»; si la tarjeta está visible, el texto termina «Quiero info del taller del 20.»
+- Medición: POST `ingles_evento` inicio (Empezar), fin (resultado) y cupo (clic en Reservar). Sin nombre ni respuestas. Conteos en el kit. Hace falta desplegar el Apps Script.
+- Pruebas locales: `ingles/?prueba=resultado` muestra el mapa; `prueba=lleno` y `prueba=pasado` fuerzan cupos o fecha. No mandan eventos.
 - Todos los ítems y los 2 recursos de ejemplo salen con `"revisar": true` hasta que David los apruebe y complete URLs reales. No inventar enlaces.
 
 ## 6. Cómo trabajar y publicar
