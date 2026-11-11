@@ -40,7 +40,7 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── ingles/           → Diagnóstico de inglés para el trabajo
 │   ├── index.html    → 5 escenas + resultado, tarjeta del taller y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
-│   ├── recursos.json → recursos gratuitos del resultado (David completa URLs)
+│   ├── recursos.json → 5 recursos gratuitos (O*NET, Indeed, USA Learns, guía de entrevistas de Google, CareerOneStop)
 │   └── README.md     → cómo editar ítems
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
@@ -152,9 +152,10 @@ URLs públicas:
 - Con `?c=codigo` personaliza y, al terminar, POST `form=ingles`. Sin código funciona y **no envía datos personales**.
 - Entradas: landing `ingles/?utm=landing`, taller `ingles/?utm=taller`, kit `ingles/?utm=whatsapp|tiktok|estado`.
 - Resultado: tarjeta del taller (fecha/hora/lugar/cupos de `taller/config.js`). Botón «Reservar mi cupo» → `taller/?utm=ingles`. Si `inscritos >= cupos` (y `cupos > 0`), el botón pasa a lista de espera. Si la fecha ya pasó, se oculta. WhatsApp: «Recibir mi plan por WhatsApp»; si la tarjeta está visible, el texto termina «Quiero info del taller del 20.»
+- Recursos del resultado: 3 de `ingles/recursos.json` — los 2 que mejor cubren la habilidad más baja (`oral_auto` → `oral`) y siempre Interview Warmup de Google (si ya está en los 2, se suma el siguiente). Cada uno: nombre, una línea de qué hacer, botón Abrir (`target=_blank`, `rel=noopener`). El PDF escribe la URL completa.
 - Medición: POST `ingles_evento` inicio (Empezar), fin (resultado) y cupo (clic en Reservar). Sin nombre ni respuestas. Conteos en el kit. Hace falta desplegar el Apps Script.
-- Pruebas locales: `ingles/?prueba=resultado` muestra el mapa; `prueba=lleno` y `prueba=pasado` fuerzan cupos o fecha. No mandan eventos.
-- Todos los ítems y los 2 recursos de ejemplo salen con `"revisar": true` hasta que David los apruebe y complete URLs reales. No inventar enlaces.
+- Pruebas locales: `ingles/?prueba=resultado` muestra el mapa; suma `,lectura` / `,escucha` / `,vocabulario` / `,escritura` / `,oral` para forzar esa habilidad como la más baja. `prueba=lleno` y `prueba=pasado` fuerzan cupos o fecha. No mandan eventos.
+- Los ítems de `banco.json` siguen con `"revisar": true` hasta que David los apruebe. Los 5 recursos ya tienen URL. Google retiró Interview Warmup; el enlace apunta a la guía de entrevistas de Grow with Google.
 
 ## 6. Cómo trabajar y publicar
 ### Sitio (GitHub Pages)

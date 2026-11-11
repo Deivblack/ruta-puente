@@ -7,7 +7,7 @@ No es un examen. Es un mapa de 10–12 minutos: 5 escenas de una búsqueda de em
 ## Archivos
 - `index.html` — la experiencia (identidad de Ruta Puente, celular primero).
 - `banco.json` — ítems. Todos salen con `"revisar": true` hasta que David los apruebe.
-- `recursos.json` — recursos gratuitos del resultado. Hoy hay 2 ejemplos vacíos; David pega nombre, URL y quita o deja `"revisar"`.
+- `recursos.json` — 5 recursos gratis. El resultado muestra 3: los 2 que mejor cubren la habilidad más baja y siempre Interview Warmup de Google (si ya está en los 2, se suma el siguiente).
 
 ## Cómo editar un ítem
 Abre `banco.json`. Cada objeto tiene:
@@ -45,7 +45,9 @@ El resultado muestra una tarjeta del taller (lee `taller/config.js`). «Reservar
 
 Cada inicio, final y clic en cupo se cuenta en la pestaña **Ingles_eventos** (solo `evento` + `utm`). El kit copia los enlaces `?utm=whatsapp|tiktok|estado`. El conteo se ve cuando David despliega el script.
 
-Para revisar en el celular sin hacer las 5 escenas: `ingles/?prueba=resultado`. Suma `lleno` o `pasado` para ver lista de espera o la tarjeta oculta. Esas pruebas no mandan eventos.
+Para revisar en el celular sin hacer las 5 escenas: `ingles/?prueba=resultado`. Suma `,lectura`, `,escucha`, `,vocabulario`, `,escritura` o `,oral` para forzar esa habilidad como la más baja y ver cómo cambian los recursos. Suma `lleno` o `pasado` para ver lista de espera o la tarjeta oculta. Esas pruebas no mandan eventos.
+
+Google retiró la herramienta Interview Warmup; el enlace abre la guía de entrevistas de Grow with Google (`grow.google/grow-your-career/articles/interview-tips/`).
 
 ## Marca de revisión
 Mientras un ítem o recurso tenga `"revisar": true`, David debe leerlo antes de usarlo con personas reales.

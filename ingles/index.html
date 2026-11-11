@@ -68,6 +68,9 @@ select,input[type=text]{font:17px var(--f-body);color:var(--ink);background:var(
 .niveles div{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--bg);border-radius:12px}
 .plan{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .plan li{background:var(--hope-soft);border-radius:12px;padding:12px 14px}
+.recs li{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.recs .rec-nombre{font-weight:800}
+.recs .rec-url{display:none;font-size:14px;color:var(--muted);word-break:break-all}
 footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
 .aviso{background:var(--sun-soft);border-radius:12px;padding:12px;font-size:15px}
 #rec-ind{font-weight:800;color:var(--hope)}
@@ -84,6 +87,7 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
   #scr-res{display:flex!important}
   .btn{display:none!important}
   a{color:#111;text-decoration:none}
+  .recs .rec-url{display:block!important}
 }
 </style>
 </head>
@@ -187,7 +191,7 @@ footer{padding:36px 0 8px;text-align:center;font-size:14px;color:var(--muted)}
     <ol class="plan" id="res-plan"></ol>
     <div class="vacante" id="res-guion"></div>
     <h2>Recursos gratuitos</h2>
-    <ul class="plan" id="res-rec"></ul>
+    <ul class="plan recs" id="res-rec"></ul>
     <p class="aviso" id="res-rev" hidden>Los recursos y varios ítems están marcados para que David los revise antes de usarlos con más personas.</p>
     <div class="row no-print">
       <button class="btn" id="btn-pdf" type="button">Descargar mi resultado (PDF)</button>
@@ -218,6 +222,7 @@ const ALCANCE = {
   Seguro: "Puedes seguir una llamada de reclutador y escribir un follow-up claro. Esta semana: entrevistas y vocabulario de tu cargo en inglés.",
   Profesional: "Puedes moverte con soltura en entrevistas y correos de tu área. Afina matices (salario, gaps, liderazgo) y practica con vacantes reales."
 };
+const LABELS_HAB = {lectura:"lectura",escucha:"escucha",vocabulario:"vocabulario de trabajo",escritura:"escritura (correos)",oral_auto:"presentación oral"};
 const CARRIL_DE = [
   ["contador","contabilidad"],["contabl","contabilidad"],["finanz","contabilidad"],
   ["ingeniero","ingenieria"],["ingenieria","ingenieria"],["manufact","ingenieria"],["bodega","ingenieria"],["electromec","ingenieria"],
@@ -625,8 +630,7 @@ $("#btn-fin").addEventListener("click", ()=>{
   const general = NOUT[Math.round(nums.reduce((s,x)=>s+x,0)/nums.length)] || "Funcional";
   let peor = "lectura"; let peorI = 9;
   Object.keys(niveles).forEach(k=>{ if (NOUT.indexOf(niveles[k])<peorI){ peorI=NOUT.indexOf(niveles[k]); peor=k; } });
-  const labels = {lectura:"lectura",escucha:"escucha",vocabulario:"vocabulario de trabajo",escritura:"escritura (correos)",oral_auto:"presentación oral"};
-  pintarResultado(general, niveles, peor, labels[peor]);
+  pintarResultado(general, niveles, peor, LABELS_HAB[peor]);
   pintarTarjetaTaller(peor);
   enviarEvento("fin");
   const payload = {
@@ -665,22 +669,66 @@ function pintarResultado(general, niveles, peor, peorLabel){
   const ol = $("#res-plan"); ol.innerHTML="";
   plan7(peor, S.cargo).forEach(t=>{ const li=document.createElement("li"); li.textContent=t; ol.appendChild(li); });
   $("#res-guion").textContent = "Guion de 30 s:\n"+guion();
-  const ul = $("#res-rec"); ul.innerHTML="";
-  const hayRev = (recursos||[]).some(r=>r.revisar) || (banco||[]).some(i=>i.revisar);
-  $("#res-rev").hidden = !hayRev;
-  (recursos||[]).forEach(r=>{
-    const li=document.createElement("li");
-    const nombre = r.nombre || "Recurso";
-    if (r.url){
-      const a=document.createElement("a"); a.href=r.url; a.target="_blank"; a.rel="noopener"; a.textContent=nombre;
-      li.appendChild(a);
-    } else li.textContent = nombre;
-    const p=document.createElement("p"); p.className="hint"; p.textContent=(r.para_que||"")+(r.nivel?" · "+r.nivel:"");
-    li.appendChild(p); ul.appendChild(li);
-  });
+  pintarRecursos(peor);
   ultimoRes = {general, niveles, peor, peorLabel};
   armarWhatsApp();
   $("#btn-ruta").href = CODIGO ? ("../app/?c="+encodeURIComponent(CODIGO)) : "../";
+}
+function habDeRecurso(peor){
+  return peor === "oral_auto" ? "oral" : peor;
+}
+function puntajeRecurso(r, hab){
+  const hs = r.habilidades || [];
+  if (hs.indexOf(hab) >= 0) return 2;
+  if (hs.indexOf("general") >= 0) return 1;
+  return 0;
+}
+function elegirRecursos(peor){
+  const hab = habDeRecurso(peor);
+  const lista = (recursos||[]).filter(r => r.nombre && r.url);
+  const ranked = lista.map((r,i)=>({r,i,s:puntajeRecurso(r,hab)}))
+    .sort((a,b)=> b.s - a.s || a.i - b.i)
+    .map(x=>x.r);
+  const top2 = ranked.slice(0,2);
+  const ids = {};
+  top2.forEach(r => { ids[r.id || r.nombre] = true; });
+  const warmup = lista.find(r => r.id === "interview-warmup");
+  const out = top2.slice();
+  if (warmup && !ids[warmup.id]) out.push(warmup);
+  else {
+    for (const r of ranked){
+      if (!ids[r.id || r.nombre]){ out.push(r); break; }
+    }
+  }
+  return out.slice(0,3);
+}
+function pintarRecursos(peor){
+  const ul = $("#res-rec"); ul.innerHTML="";
+  const hayRev = (recursos||[]).some(r=>r.revisar) || (banco||[]).some(i=>i.revisar);
+  $("#res-rev").hidden = !hayRev;
+  elegirRecursos(peor).forEach(r=>{
+    const li=document.createElement("li");
+    const nom=document.createElement("strong");
+    nom.className="rec-nombre";
+    nom.textContent=r.nombre;
+    const p=document.createElement("p");
+    p.className="hint";
+    p.textContent=r.para_que || "";
+    const url=document.createElement("p");
+    url.className="rec-url";
+    url.textContent=r.url;
+    const a=document.createElement("a");
+    a.className="btn";
+    a.href=r.url;
+    a.target="_blank";
+    a.rel="noopener";
+    a.textContent="Abrir";
+    li.appendChild(nom);
+    li.appendChild(p);
+    li.appendChild(url);
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
 }
 function armarWhatsApp(){
   if (!ultimoRes) return;
@@ -742,14 +790,20 @@ function pintarTarjetaTaller(peor){
 }
 $("#btn-pdf").addEventListener("click", ()=> window.print());
 $("#btn-cupo").addEventListener("click", ()=> enviarEvento("cupo"));
+function peorDePrueba(){
+  const keys = ["lectura","escucha","vocabulario","escritura","oral_auto","oral"];
+  const k = keys.find(x => hayPrueba(x));
+  if (k === "oral") return "oral_auto";
+  return k || "vocabulario";
+}
 init().then(()=>{
   if (!hayPrueba("resultado")) return;
   S.auto = 3; S.carril = "general"; S.cargo = "professional";
-  pintarResultado("Funcional", {
-    lectura:"Funcional", escucha:"Funcional", vocabulario:"Empezando",
-    escritura:"Funcional", oral_auto:"Funcional"
-  }, "vocabulario", "vocabulario de trabajo");
-  pintarTarjetaTaller("vocabulario");
+  const peor = peorDePrueba();
+  const niveles = {lectura:"Funcional",escucha:"Funcional",vocabulario:"Funcional",escritura:"Funcional",oral_auto:"Funcional"};
+  niveles[peor] = "Empezando";
+  pintarResultado("Funcional", niveles, peor, LABELS_HAB[peor]);
+  pintarTarjetaTaller(peor);
 });
 </script>
 </body>
