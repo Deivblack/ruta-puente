@@ -9,7 +9,10 @@ const TALLER = {
   direccion: "2603 Augusta Dr #810, Houston, TX 77057",
   modalidad: "Presencial",
   cupos: 13,                        // 10 sillas; 13 cierra la inscripción (inasistencias). 0 = sin límite
-  apoyo: "Con el apoyo del Consulado de Ecuador en Houston", // solo en mensajes; no va en el afiche
+  cuposLimitados: true,             // muestra “Cupos limitados”; el cierre usa cupos
+  apoyo: "Con el apoyo del Consulado de Ecuador en Houston", // solo en el copy de WhatsApp, no en las imágenes
+  logoApoyo: "",
+  whatsapp: "18322533555",          // preguntas; mismo número público de Ruta Puente
   estacionamiento: "[POR CONFIRMAR]",
   inicioISO: "2026-11-20T14:00:00-06:00",
   finISO: "2026-11-20T15:30:00-06:00"
@@ -31,6 +34,20 @@ function tallerApoyoConfirmado() {
   return !tallerPendiente(TALLER.apoyo);
 }
 
+function tallerWhatsappUrl(texto) {
+  const n = String(TALLER.whatsapp || "").replace(/\D/g, "");
+  if (!n) return "";
+  const href = "https://wa.me/" + n;
+  return texto ? href + "?text=" + encodeURIComponent(texto) : href;
+}
+
+function tallerWhatsappBonito() {
+  const n = String(TALLER.whatsapp || "").replace(/\D/g, "");
+  const diez = n.length === 11 && n.charAt(0) === "1" ? n.slice(1) : n;
+  if (diez.length !== 10) return n;
+  return diez.slice(0, 3) + "-" + diez.slice(3, 6) + "-" + diez.slice(6);
+}
+
 function tallerCalendarioUrl() {
   const utc = iso => {
     const d = new Date(iso);
@@ -38,9 +55,10 @@ function tallerCalendarioUrl() {
     return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   };
   const text = encodeURIComponent(TALLER.titulo + " · Ruta Puente");
-  const details = encodeURIComponent(
-    TALLER.subtitulo + "\n\nGratis. Inscríbete: " + TALLER_URL
-  );
+  const parts = [TALLER.subtitulo, "", "Gratis. Cupos limitados. Inscríbete: " + TALLER_URL];
+  if (!tallerPendiente(TALLER.lugar)) parts.push("Lugar: " + TALLER.lugar);
+  if (!tallerPendiente(TALLER.direccion)) parts.push("Dirección: " + TALLER.direccion);
+  const details = encodeURIComponent(parts.join("\n"));
   const bits = [];
   if (!tallerPendiente(TALLER.lugar)) bits.push(TALLER.lugar);
   if (!tallerPendiente(TALLER.direccion)) bits.push(TALLER.direccion);
@@ -56,9 +74,9 @@ function tallerMapsUrl() {
 }
 
 function tallerInvitarUrl() {
-  const hora = tallerPendiente(TALLER.hora) ? "" : " a las " + TALLER.hora;
-  const lugar = tallerPendiente(TALLER.lugar) ? "" : " en " + TALLER.lugar;
+  const hora = tallerPendiente(TALLER.hora) ? "" : " · " + TALLER.hora;
+  const lugar = tallerPendiente(TALLER.lugar) ? "" : " · " + TALLER.lugar;
   const msg = "Te invito al taller gratuito de Ruta Puente: \"" + TALLER.titulo +
     "\". " + TALLER.fecha + hora + lugar + ". Inscríbete aquí: " + TALLER_URL;
-  return "https://wa.me/?text=" + encodeURIComponent(msg);
+  return tallerWhatsappUrl(msg) || "https://wa.me/?text=" + encodeURIComponent(msg);
 }

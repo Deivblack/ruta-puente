@@ -29,14 +29,16 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 ├── app/index.html    → App personal (6 pasos) que se abre con ?c=<codigo>
 ├── (app/app-body.html ya no está en el repo; la app vive solo en app/index.html)
 ├── bitacora/index.html → Página privada de David para registrar entrevistas (requiere clave; noindex)
-├── taller/           → Inscripción, afiche y kit del taller (20 nov 2026, 2:00–3:30 p. m., cupos 13)
-│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos
+├── taller/           → Inscripción, afiche y kit del taller (20 nov 2026, 2:00–3:30 p. m., Consulado Ecuador Houston, cupos 13)
+│   ├── config.js     → ÚNICO lugar de hora, lugar, dirección, apoyo, cupos, WhatsApp
 │   ├── index.html    → Página pública de inscripción
 │   ├── kit.html      → Kit privado (clave de la Bitácora, noindex) para copiar mensajes
 │   ├── kit-mensajes.json → Calendario de textos y versión de cupo lleno
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
+│   ├── escudo-ecuador.svg / .png → archivo guardado; no se muestra (el apoyo va solo en el copy de WhatsApp)
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
-│   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
+│   ├── afiche.pdf / afiche.png → para WhatsApp (sin BORRADOR si hora/lugar están confirmados)
+│   └── artes/        → imágenes y copy para grupos (cuadrado + estado + copy-whatsapp.txt)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
 │   ├── index.html    → 5 escenas + resultado, tarjeta del taller y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
@@ -139,11 +141,13 @@ URLs públicas:
 - Chip en la tarjeta: "Inglés: Funcional (4 nov)" si hay fila en la pestaña Ingles.
 
 ### Taller (`taller/`)
-- Datos en **un solo archivo** `taller/config.js` (`TALLER`). Fecha: viernes 20 de noviembre de 2026, 2:00–3:30 p. m. (`inicioISO`/`finISO`). `cupos: 13`. La confirmación de la inscripción lee la fecha de aquí. El texto de `TALLER.apoyo` va solo en los mensajes de WhatsApp, no en el afiche ni con logo.
+- Datos en **un solo archivo** `taller/config.js` (`TALLER`). Fecha: viernes 20 de noviembre de 2026, 2:00–3:30 p. m. (`inicioISO`/`finISO`). `cupos: 13`. Si un campo dice `[POR CONFIRMAR]`, la página muestra "Hora y lugar: te avisamos por WhatsApp"; el afiche sí lo muestra y lleva marca de agua **BORRADOR**. La confirmación de la inscripción lee la fecha de aquí. El texto de `TALLER.apoyo` va solo en los mensajes de WhatsApp, no en el afiche ni con logo.
 - `taller/kit.html` (noindex) pide la misma clave que la Bitácora y la manda por POST. Muestra la tarea del día (Copiar y Abrir WhatsApp), el contador, los recordatorios del 19 al 21, el buscador de cargos, los enlaces `?utm=` del taller y los del diagnóstico (`ingles/?utm=whatsapp|tiktok|estado`). Si `inscritos >= cupos`, los mensajes de difusión pasan a su versión de cupo lleno. `?fecha=AAAA-MM-DD` solo sirve para ensayar el día; no lleva la clave. En textos al público: «querida comunidad», no «paisanos».
 - Los textos están en `taller/kit-mensajes.json`. El lunes 16 el kit mira `ingles/banco.json`: si hay ítems con `revisar: true`, manda el ejemplo de CV; si no, ofrece el diagnóstico.
 - Para publicar hora/lugar: edita `config.js` y vuelve a exportar el PDF del afiche. El PNG y el PDF que ya están en el repo pueden seguir diciendo la fecha vieja hasta que los exportes de nuevo.
 - `?utm=afiche` (y whatsapp, facebook, consulado, embajadora, radio) se guarda en `fuente`. No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
+- No poner logo ni escudo del Consulado en landing, afiche ni artes. El apoyo se dice solo en el copy de WhatsApp (`taller/artes/copy-whatsapp.txt`). El lugar del taller sí puede ser el Consulado (es la dirección).
+- Artes para grupos: `taller/artes/whatsapp-cuadrado.png` (grupos), `whatsapp-estado.png` (estado), texto en `copy-whatsapp.txt`. El QR y el enlace llevan `?utm=whatsapp`.
 
 ### Diagnóstico de inglés (`ingles/`)
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
