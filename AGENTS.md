@@ -42,6 +42,12 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
 │   ├── recursos.json → 5 recursos gratuitos (O*NET, Indeed, USA Learns, guía de entrevistas de Google, CareerOneStop)
 │   └── README.md     → cómo editar ítems
+├── contenido/taller-20nov/ → Campaña del taller 20 nov (copys, artes PNG, galería noindex)
+│   ├── copys.md / calendario.json → textos por canal (David y Diana)
+│   ├── plantillas/lienzo.html + render-artes.mjs → origen de los PNG
+│   ├── artes/        → PNG listos para el celular
+│   └── index.html    → galería privada (clave de la Bitácora)
+├── kit-taller/       → Atajo a la galería (`/kit-taller/`). No enlazar desde el sitio público
 ├── apps-script.gs    → Copia del código del Apps Script (la fuente real está en Google; ver sección 6)
 ├── logo.svg, logo-mark.svg, logo-icon.svg
 └── README.md
@@ -54,6 +60,7 @@ URLs públicas:
 - Kit (privado): https://deivblack.github.io/ruta-puente/taller/kit.html
 - Afiche: https://deivblack.github.io/ruta-puente/taller/afiche.html
 - Inglés: https://deivblack.github.io/ruta-puente/ingles/
+- Kit campaña taller (privado, noindex): https://deivblack.github.io/ruta-puente/kit-taller/
 
 ## 4. Arquitectura
 ```
@@ -144,6 +151,11 @@ URLs públicas:
 - Los textos están en `taller/kit-mensajes.json`. El lunes 16 el kit mira `ingles/banco.json`: si hay ítems con `revisar: true`, manda el ejemplo de CV; si no, ofrece el diagnóstico.
 - Para publicar hora/lugar: edita `config.js` y vuelve a exportar el PDF del afiche. El PNG y el PDF que ya están en el repo pueden seguir diciendo la fecha vieja hasta que los exportes de nuevo.
 - `?utm=afiche` (y whatsapp, facebook, consulado, embajadora, radio) se guarda en `fuente`. No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
+
+### Campaña de contenido (`contenido/taller-20nov/`)
+- Copys y calendario del taller del 20 de noviembre: `copys.md` + `calendario.json`. Fecha, hora y lugar salen de `taller/config.js`. Enlaces con `?utm=whatsapp|facebook|instagram|tiktok|estado|diana`. Saludo «querida comunidad»; nunca «paisanos». No hablar de papeles ni prometer empleo. No hay logos de terceros en los artes.
+- Artes: plantilla `plantillas/lienzo.html`. Para regenerar los PNG: desde la raíz del repo, `npm run artes` (Playwright + Chrome local; no es un build del sitio público; `node_modules/` no se sube). Salida en `contenido/taller-20nov/artes/`. Cada pieza tiene versión con QR `utm=diana`.
+- Galería para el celular: `contenido/taller-20nov/index.html` (noindex). Atajo `kit-taller/`. Pide la misma clave de la Bitácora (`accion: listar`) y la guarda en `rp-bit-clave`. No enlazarla desde la landing, la app ni el taller público.
 
 ### Diagnóstico de inglés (`ingles/`)
 - Página `ingles/index.html`: 5 escenas (vacante, llamada con `speechSynthesis`, vocabulario por carril, correo, presentación de 30 s). El audio **nunca se sube**; se borra al salir.
