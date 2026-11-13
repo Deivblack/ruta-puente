@@ -1,0 +1,249 @@
+{
+  "taller": {
+    "fuente": "taller/config.js",
+    "titulo": "¿Cómo se llama tu cargo en inglés?",
+    "fecha": "Viernes 20 de noviembre de 2026",
+    "hora": "2:00 p. m. – 3:30 p. m.",
+    "lugar": "Consulado General del Ecuador en Houston",
+    "direccion": "2603 Augusta Dr #810, Houston, TX 77057",
+    "cupos_publicos": 10,
+    "maps": "https://maps.google.com/?q=2603+Augusta+Dr+%23810,+Houston,+TX+77057",
+    "base_taller": "https://deivblack.github.io/ruta-puente/taller/",
+    "base_ingles": "https://deivblack.github.io/ruta-puente/ingles/"
+  },
+  "piezas": [
+    {
+      "id": "d14-diana-estado",
+      "fecha": "2026-11-14",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "estado",
+      "objetivo": "Avisar en dos líneas en el estado de WhatsApp",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "flyer-historia-diana.png",
+      "copy": "Querida comunidad: taller GRATIS el viernes 20. ¿Cómo se llama tu cargo en inglés?\nInscríbete: https://deivblack.github.io/ruta-puente/taller/?utm=diana"
+    },
+    {
+      "id": "d14-diana-fb1",
+      "fecha": "2026-11-14",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "facebook",
+      "objetivo": "Invitar en su grupo como alguien de la comunidad",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "flyer-facebook-diana.png",
+      "copy": "Querida comunidad:\n\nLes escribo porque este viernes 20 de noviembre hay un taller gratis que me parece útil: «¿Cómo se llama tu cargo en inglés?».\n\nLo da David Moreno, de Ruta Puente. Es de aquí, de Houston. En 90 minutos te ayudan a ponerle nombre en inglés a tu profesión, a dejar un logro claro en el CV y a practicar cómo te presentas.\n\nEs presencial, de 2:00 a 3:30 p. m., en el Consulado General del Ecuador en Houston (2603 Augusta Dr #810). Hay 10 cupos.\n\nYo apoyo porque conozco a gente con título que hoy está en otra cosa. Si te late, inscríbete y comparte con quien le sirva:\n\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana"
+    },
+    {
+      "id": "d14-diana-fb2",
+      "fecha": "2026-11-14",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "facebook",
+      "objetivo": "Segundo grupo de Facebook, con pregunta",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "flyer-facebook-diana.png",
+      "copy": "Querida comunidad:\n\n¿Estudiaste una profesión y hoy te pagan por otra? A varias personas de aquí les pasa.\n\nEl viernes 20 de noviembre, de 2:00 a 3:30 p. m., hay un taller GRATIS en el Consulado General del Ecuador en Houston: cómo se llama tu cargo en inglés, un logro para el CV y tu presentación de 30 segundos.\n\nLo da David Moreno (Ruta Puente). Yo solo apoyo y paso el dato. 10 cupos.\n\nSi conoces a alguien con título que hoy trabaja en almacén, restaurante o delivery, pásale esto:\n\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana"
+    },
+    {
+      "id": "d15-diana-dm",
+      "fecha": "2026-11-15",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "whatsapp",
+      "objetivo": "Invitar en privado a 3 personas; cambia [nombre]",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "",
+      "copy": "Hola [nombre], querida comunidad de una sola persona.\n\nTe escribo porque el viernes 20 de noviembre hay un taller gratis que me hizo pensar en ti: «¿Cómo se llama tu cargo en inglés?». Es de 2:00 a 3:30 p. m. en el Consulado General del Ecuador en Houston.\n\nLo da David Moreno, de Ruta Puente. Sales con tu cargo en inglés, un logro para el CV y tu presentación corta. Solo 10 cupos.\n\nSi te late, inscríbete aquí:\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana\n\nSi no puedes, no pasa nada. Quería que lo supieras."
+    },
+    {
+      "id": "d16-david-fb",
+      "fecha": "2026-11-16",
+      "hora": "",
+      "quien": "David",
+      "canal": "facebook",
+      "objetivo": "Grupo ECUATORIANOS EN HOUSTON: historia + pregunta",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=facebook",
+      "arte": "flyer-facebook.png",
+      "copy": "Querida comunidad:\n\nLlevo más de 15 años en capacitación y talento humano. Hoy, aquí en Houston, soy mesero y ayudo en un almacén. No es que mi título no sirva. Es que el mercado pide el cargo en inglés y un CV que se entienda a la primera.\n\nEl viernes 20 de noviembre, de 2:00 a 3:30 p. m., doy un taller gratis en el Consulado General del Ecuador en Houston: «¿Cómo se llama tu cargo en inglés?». En 90 minutos sales con tu cargo, un logro con número para el CV, tu presentación de 30 segundos y un plan de 7 días. Hay 10 cupos.\n\n¿Sabes cómo se llama tu profesión en inglés?\n\nSi te sirve, inscríbete (y si no es para ti, tal vez sí para alguien de tu casa):\nhttps://deivblack.github.io/ruta-puente/taller/?utm=facebook"
+    },
+    {
+      "id": "d16-diana-h1",
+      "fecha": "2026-11-16",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "estado",
+      "objetivo": "Historia Faltan 4 días",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "cuenta-4dias-historia-diana.png",
+      "copy": "Querida comunidad: faltan 4 días. Taller gratis el viernes 20, 2:00–3:30 p. m.\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana"
+    },
+    {
+      "id": "d16-diana-h2",
+      "fecha": "2026-11-16",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "estado",
+      "objetivo": "Segunda historia: la pregunta",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "flyer-historia-diana.png",
+      "copy": "¿Sabes cómo se llama tu profesión en inglés? El viernes te lo llevas escrito.\nInscríbete: https://deivblack.github.io/ruta-puente/taller/?utm=diana"
+    },
+    {
+      "id": "d16-ig-carrusel",
+      "fecha": "2026-11-16",
+      "hora": "",
+      "quien": "David",
+      "canal": "instagram",
+      "objetivo": "Carrusel de 5 profesiones",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=instagram",
+      "arte": "carrusel-1.png",
+      "artes": ["carrusel-1.png","carrusel-2.png","carrusel-3.png","carrusel-4.png","carrusel-5.png","carrusel-6.png"],
+      "copy": "¿Cómo se llama tu profesión en inglés?\n5 cargos, en claro. El viernes 20 hay taller gratis en Houston.\nInscríbete: https://deivblack.github.io/ruta-puente/taller/?utm=instagram\n#latinosenhouston #ecuatorianosenhouston #trabajoenusa #houstontx"
+    },
+    {
+      "id": "d16-tt-carrusel",
+      "fecha": "2026-11-16",
+      "hora": "",
+      "quien": "David",
+      "canal": "tiktok",
+      "objetivo": "Misma pieza de carrusel en TikTok",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=tiktok",
+      "arte": "carrusel-1.png",
+      "artes": ["carrusel-1.png","carrusel-2.png","carrusel-3.png","carrusel-4.png","carrusel-5.png","carrusel-6.png"],
+      "copy": "¿Cómo se llama tu profesión en inglés?\n5 cargos, en claro. El viernes 20 hay taller gratis en Houston.\nInscríbete: https://deivblack.github.io/ruta-puente/taller/?utm=tiktok\n#latinosenhouston #ecuatorianosenhouston #trabajoenusa #houstontx"
+    },
+    {
+      "id": "d18-david-wa",
+      "fecha": "2026-11-18",
+      "hora": "",
+      "quien": "David",
+      "canal": "whatsapp",
+      "objetivo": "Último llamado: noticia + 3 logros + enlace",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=whatsapp",
+      "arte": "flyer-historia.png",
+      "copy": "Querida comunidad: último llamado.\n\nTaller GRATIS el viernes 20 de noviembre, 2:00–3:30 p. m., en el Consulado General del Ecuador en Houston.\n\nEn 90 minutos te llevas:\n✅ Tu cargo en inglés (el que buscan los reclutadores)\n✅ Un logro reescrito para tu CV, con número\n✅ Tu presentación de 30 segundos, practicada\n\nInscríbete (10 cupos):\nhttps://deivblack.github.io/ruta-puente/taller/?utm=whatsapp\n\n¡Gracias por compartir! 🙏"
+    },
+    {
+      "id": "d18-david-nota",
+      "fecha": "2026-11-18",
+      "hora": "",
+      "quien": "David",
+      "canal": "whatsapp",
+      "objetivo": "Guion de nota de voz de 30 segundos",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=whatsapp",
+      "arte": "",
+      "copy": "Querida comunidad, te hablo 30 segundos.\n\nSoy David, de Ruta Puente. El viernes 20, de 2 a 3:30 de la tarde, doy un taller gratis en el Consulado de Ecuador en Houston: cómo se llama tu cargo en inglés.\n\nSales con tres cosas: tu cargo, un logro para el CV y tu presentación de 30 segundos. Hay 10 cupos.\n\nSi te sirve, inscríbete con el enlace que está en el grupo. Si no es para ti, pásaselo a alguien de la casa. Gracias por compartir."
+    },
+    {
+      "id": "d18-david-lleno",
+      "fecha": "2026-11-18",
+      "hora": "",
+      "quien": "David",
+      "canal": "whatsapp",
+      "objetivo": "Versión cupo lleno: lista de espera",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=whatsapp",
+      "arte": "ultimos-historia.png",
+      "copy": "Querida comunidad: los 10 cupos del viernes 20 ya se llenaron.\n\nSi te inscribes ahora quedas en lista de espera. Si alguien no puede ir, te escribo. El enlace es el mismo:\n\nhttps://deivblack.github.io/ruta-puente/taller/?utm=whatsapp\n\nEl próximo taller se avisa por aquí. ¡Gracias por compartir! 🙏"
+    },
+    {
+      "id": "d18-diana-ultimos",
+      "fecha": "2026-11-18",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "estado",
+      "objetivo": "Estado Últimos cupos",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "ultimos-historia-diana.png",
+      "copy": "Querida comunidad: ¡últimos cupos! Taller gratis viernes 20, 2:00–3:30 p. m.\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana"
+    },
+    {
+      "id": "d18-ig-reel",
+      "fecha": "2026-11-18",
+      "hora": "",
+      "quien": "David",
+      "canal": "instagram",
+      "objetivo": "Reel con el video del charro ya editado",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=instagram",
+      "arte": "",
+      "copy": "Estudié para una profesión. Hoy me pagan por otra.\nEl viernes 20, taller gratis: tu cargo en inglés. 10 cupos.\nhttps://deivblack.github.io/ruta-puente/taller/?utm=instagram\n#latinosenhouston #ecuatorianosenhouston #trabajoenusa #houstontx #aprendizajeagil"
+    },
+    {
+      "id": "d18-tt-reel",
+      "fecha": "2026-11-18",
+      "hora": "",
+      "quien": "David",
+      "canal": "tiktok",
+      "objetivo": "Mismo reel del charro en TikTok",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=tiktok",
+      "arte": "",
+      "copy": "Estudié para una profesión. Hoy me pagan por otra.\nEl viernes 20, taller gratis: tu cargo en inglés. 10 cupos.\nhttps://deivblack.github.io/ruta-puente/taller/?utm=tiktok\n#latinosenhouston #ecuatorianosenhouston #trabajoenusa #houstontx #aprendizajeagil"
+    },
+    {
+      "id": "d19-david-confirma",
+      "fecha": "2026-11-19",
+      "hora": "",
+      "quien": "David",
+      "canal": "whatsapp",
+      "objetivo": "Confirmación individual; pide responder SÍ",
+      "enlace": "https://maps.google.com/?q=2603+Augusta+Dr+%23810,+Houston,+TX+77057",
+      "arte": "",
+      "copy": "Hola [nombre], soy David de Ruta Puente.\n\nTe confirmo el taller de mañana viernes 20 de noviembre, 2:00–3:30 p. m., en el Consulado General del Ecuador en Houston, 2603 Augusta Dr #810.\n\n¿Vienes? Responde SÍ para guardar tu lugar.\n\nCómo llegar:\nhttps://maps.google.com/?q=2603+Augusta+Dr+%23810,+Houston,+TX+77057\n\nSi algo se complica, escríbeme. Te espero."
+    },
+    {
+      "id": "d19-ig-cuenta",
+      "fecha": "2026-11-19",
+      "hora": "",
+      "quien": "David",
+      "canal": "instagram",
+      "objetivo": "Cuenta regresiva: es mañana",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=instagram",
+      "arte": "cuenta-manana-historia.png",
+      "copy": "Mañana es el taller. ¿Cómo se llama tu cargo en inglés?\nViernes 20, 2:00–3:30 p. m., Consulado de Ecuador en Houston.\nhttps://deivblack.github.io/ruta-puente/taller/?utm=instagram\n#latinosenhouston #ecuatorianosenhouston #trabajoenusa #houstontx"
+    },
+    {
+      "id": "d19-tt-cuenta",
+      "fecha": "2026-11-19",
+      "hora": "",
+      "quien": "David",
+      "canal": "tiktok",
+      "objetivo": "Cuenta regresiva en TikTok",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=tiktok",
+      "arte": "cuenta-manana-historia.png",
+      "copy": "Mañana es el taller. ¿Cómo se llama tu cargo en inglés?\nViernes 20, 2:00–3:30 p. m., Consulado de Ecuador en Houston.\nhttps://deivblack.github.io/ruta-puente/taller/?utm=tiktok\n#latinosenhouston #ecuatorianosenhouston #trabajoenusa #houstontx"
+    },
+    {
+      "id": "d20-david-grupo",
+      "fecha": "2026-11-20",
+      "hora": "12:00",
+      "quien": "David",
+      "canal": "whatsapp",
+      "objetivo": "Recordatorio del día con Maps",
+      "enlace": "https://maps.google.com/?q=2603+Augusta+Dr+%23810,+Houston,+TX+77057",
+      "arte": "cuenta-hoy-historia.png",
+      "copy": "Querida comunidad: hoy es el taller, 2:00–3:30 p. m.\n\nConsulado General del Ecuador en Houston.\nCómo llegar: https://maps.google.com/?q=2603+Augusta+Dr+%23810,+Houston,+TX+77057\n\nSi ya te inscribiste, te veo a las 2:00. Si aún hay lugar, el enlace:\nhttps://deivblack.github.io/ruta-puente/taller/?utm=whatsapp"
+    },
+    {
+      "id": "d21-david-gracias",
+      "fecha": "2026-11-21",
+      "hora": "",
+      "quien": "David",
+      "canal": "whatsapp",
+      "objetivo": "Gracias + foto + próximo taller + lista de espera",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=whatsapp",
+      "arte": "gracias-historia.png",
+      "copy": "Querida comunidad: gracias a quienes vinieron ayer al taller.\n\nEn la foto se ve el trabajo: el cargo en inglés, un logro para el CV y la presentación de 30 segundos.\n\nEl próximo taller lo avisamos aquí. Si no alcanzaste cupo, deja tu nombre en el mismo enlace (lista de espera):\nhttps://deivblack.github.io/ruta-puente/taller/?utm=whatsapp"
+    },
+    {
+      "id": "d21-diana-gracias",
+      "fecha": "2026-11-21",
+      "hora": "",
+      "quien": "Diana",
+      "canal": "whatsapp",
+      "objetivo": "Gracias en voz de la comunidad",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
+      "arte": "gracias-historia-diana.png",
+      "copy": "Querida comunidad: ayer se hizo el taller de Ruta Puente. Gracias a David y a quienes fueron.\n\nSi no pudiste ir, pide lista de espera. El próximo se avisa por aquí:\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana"
+    }
+  ]
+}
