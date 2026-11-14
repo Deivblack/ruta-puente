@@ -1,7 +1,8 @@
 {
   "taller": {
     "fuente": "taller/config.js",
-    "titulo": "¿Cómo se llama tu cargo en inglés?",
+    "titulo": "Vuelve a lo tuyo",
+    "subtitulo": "Taller gratuito: cómo volver a trabajar en tu profesión en Estados Unidos",
     "fecha": "Viernes 20 de noviembre de 2026",
     "hora": "2:00 p. m. – 3:30 p. m.",
     "lugar": "Consulado General del Ecuador en Houston",
@@ -32,7 +33,7 @@
       "objetivo": "Invitar en su grupo como alguien de la comunidad",
       "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
       "arte": "flyer-facebook-diana.png",
-      "copy": "Querida comunidad:\n\nLes escribo porque este viernes 20 de noviembre hay un taller gratis que me parece útil: «¿Cómo se llama tu cargo en inglés?».\n\nLo da David Moreno, de Ruta Puente. Es de aquí, de Houston. En 90 minutos te ayudan a ponerle nombre en inglés a tu profesión, a dejar un logro claro en el CV y a practicar cómo te presentas.\n\nEs presencial, de 2:00 a 3:30 p. m., en el Consulado General del Ecuador en Houston (2603 Augusta Dr #810). Hay 10 cupos.\n\nYo apoyo porque conozco a gente con título que hoy está en otra cosa. Si te late, inscríbete y comparte con quien le sirva:\n\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana"
+      "copy": "Querida comunidad:\n\nLes escribo porque este viernes 20 de noviembre hay un taller gratis que me parece útil: «Vuelve a lo tuyo».\n\nLo da David Moreno, de Ruta Puente. Es de aquí, de Houston. En 90 minutos te ayudan a ponerle nombre en inglés a tu profesión, a dejar un logro claro en el CV y a practicar cómo te presentas.\n\nEs presencial, de 2:00 a 3:30 p. m., en el Consulado General del Ecuador en Houston (2603 Augusta Dr #810). Hay 10 cupos.\n\nYo apoyo porque conozco a gente con título que hoy está en otra cosa. Si te late, inscríbete y comparte con quien le sirva:\n\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana"
     },
     {
       "id": "d14-diana-fb2",
@@ -54,7 +55,7 @@
       "objetivo": "Invitar en privado a 3 personas; cambia [nombre]",
       "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=diana",
       "arte": "",
-      "copy": "Hola [nombre], querida comunidad de una sola persona.\n\nTe escribo porque el viernes 20 de noviembre hay un taller gratis que me hizo pensar en ti: «¿Cómo se llama tu cargo en inglés?». Es de 2:00 a 3:30 p. m. en el Consulado General del Ecuador en Houston.\n\nLo da David Moreno, de Ruta Puente. Sales con tu cargo en inglés, un logro para el CV y tu presentación corta. Solo 10 cupos.\n\nSi te late, inscríbete aquí:\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana\n\nSi no puedes, no pasa nada. Quería que lo supieras."
+      "copy": "Hola [nombre], querida comunidad de una sola persona.\n\nTe escribo porque el viernes 20 de noviembre hay un taller gratis que me hizo pensar en ti: «Vuelve a lo tuyo». Es de 2:00 a 3:30 p. m. en el Consulado General del Ecuador en Houston.\n\nLo da David Moreno, de Ruta Puente. Sales con tu cargo en inglés, un logro para el CV y tu presentación corta. Solo 10 cupos.\n\nSi te late, inscríbete aquí:\nhttps://deivblack.github.io/ruta-puente/taller/?utm=diana\n\nSi no puedes, no pasa nada. Quería que lo supieras."
     },
     {
       "id": "d16-david-fb",
@@ -65,7 +66,7 @@
       "objetivo": "Grupo ECUATORIANOS EN HOUSTON: historia + pregunta",
       "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=facebook",
       "arte": "flyer-facebook.png",
-      "copy": "Querida comunidad:\n\nLlevo más de 15 años en capacitación y talento humano. Hoy, aquí en Houston, soy mesero y ayudo en un almacén. No es que mi título no sirva. Es que el mercado pide el cargo en inglés y un CV que se entienda a la primera.\n\nEl viernes 20 de noviembre, de 2:00 a 3:30 p. m., doy un taller gratis en el Consulado General del Ecuador en Houston: «¿Cómo se llama tu cargo en inglés?». En 90 minutos sales con tu cargo, un logro con número para el CV, tu presentación de 30 segundos y un plan de 7 días. Hay 10 cupos.\n\n¿Sabes cómo se llama tu profesión en inglés?\n\nSi te sirve, inscríbete (y si no es para ti, tal vez sí para alguien de tu casa):\nhttps://deivblack.github.io/ruta-puente/taller/?utm=facebook"
+      "copy": "Querida comunidad:\n\nLlevo más de 15 años en capacitación y talento humano. Hoy, aquí en Houston, soy mesero y ayudo en un almacén. No es que mi título no sirva. Es que el mercado pide el cargo en inglés y un CV que se entienda a la primera.\n\nEl viernes 20 de noviembre, de 2:00 a 3:30 p. m., doy un taller gratis en el Consulado General del Ecuador en Houston: «Vuelve a lo tuyo». En 90 minutos sales con tu cargo, un logro con número para el CV, tu presentación de 30 segundos y un plan de 7 días. Hay 10 cupos.\n\n¿Sabes cómo se llama tu profesión en inglés?\n\nSi te sirve, inscríbete (y si no es para ti, tal vez sí para alguien de tu casa):\nhttps://deivblack.github.io/ruta-puente/taller/?utm=facebook"
     },
     {
       "id": "d16-diana-h1",

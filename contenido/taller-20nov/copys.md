@@ -1,7 +1,7 @@
 # Copys · Taller 20 nov 2026
 
 Fuente de fecha, hora y lugar: `taller/config.js` (no cambiar a mano aquí).
-Taller: **¿Cómo se llama tu cargo en inglés?** · Viernes 20 de noviembre de 2026 · 2:00 p. m. – 3:30 p. m. · Consulado General del Ecuador en Houston · 2603 Augusta Dr #810, Houston, TX 77057.
+Taller: **Vuelve a lo tuyo** · Taller gratuito: cómo volver a trabajar en tu profesión en Estados Unidos · Viernes 20 de noviembre de 2026 · 2:00 p. m. – 3:30 p. m. · Consulado General del Ecuador en Houston · 2603 Augusta Dr #810, Houston, TX 77057.
 Público: 10 cupos (hay 13 en la hoja para inasistencias).
 Saludo: **querida comunidad**. Nunca «paisanos». No hablar de papeles ni de estatus. No prometer empleo.
 
@@ -36,7 +36,7 @@ Inscríbete: https://deivblack.github.io/ruta-puente/taller/?utm=diana
 ```
 Querida comunidad:
 
-Les escribo porque este viernes 20 de noviembre hay un taller gratis que me parece útil: «¿Cómo se llama tu cargo en inglés?».
+Les escribo porque este viernes 20 de noviembre hay un taller gratis que me parece útil: «Vuelve a lo tuyo».
 
 Lo da David Moreno, de Ruta Puente. Es de aquí, de Houston. En 90 minutos te ayudan a ponerle nombre en inglés a tu profesión, a dejar un logro claro en el CV y a practicar cómo te presentas.
 
@@ -80,7 +80,7 @@ https://deivblack.github.io/ruta-puente/taller/?utm=diana
 ```
 Hola [nombre], querida comunidad de una sola persona.
 
-Te escribo porque el viernes 20 de noviembre hay un taller gratis que me hizo pensar en ti: «¿Cómo se llama tu cargo en inglés?». Es de 2:00 a 3:30 p. m. en el Consulado General del Ecuador en Houston.
+Te escribo porque el viernes 20 de noviembre hay un taller gratis que me hizo pensar en ti: «Vuelve a lo tuyo». Es de 2:00 a 3:30 p. m. en el Consulado General del Ecuador en Houston.
 
 Lo da David Moreno, de Ruta Puente. Sales con tu cargo en inglés, un logro para el CV y tu presentación corta. Solo 10 cupos.
 
@@ -103,7 +103,7 @@ Querida comunidad:
 
 Llevo más de 15 años en capacitación y talento humano. Hoy, aquí en Houston, soy mesero y ayudo en un almacén. No es que mi título no sirva. Es que el mercado pide el cargo en inglés y un CV que se entienda a la primera.
 
-El viernes 20 de noviembre, de 2:00 a 3:30 p. m., doy un taller gratis en el Consulado General del Ecuador en Houston: «¿Cómo se llama tu cargo en inglés?». En 90 minutos sales con tu cargo, un logro con número para el CV, tu presentación de 30 segundos y un plan de 7 días. Hay 10 cupos.
+El viernes 20 de noviembre, de 2:00 a 3:30 p. m., doy un taller gratis en el Consulado General del Ecuador en Houston: «Vuelve a lo tuyo». En 90 minutos sales con tu cargo, un logro con número para el CV, tu presentación de 30 segundos y un plan de 7 días. Hay 10 cupos.
 
 ¿Sabes cómo se llama tu profesión en inglés?
 
