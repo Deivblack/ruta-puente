@@ -88,6 +88,15 @@ function piezas() {
 
   list.push({ archivo: "gracias-historia.png", tipo: "gracias", formato: "historia", utm: "whatsapp" });
   list.push({ archivo: "gracias-historia-diana.png", tipo: "gracias", formato: "historia", utm: "diana" });
+
+  const busca = (archivo, formato, utm) =>
+    list.push({ archivo, tipo: "buscamos", formato, utm });
+  busca("buscamos-facebook.png", "facebook", "facebook");
+  busca("buscamos-post.png", "post", "instagram");
+  busca("buscamos-historia.png", "historia", "whatsapp");
+  busca("buscamos-facebook-diana.png", "facebook", "diana");
+  busca("buscamos-post-diana.png", "post", "diana");
+  busca("buscamos-historia-diana.png", "historia", "diana");
   return list;
 }
 
@@ -146,7 +155,8 @@ async function main() {
   for (const p of lista) {
     const { w, h } = FORMATOS[p.formato];
     await page.setViewportSize({ width: w, height: h });
-    await page.goto("http://127.0.0.1:" + port + "/plantillas/lienzo.html", { waitUntil: "networkidle" });
+    const plantilla = p.tipo === "buscamos" ? "buscamos.html" : "lienzo.html";
+    await page.goto("http://127.0.0.1:" + port + "/plantillas/" + plantilla, { waitUntil: "networkidle" });
     await page.evaluate(async (data) => {
       await window.pintar(data);
       await document.fonts.ready;

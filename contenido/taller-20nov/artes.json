@@ -228,6 +228,54 @@
       "utm": "diana",
       "w": 1080,
       "h": 1920
+    },
+    {
+      "archivo": "buscamos-facebook.png",
+      "tipo": "buscamos",
+      "formato": "facebook",
+      "utm": "facebook",
+      "w": 1080,
+      "h": 1080
+    },
+    {
+      "archivo": "buscamos-post.png",
+      "tipo": "buscamos",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "buscamos-historia.png",
+      "tipo": "buscamos",
+      "formato": "historia",
+      "utm": "whatsapp",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "buscamos-facebook-diana.png",
+      "tipo": "buscamos",
+      "formato": "facebook",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1080
+    },
+    {
+      "archivo": "buscamos-post-diana.png",
+      "tipo": "buscamos",
+      "formato": "post",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "buscamos-historia-diana.png",
+      "tipo": "buscamos",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
     }
   ]
 }

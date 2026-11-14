@@ -14,6 +14,57 @@ Canales de `utm`: `whatsapp` · `facebook` · `instagram` · `tiktok` · `estado
 
 ---
 
+## Sáb 14 nov · David · Facebook · Buscamos profesionales
+
+**Objetivo:** anuncio con el mismo esquema del boceto (titular + foto + 3 beneficios).  
+**Arte:** `buscamos-facebook.png`  
+**Enlace:** https://deivblack.github.io/ruta-puente/taller/?utm=facebook
+
+```
+Querida comunidad:
+
+¿Estudiaste una profesión y hoy te pagan por otra?
+
+Buscamos profesionales que quieran volver a trabajar en su área.
+
+El viernes 20 de noviembre, de 2:00 a 3:30 p. m., hay un taller GRATIS en el Consulado General del Ecuador en Houston: «Vuelve a lo tuyo». Sales con tu cargo en inglés, un logro claro en el CV y tu presentación de 30 segundos.
+
+Hay 10 cupos. Trae tu CV (impreso o en el celular) para la práctica.
+
+Inscríbete:
+https://deivblack.github.io/ruta-puente/taller/?utm=facebook
+```
+
+---
+
+## Sáb 14 nov · David · WhatsApp · Buscamos profesionales
+
+**Objetivo:** mismo anuncio, para el grupo.  
+**Arte:** `buscamos-historia.png`  
+**Enlace:** https://deivblack.github.io/ruta-puente/taller/?utm=whatsapp
+
+```
+Querida comunidad:
+
+Buscamos profesionales que quieran volver a trabajar en su área.
+
+Taller GRATIS el viernes 20 de noviembre, 2:00–3:30 p. m., en el Consulado General del Ecuador en Houston.
+
+En 90 minutos te llevas:
+✅ Tu cargo en inglés
+✅ Un logro claro en tu CV
+✅ Cómo presentarte en 30 segundos
+
+Hay 10 cupos. Trae tu CV (impreso o en el celular).
+
+Inscríbete:
+https://deivblack.github.io/ruta-puente/taller/?utm=whatsapp
+
+¡Gracias por compartir! 🙏
+```
+
+---
+
 ## Sáb 14 nov · Diana · Estado de WhatsApp
 
 **Objetivo:** avisar en 2 líneas.  

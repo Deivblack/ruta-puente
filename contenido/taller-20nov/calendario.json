@@ -14,6 +14,28 @@
   },
   "piezas": [
     {
+      "id": "d14-buscamos-fb",
+      "fecha": "2026-11-14",
+      "hora": "",
+      "quien": "David",
+      "canal": "facebook",
+      "objetivo": "Anuncio estilo «buscamos profesionales»",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=facebook",
+      "arte": "buscamos-facebook.png",
+      "copy": "Querida comunidad:\n\n¿Estudiaste una profesión y hoy te pagan por otra?\n\nBuscamos profesionales que quieran volver a trabajar en su área.\n\nEl viernes 20 de noviembre, de 2:00 a 3:30 p. m., hay un taller GRATIS en el Consulado General del Ecuador en Houston: «Vuelve a lo tuyo». Sales con tu cargo en inglés, un logro claro en el CV y tu presentación de 30 segundos.\n\nHay 10 cupos. Trae tu CV (impreso o en el celular) para la práctica.\n\nInscríbete:\nhttps://deivblack.github.io/ruta-puente/taller/?utm=facebook"
+    },
+    {
+      "id": "d14-buscamos-wa",
+      "fecha": "2026-11-14",
+      "hora": "",
+      "quien": "David",
+      "canal": "whatsapp",
+      "objetivo": "Anuncio estilo «buscamos profesionales»",
+      "enlace": "https://deivblack.github.io/ruta-puente/taller/?utm=whatsapp",
+      "arte": "buscamos-historia.png",
+      "copy": "Querida comunidad:\n\nBuscamos profesionales que quieran volver a trabajar en su área.\n\nTaller GRATIS el viernes 20 de noviembre, 2:00–3:30 p. m., en el Consulado General del Ecuador en Houston.\n\nEn 90 minutos te llevas:\n✅ Tu cargo en inglés\n✅ Un logro claro en tu CV\n✅ Cómo presentarte en 30 segundos\n\nHay 10 cupos. Trae tu CV (impreso o en el celular).\n\nInscríbete:\nhttps://deivblack.github.io/ruta-puente/taller/?utm=whatsapp\n\n¡Gracias por compartir! 🙏"
+    },
+    {
       "id": "d14-diana-estado",
       "fecha": "2026-11-14",
       "hora": "",
