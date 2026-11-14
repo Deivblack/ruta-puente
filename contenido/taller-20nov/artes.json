@@ -1,0 +1,233 @@
+{
+  "taller": {
+    "fuente": "taller/config.js",
+    "titulo": "Vuelve a lo tuyo",
+    "subtitulo": "Taller gratuito: cómo volver a trabajar en tu profesión en Estados Unidos",
+    "fecha": "Viernes 20 de noviembre de 2026",
+    "hora": "2:00 p. m. – 3:30 p. m.",
+    "lugar": "Consulado General del Ecuador en Houston",
+    "direccion": "2603 Augusta Dr #810, Houston, TX 77057",
+    "cupos_publicos": 10,
+    "maps": "https://maps.google.com/?q=2603+Augusta+Dr+%23810,+Houston,+TX+77057",
+    "base_taller": "https://deivblack.github.io/ruta-puente/taller/",
+    "base_ingles": "https://deivblack.github.io/ruta-puente/ingles/"
+  },
+  "piezas": [
+    {
+      "archivo": "flyer-historia.png",
+      "tipo": "flyer",
+      "formato": "historia",
+      "utm": "whatsapp",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "flyer-post.png",
+      "tipo": "flyer",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "flyer-facebook.png",
+      "tipo": "flyer",
+      "formato": "facebook",
+      "utm": "facebook",
+      "w": 1080,
+      "h": 1080
+    },
+    {
+      "archivo": "flyer-historia-diana.png",
+      "tipo": "flyer",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "flyer-post-diana.png",
+      "tipo": "flyer",
+      "formato": "post",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "flyer-facebook-diana.png",
+      "tipo": "flyer",
+      "formato": "facebook",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1080
+    },
+    {
+      "archivo": "cuenta-4dias-historia.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "cuenta-2dias-historia.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "cuenta-manana-historia.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "cuenta-hoy-historia.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "whatsapp",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "cuenta-4dias-historia-diana.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "cuenta-2dias-historia-diana.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "cuenta-manana-historia-diana.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "cuenta-hoy-historia-diana.png",
+      "tipo": "cuenta",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "ultimos-historia.png",
+      "tipo": "ultimos",
+      "formato": "historia",
+      "utm": "whatsapp",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "ultimos-post.png",
+      "tipo": "ultimos",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "ultimos-historia-diana.png",
+      "tipo": "ultimos",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "ultimos-post-diana.png",
+      "tipo": "ultimos",
+      "formato": "post",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "carrusel-1.png",
+      "tipo": "carrusel",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "carrusel-2.png",
+      "tipo": "carrusel",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "carrusel-3.png",
+      "tipo": "carrusel",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "carrusel-4.png",
+      "tipo": "carrusel",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "carrusel-5.png",
+      "tipo": "carrusel",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "carrusel-6.png",
+      "tipo": "carrusel",
+      "formato": "post",
+      "utm": "instagram",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "carrusel-6-diana.png",
+      "tipo": "carrusel",
+      "formato": "post",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1350
+    },
+    {
+      "archivo": "gracias-historia.png",
+      "tipo": "gracias",
+      "formato": "historia",
+      "utm": "whatsapp",
+      "w": 1080,
+      "h": 1920
+    },
+    {
+      "archivo": "gracias-historia-diana.png",
+      "tipo": "gracias",
+      "formato": "historia",
+      "utm": "diana",
+      "w": 1080,
+      "h": 1920
+    }
+  ]
+}

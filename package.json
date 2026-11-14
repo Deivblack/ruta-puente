@@ -1,0 +1,8 @@
+{
+  "name": "ruta-puente",
+  "private": true,
+  "description": "Solo para generar artes del taller (Playwright). El sitio público no usa npm.",
+  "scripts": {
+    "artes": "npm --prefix contenido/taller-20nov run artes"
+  }
+}
