@@ -104,7 +104,7 @@ function servir(root) {
       try {
         const data = readFileSync(file);
         const ext = file.split(".").pop();
-        const tipos = { html: "text/html; charset=utf-8", css: "text/css", js: "text/javascript", svg: "image/svg+xml", png: "image/png", json: "application/json" };
+        const tipos = { html: "text/html; charset=utf-8", css: "text/css", js: "text/javascript", svg: "image/svg+xml", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", json: "application/json" };
         res.writeHead(200, { "Content-Type": tipos[ext] || "application/octet-stream" });
         res.end(data);
       } catch {
@@ -148,7 +148,7 @@ async function main() {
     await page.setViewportSize({ width: w, height: h });
     await page.goto("http://127.0.0.1:" + port + "/plantillas/lienzo.html", { waitUntil: "networkidle" });
     await page.evaluate(async (data) => {
-      window.pintar(data);
+      await window.pintar(data);
       await document.fonts.ready;
     }, Object.assign({}, p, { taller: T, qr: await qr(p.utm) }));
     await page.waitForTimeout(180);

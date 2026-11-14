@@ -237,6 +237,54 @@ h1{
   font-family:var(--f-d); font-weight:800; font-size:20px; margin-top:4px;
 }
 #lienzo[data-formato="historia"] .lista .dot{width:44px;height:44px;flex-basis:44px;font-size:24px}
+
+#lienzo[data-tipo="flyer"]{padding:0;background:#143328;color:#f5f7f4}
+#lienzo[data-tipo="flyer"] .blob,
+#lienzo[data-tipo="flyer"] .pie{display:none}
+.foto-flyer{display:none}
+#lienzo[data-tipo="flyer"] .foto-flyer{
+  display:block; flex:1.25 1 0; min-height:0; overflow:hidden; position:relative;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .foto-flyer{flex:1.4 1 0}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] .foto-flyer{flex:1.05 1 0}
+.foto-flyer img{width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block}
+#lienzo[data-tipo="flyer"] .logo-esquina{
+  top:28px; right:28px;
+  background:rgba(245,247,244,.94);
+  border-radius:18px; padding:10px 12px 8px;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .logo-esquina{top:36px;right:36px}
+#lienzo[data-tipo="flyer"] .cuerpo{
+  flex:0 1 auto; background:#143328; color:#f5f7f4;
+  padding:28px 40px 36px;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .cuerpo{padding:36px 48px 48px}
+#lienzo[data-tipo="flyer"] h1{color:#fff;padding-right:0;margin:0 0 10px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] h1{font-size:64px;padding-right:0}
+#lienzo[data-formato="post"][data-tipo="flyer"] h1{font-size:52px}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] h1{font-size:46px;margin-bottom:8px}
+#lienzo[data-tipo="flyer"] .sub{color:#e8b04b;padding-right:0;margin-bottom:12px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .sub{font-size:32px}
+#lienzo[data-formato="post"][data-tipo="flyer"] .sub{font-size:26px}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] .sub{font-size:22px;margin-bottom:8px}
+#lienzo[data-tipo="flyer"] .fecha{color:#e8b04b}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .fecha,
+#lienzo[data-formato="historia"][data-tipo="flyer"] .meta{font-size:32px}
+#lienzo[data-tipo="flyer"] .meta{color:#f5f7f4}
+#lienzo[data-tipo="flyer"] .badge{background:#e8b04b;color:#1f2a26}
+#lienzo[data-tipo="flyer"] .lista{margin:10px 0}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .lista li{font-size:32px}
+#lienzo[data-tipo="flyer"] .lista .dot{background:#e8b04b;color:#1f2a26}
+#lienzo[data-tipo="flyer"] .req{
+  background:#e8b04b; border-color:#e8b04b; color:#1f2a26; margin-top:12px;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .req{font-size:32px;padding:14px 18px}
+#lienzo[data-tipo="flyer"] .fila-qr{margin-top:14px;padding-top:10px}
+#lienzo[data-tipo="flyer"] .qr-card img{width:160px;height:160px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .qr-card img{width:180px;height:180px}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] .qr-card img{width:140px;height:140px}
+#lienzo[data-tipo="flyer"] .qr-txt strong{color:#fff}
+#lienzo[data-tipo="flyer"] .qr-txt span{color:#d5e4dc}
 </style>
 </head>
 <body>
@@ -247,6 +295,7 @@ h1{
     <svg viewBox="0 0 64 64"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#1D2B26" stroke-width="5" stroke-linecap="round"/></svg>
     <span>Ruta<br>Puente</span>
   </div>
+  <div class="foto-flyer" id="foto-flyer" hidden></div>
   <div class="bandera" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="head">
     <div class="brand">
@@ -271,7 +320,7 @@ function qrBlock(p, label, sub){
     '<div class="qr-txt"><strong>' + esc(label) + '</strong><span>' + esc(sub) + '</span></div>' +
     '</div>';
 }
-window.pintar = function(p){
+window.pintar = async function(p){
   const lienzo = document.getElementById("lienzo");
   const cuerpo = document.getElementById("cuerpo");
   const pie = document.getElementById("pie");
@@ -286,13 +335,31 @@ window.pintar = function(p){
       '<li><span class="dot">2</span><span>Un logro con número para el CV</span></li>' +
       '<li><span class="dot">3</span><span>Tu presentación de 30 segundos</span></li>' +
     "</ul>";
+  const foto = document.getElementById("foto-flyer");
+  if (p.tipo === "flyer"){
+    const src = p.formato === "historia" ? "foto-historia.jpg" : "foto-cuadrado.jpg";
+    foto.hidden = false;
+    foto.replaceChildren();
+    const img = document.createElement("img");
+    img.alt = "";
+    img.src = src;
+    foto.appendChild(img);
+    if (!img.complete){
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+    }
+  } else {
+    foto.hidden = true;
+    foto.replaceChildren();
+  }
   if (p.tipo === "flyer"){
     pill.textContent = "TALLER GRATIS";
     cuerpo.innerHTML =
       "<h1>" + esc(t.titulo) + "</h1>" +
       '<p class="sub">' + esc(t.subtitulo) + "</p>" +
-      '<p class="fecha">' + esc(t.fecha) + "</p>" +
-      '<p class="meta">' + esc(t.hora) + "</p>" +
+      '<p class="fecha">' + esc(t.fecha) + " · " + esc(t.hora) + "</p>" +
       '<p class="meta">' + esc(t.lugar) + "</p>" +
       '<p class="badge">Gratis · 10 cupos</p>' +
       '<ul class="lista">' +
