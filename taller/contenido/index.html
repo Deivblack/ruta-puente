@@ -316,7 +316,6 @@ document.getElementById("deck").addEventListener("touchend", e => {
   if (dx > 50) ir(i - 1);
   tx = null;
 }, {passive:true});
-ir(0);
 
 const out = document.getElementById("busca-out");
 function buscar(){
@@ -361,6 +360,8 @@ document.getElementById("btn-buscar").addEventListener("click", buscar);
 document.getElementById("q-cargo").addEventListener("keydown", e => {
   if (e.key === "Enter") { e.preventDefault(); buscar(); }
 });
+if (/^#\d+$/.test(location.hash)) ir(parseInt(location.hash.slice(1), 10) - 1);
+else ir(0);
 
 function pintarPitch(){
   const set = (id, val, fallback) => {
