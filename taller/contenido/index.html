@@ -87,8 +87,17 @@ nav.bar button{min-width:48px;min-height:48px}
   nav.bar button{min-width:44px}
   .row input{flex-basis:100%;min-width:100%;width:100%}
 }
+.sitios{display:flex;flex-direction:column;gap:8px;list-style:none}
+.sitios li{
+  background:var(--white);border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px; font-size:clamp(14px,1.7vw,18px); line-height:1.3;
+}
+.sitios b{font-family:var(--f-d);display:block;font-size:1.05em}
+.sitios .zona{color:var(--hope);font-size:.9em}
+.sitios .url{color:var(--muted);font-size:.85em;word-break:break-all}
 @media (min-width:900px){
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .sitios{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 }
 </style>
 </head>
@@ -107,9 +116,9 @@ nav.bar button{min-width:48px;min-height:48px}
 </section>
 
 <section class="slide" data-n="1">
-  <p class="kicker">0–10 min · Bienvenida</p>
+  <p class="kicker">0–8 min · Bienvenida</p>
   <p class="quote">No es que no sirvas aquí. Es que no sabes cómo se llama aquí lo que haces.</p>
-  <p class="lead">En 90 minutos te llevas tres cosas, escritas en tu hoja. No un discurso: práctica.</p>
+  <p class="lead">En 90 minutos te llevas tres cosas, escritas en tu hoja o en el celular. No un discurso: práctica.</p>
   <ul class="lista">
     <li><span class="n">1</span><span>Tu cargo en inglés</span></li>
     <li><span class="n">2</span><span>Tu presentación de 30 segundos y un logro para el CV</span></li>
@@ -118,7 +127,7 @@ nav.bar button{min-width:48px;min-height:48px}
 </section>
 
 <section class="slide" data-n="2">
-  <p class="kicker">10–30 min · Tu cargo</p>
+  <p class="kicker">8–20 min · Tu cargo</p>
   <h2>Tu cargo existe aquí, y se dice así</h2>
   <p class="lead">Escribe tu profesión. Buscamos el nombre con el que te publican las vacantes.</p>
   <div class="card">
@@ -129,10 +138,65 @@ nav.bar button{min-width:48px;min-height:48px}
     </div>
     <div id="busca-out" class="hint">Prueba con una profesión. El diccionario es el mismo de la app.</div>
   </div>
-  <p class="hint">Escríbelo en la hoja, línea «Cargo en inglés». Si no sale, lo anotamos igual y lo afinamos en la llamada.</p>
+  <p class="hint">Escríbelo en la hoja o en tu celular, línea «Cargo en inglés». Si no sale, lo anotamos igual y lo afinamos en la llamada.</p>
 </section>
 
 <section class="slide" data-n="3">
+  <p class="kicker">20–28 min · Inglés para aplicar</p>
+  <h2>No necesitas fluidez para aplicar</h2>
+  <p class="lead">El aviso puede decir «fluent» o «bilingual». Eso no es un examen. Hoy sales con un lugar gratis para practicar.</p>
+  <ul class="lista">
+    <li><span class="n">1</span><span>Para aplicar te basta: leer la vacante, contestar una llamada corta y decir tu pitch de 30 segundos.</span></li>
+    <li><span class="n">2</span><span>La fluidez se construye trabajando. No esperes a «hablar perfecto» para mandar el CV.</span></li>
+    <li><span class="n">3</span><span>Si quieres medirte: diagnóstico gratis de Ruta Puente, 10 min, en ingles/?utm=taller.</span></li>
+  </ul>
+</section>
+
+<section class="slide" data-n="4">
+  <p class="kicker">28–35 min · Inglés gratis en Houston</p>
+  <h2>Sitios reales, con fuente</h2>
+  <p class="lead">Anota uno en tu hoja. Horarios cambian: confirma en el enlace antes de ir.</p>
+  <ul class="sitios">
+    <li>
+      <b>Biblioteca Pública de Houston</b>
+      <span class="zona">Gratis · varias sucursales (ciudad)</span>
+      Clases de inglés para adultos, 16 semanas. Inscripción y prueba de nivel.
+      <span class="url">calendar.houstonlibrary.org</span>
+    </li>
+    <li>
+      <b>Biblioteca del Condado Harris</b>
+      <span class="zona">Gratis · sucursales del condado</span>
+      ESL con tutores. Libros incluidos. Una vez por semana.
+      <span class="url">hcpl.net/adult-education</span>
+    </li>
+    <li>
+      <b>CityRise · West U Baptist</b>
+      <span class="zona">Gratis · West University (6218 Auden)</span>
+      ESL miércoles 6–8 p. m. Hay cuidado de niños. También en Missouri City, domingo.
+      <span class="url">cityrise.org/esl</span>
+    </li>
+    <li>
+      <b>Emerson Unitarian Universalist</b>
+      <span class="zona">Gratis · Galleria / West (1900 Bering)</span>
+      ESL martes y jueves 6:30–8:30 p. m. Libro opcional 10 dólares.
+      <span class="url">emersonhouston.org (English Class Program)</span>
+    </li>
+    <li>
+      <b>India House + biblioteca del condado</b>
+      <span class="zona">Gratis · Suroeste (8888 West Bellfort)</span>
+      Inglés para adultos, todos los niveles, miércoles.
+      <span class="url">indiahouseinc.org/english-hcpl</span>
+    </li>
+    <li>
+      <b>USA Learns (en casa)</b>
+      <span class="zona">Gratis · en línea, gobierno de EE. UU.</span>
+      Curso de inglés con lecciones de trabajo. Pide cuenta gratis.
+      <span class="url">usalearns.org</span>
+    </li>
+  </ul>
+</section>
+
+<section class="slide" data-n="5">
   <p class="kicker">Dentro del bloque 1 · Título</p>
   <h2>¿Tengo que validar mi título?</h2>
   <p class="lead">No en todos los puestos. Primero el cargo y la experiencia. La equivalencia solo si el aviso la pide.</p>
@@ -143,8 +207,8 @@ nav.bar button{min-width:48px;min-height:48px}
   </ul>
 </section>
 
-<section class="slide" data-n="4">
-  <p class="kicker">30–55 min · Tu historia vende</p>
+<section class="slide" data-n="6">
+  <p class="kicker">35–55 min · Tu historia vende</p>
   <h2>Tu presentación de 30 segundos</h2>
   <p class="plantilla" id="pitch">Hola, soy <span id="p-nom">[tu nombre]</span>. Fui <span id="p-es">[profesión]</span> y hoy busco <span id="p-en">[cargo en inglés]</span>. Un logro: <span id="p-logro">[número + resultado]</span>.</p>
   <div class="grid2">
@@ -168,7 +232,7 @@ nav.bar button{min-width:48px;min-height:48px}
   <p class="hint">Dilo en voz alta. Máximo 30 segundos. Cópialo en la hoja.</p>
 </section>
 
-<section class="slide" data-n="5">
+<section class="slide" data-n="7">
   <p class="kicker">Dentro del bloque 2 · CV</p>
   <h2>Los 3 arreglos que más mueven el CV</h2>
   <ul class="lista">
@@ -179,7 +243,7 @@ nav.bar button{min-width:48px;min-height:48px}
   <p class="lead">Mira tu CV ahora. Marca en la hoja qué vas a cambiar esta semana.</p>
 </section>
 
-<section class="slide" data-n="6">
+<section class="slide" data-n="8">
   <p class="kicker">55–75 min · Dónde está el trabajo</p>
   <h2>Los referidos abren más que aplicar en frío</h2>
   <ul class="lista">
@@ -190,8 +254,8 @@ nav.bar button{min-width:48px;min-height:48px}
   <p class="hint">No pidas trabajo en el primer mensaje. Pide 10 minutos para entender cómo entraron ellos.</p>
 </section>
 
-<section class="slide" data-n="7">
-  <p class="kicker">75–90 min · Tu primer paso</p>
+<section class="slide" data-n="9">
+  <p class="kicker">75–88 min · Tu primer paso</p>
   <h2>Una acción para los próximos 7 días</h2>
   <p class="lead">Elige una, alineada a los 6 pasos de tu app. Escríbela. Eso cierra el taller.</p>
   <div class="pills">
@@ -207,10 +271,10 @@ nav.bar button{min-width:48px;min-height:48px}
   </ul>
 </section>
 
-<section class="slide" data-n="8">
-  <p class="kicker">Cierre</p>
+<section class="slide" data-n="10">
+  <p class="kicker">Cierre · 88–90 min</p>
   <h2>Ruta Puente es gratis</h2>
-  <p class="lead">Escanea: entra a tu app (o al ejemplo) y agenda tu llamada de 15 min. Yo te acompaño con el CV y el siguiente paso.</p>
+  <p class="lead">Escanea: entra a tu app, agenda la llamada de 15 min, o sigue en tu celular (participante.html).</p>
   <div class="qr-row">
     <div>
       <img src="qr-app.svg" alt="QR a la app de Ruta Puente" width="140" height="140">
@@ -220,13 +284,17 @@ nav.bar button{min-width:48px;min-height:48px}
       <img src="qr-agenda.svg" alt="QR para agendar la llamada" width="140" height="140">
       <p class="hint">Agenda tu llamada gratis</p>
     </div>
+    <div>
+      <img src="qr-participante.svg" alt="QR a la hoja digital del participante" width="140" height="140">
+      <p class="hint">Hoja en el celular</p>
+    </div>
   </div>
   <p class="meta">Gracias. Nos vemos en el siguiente paso, no en un discurso.</p>
 </section>
 
 <nav class="bar">
   <button class="btn ghost" type="button" id="prev" aria-label="Anterior">←</button>
-  <span id="cuenta">1/9</span>
+  <span id="cuenta">1/11</span>
   <button class="btn" type="button" id="next" aria-label="Siguiente">→</button>
 </nav>
 </div>
