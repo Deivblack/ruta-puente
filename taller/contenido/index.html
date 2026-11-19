@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vuelve a lo tuyo · Diapositivas · Ruta Puente</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../../logo-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{
+  --hope:#2e7d5b; --hope-soft:#e1efe7; --sun:#e8b04b; --sun-soft:#fbf0d9;
+  --bg:#f5f7f4; --ink:#1f2a26; --muted:#5d6c66; --line:#dde5e0; --white:#fff;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-b:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#111;color:var(--ink);font-family:var(--f-b);font-weight:700}
+#deck{height:100%;max-width:1280px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative}
+.slide{
+  display:none; flex:1; flex-direction:column; justify-content:center;
+  padding:28px 36px 88px; gap:16px; min-height:0; overflow:auto;
+}
+.slide.on{display:flex}
+.kicker{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--hope)}
+h1,h2{font-family:var(--f-d);font-weight:800;letter-spacing:-.03em;line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(32px,6vw,64px)}
+h2{font-size:clamp(26px,4.6vw,48px)}
+.lead{font-size:clamp(18px,2.4vw,28px);color:var(--muted);max-width:22em;line-height:1.3}
+.quote{font-family:var(--f-d);font-weight:800;font-size:clamp(26px,4.5vw,46px);line-height:1.15;max-width:16em}
+.meta{color:var(--muted);font-size:clamp(16px,2vw,22px)}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--f-d);font-weight:800;font-size:22px}
+.brand svg{width:48px;height:48px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{background:var(--hope-soft);border:2px solid var(--hope);border-radius:999px;padding:8px 14px;font-size:16px}
+.card{
+  background:var(--white);border:1px solid var(--line);border-radius:16px;
+  padding:16px 18px; display:flex; flex-direction:column; gap:10px;
+}
+.lista{display:flex;flex-direction:column;gap:10px;list-style:none}
+.lista li{
+  background:var(--white);border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px; display:flex; gap:12px; align-items:flex-start;
+  font-size:clamp(16px,2.1vw,24px); line-height:1.3;
+}
+.n{
+  flex:0 0 32px;height:32px;border-radius:50%;background:var(--sun-soft);
+  border:2px solid var(--sun); display:grid; place-items:center;
+  font-family:var(--f-d); font-weight:800;
+}
+label{font-size:15px}
+input,textarea{
+  font:700 18px var(--f-b); color:var(--ink); background:var(--white);
+  border:2px solid var(--line); border-radius:12px; padding:12px 14px; width:100%;
+}
+input:focus,textarea:focus{border-color:var(--hope);outline:none}
+textarea{min-height:72px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.btn{
+  font:800 16px var(--f-b); border:0; border-radius:999px; padding:12px 18px;
+  background:var(--hope); color:#fff; cursor:pointer;
+}
+.btn.ghost{background:transparent;color:var(--hope);border:2px solid var(--line)}
+#busca-out{min-height:3em;font-size:clamp(16px,2vw,22px);line-height:1.35}
+#busca-out b{font-family:var(--f-d);font-size:1.15em}
+.kw{display:inline-block;background:var(--sun-soft);border-radius:999px;padding:4px 10px;margin:3px 4px 0 0;font-size:14px}
+.plantilla{font-size:clamp(16px,2.1vw,24px);line-height:1.45;background:var(--white);border-left:6px solid var(--sun);padding:14px 16px;border-radius:8px}
+.plantilla span{background:var(--sun-soft);padding:0 4px;border-radius:4px}
+.qr-row{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.qr-row img,.qr-row svg{width:140px;height:140px;background:#fff;border-radius:12px;border:1px solid var(--line)}
+.hint{font-size:15px;color:var(--muted)}
+nav.bar{
+  position:absolute; left:0; right:0; bottom:0;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:10px 16px 14px; background:var(--bg); border-top:1px solid var(--line);
+}
+nav.bar button{min-width:48px;min-height:48px}
+#cuenta{font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:520px){
+  .slide{padding:18px 16px 80px}
+  .brand{font-size:18px}
+  .brand svg{width:36px;height:36px}
+  .lista li{font-size:16px}
+  nav.bar button{min-width:44px}
+}
+@media (min-width:900px){
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+}
+</style>
+</head>
+<body>
+<div id="deck">
+
+<section class="slide on" data-n="0">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#1D2B26" stroke-width="5" stroke-linecap="round"/></svg>
+    Ruta Puente
+  </div>
+  <p class="kicker">Taller gratuito · Houston</p>
+  <h1>Vuelve a lo tuyo</h1>
+  <p class="lead">Cómo volver a trabajar en tu profesión en Estados Unidos.</p>
+  <p class="meta">Viernes 20 de noviembre de 2026 · 2:00–3:30 p. m.<br>Consulado General del Ecuador en Houston</p>
+</section>
+
+<section class="slide" data-n="1">
+  <p class="kicker">0–10 min · Bienvenida</p>
+  <p class="quote">No es que no sirvas aquí. Es que no sabes cómo se llama aquí lo que haces.</p>
+  <p class="lead">En 90 minutos te llevas tres cosas, escritas en tu hoja. No un discurso: práctica.</p>
+  <ul class="lista">
+    <li><span class="n">1</span><span>Tu cargo en inglés</span></li>
+    <li><span class="n">2</span><span>Tu presentación de 30 segundos y un logro para el CV</span></li>
+    <li><span class="n">3</span><span>Una acción para los próximos 7 días</span></li>
+  </ul>
+</section>
+
+<section class="slide" data-n="2">
+  <p class="kicker">10–30 min · Tu cargo</p>
+  <h2>Tu cargo existe aquí, y se dice así</h2>
+  <p class="lead">Escribe tu profesión. Buscamos el nombre con el que te publican las vacantes.</p>
+  <div class="card">
+    <label for="q-cargo">¿Qué estudiaste o cuál era tu cargo?</label>
+    <div class="row">
+      <input id="q-cargo" type="text" placeholder="Ej.: contadora, maestro, ingeniero civil" autocomplete="off">
+      <button class="btn" type="button" id="btn-buscar">Buscar</button>
+    </div>
+    <div id="busca-out" class="hint">Prueba con una profesión. El diccionario es el mismo de la app.</div>
+  </div>
+  <p class="hint">Escríbelo en la hoja, línea «Cargo en inglés». Si no sale, lo anotamos igual y lo afinamos en la llamada.</p>
+</section>
+
+<section class="slide" data-n="3">
+  <p class="kicker">Dentro del bloque 1 · Título</p>
+  <h2>¿Tengo que validar mi título?</h2>
+  <p class="lead">No en todos los puestos. Primero el cargo y la experiencia. La equivalencia solo si el aviso la pide.</p>
+  <ul class="lista">
+    <li><span class="n">1</span><span>Muchos avisos piden experiencia equivalente, no un diploma de aquí.</span></li>
+    <li><span class="n">2</span><span>Si el rol sí exige grado (por ejemplo algunos de ingeniería o salud), lo vemos en la llamada de 15 min.</span></li>
+    <li><span class="n">3</span><span>Hoy no traemos documentos. Hoy salimos con el nombre del cargo y un logro.</span></li>
+  </ul>
+</section>
+
+<section class="slide" data-n="4">
+  <p class="kicker">30–55 min · Tu historia vende</p>
+  <h2>Tu presentación de 30 segundos</h2>
+  <p class="plantilla" id="pitch">Hola, soy <span id="p-nom">[tu nombre]</span>. Fui <span id="p-es">[profesión]</span> y hoy busco <span id="p-en">[cargo en inglés]</span>. Un logro: <span id="p-logro">[número + resultado]</span>.</p>
+  <div class="grid2">
+    <div class="card">
+      <label for="in-nom">Nombre</label>
+      <input id="in-nom" type="text" placeholder="Ana">
+    </div>
+    <div class="card">
+      <label for="in-es">Profesión</label>
+      <input id="in-es" type="text" placeholder="contadora">
+    </div>
+    <div class="card">
+      <label for="in-en">Cargo en inglés</label>
+      <input id="in-en" type="text" placeholder="Staff Accountant">
+    </div>
+    <div class="card">
+      <label for="in-logro">Logro con número</label>
+      <input id="in-logro" type="text" placeholder="cerré 40 cuentas al mes">
+    </div>
+  </div>
+  <p class="hint">Dilo en voz alta. Máximo 30 segundos. Cópialo en la hoja.</p>
+</section>
+
+<section class="slide" data-n="5">
+  <p class="kicker">Dentro del bloque 2 · CV</p>
+  <h2>Los 3 arreglos que más mueven el CV</h2>
+  <ul class="lista">
+    <li><span class="n">1</span><span><b>Quita foto, edad y cédula.</b> Aquí eso no suma y un filtro automático puede descartarte.</span></li>
+    <li><span class="n">2</span><span><b>Una sola columna.</b> Así lo lee el ATS (el programa que abre el PDF antes que una persona).</span></li>
+    <li><span class="n">3</span><span><b>Logros con número.</b> No «responsable de ventas»: «subí las ventas 18% en 6 meses».</span></li>
+  </ul>
+  <p class="lead">Mira tu CV ahora. Marca en la hoja qué vas a cambiar esta semana.</p>
+</section>
+
+<section class="slide" data-n="6">
+  <p class="kicker">55–75 min · Dónde está el trabajo</p>
+  <h2>Los referidos abren más que aplicar en frío</h2>
+  <ul class="lista">
+    <li><span class="n">1</span><span>Una conversación corta vale más que 20 clics en Indeed.</span></li>
+    <li><span class="n">2</span><span>Elige 3 empresas donde sí exista tu cargo. Anótalas.</span></li>
+    <li><span class="n">3</span><span>LinkedIn mínimo: foto clara, el cargo en inglés en el titular, y una línea de lo que sabes hacer.</span></li>
+  </ul>
+  <p class="hint">No pidas trabajo en el primer mensaje. Pide 10 minutos para entender cómo entraron ellos.</p>
+</section>
+
+<section class="slide" data-n="7">
+  <p class="kicker">75–90 min · Tu primer paso</p>
+  <h2>Una acción para los próximos 7 días</h2>
+  <p class="lead">Elige una, alineada a los 6 pasos de tu app. Escríbela. Eso cierra el taller.</p>
+  <div class="pills">
+    <span class="pill">1 Perfil</span>
+    <span class="pill">2 Tu cargo</span>
+    <span class="pill">3 Carril</span>
+    <span class="pill">4 Vacantes</span>
+    <span class="pill">5 Contacto</span>
+    <span class="pill">6 Aplicaciones</span>
+  </div>
+  <ul class="lista">
+    <li><span class="n">→</span><span>Ejemplo: mandar 3 mensajes a gente del cargo, o reescribir 1 logro, o agendar la llamada de 15 min.</span></li>
+  </ul>
+</section>
+
+<section class="slide" data-n="8">
+  <p class="kicker">Cierre</p>
+  <h2>Ruta Puente es gratis</h2>
+  <p class="lead">Escanea: entra a tu app (o al ejemplo) y agenda tu llamada de 15 min. Yo te acompaño con el CV y el siguiente paso.</p>
+  <div class="qr-row">
+    <div>
+      <img src="qr-app.svg" alt="QR a la app de Ruta Puente" width="140" height="140">
+      <p class="hint">App · deivblack.github.io/ruta-puente/app/</p>
+    </div>
+    <div>
+      <img src="qr-agenda.svg" alt="QR para agendar la llamada" width="140" height="140">
+      <p class="hint">Agenda tu llamada gratis</p>
+    </div>
+  </div>
+  <p class="meta">Gracias. Nos vemos en el siguiente paso, no en un discurso.</p>
+</section>
+
+<nav class="bar">
+  <button class="btn ghost" type="button" id="prev" aria-label="Anterior">←</button>
+  <span id="cuenta">1/9</span>
+  <button class="btn" type="button" id="next" aria-label="Siguiente">→</button>
+</nav>
+</div>
+<script>
+const TITLES = {
+  "contador": {en:"Staff Accountant", alt:["Senior Accountant","Accounting Specialist"], kw:["GAAP","month-end close","reconciliations","QuickBooks","Excel"], lanes:["Staff Accountant","Accounts Payable Specialist","Bookkeeper"]},
+  "jefe de capacitacion": {en:"Training Manager", alt:["L&D Manager","Learning & Development Specialist"], kw:["instructional design","LMS","onboarding","needs analysis"], lanes:["L&D Specialist","Training Coordinator","HR Coordinator"]},
+  "recursos humanos": {en:"HR Generalist", alt:["HR Analyst","HR Coordinator"], kw:["onboarding","HRIS","employee relations","compliance"], lanes:["HR Generalist","HR Coordinator","Recruiting Coordinator"]},
+  "ingeniero civil": {en:"Civil Engineer (EIT)", alt:["Project Engineer","Field Engineer"], kw:["AutoCAD","site inspection","scheduling","cost estimating"], lanes:["Project Engineer","Construction Estimator","Field Engineer"]},
+  "ingeniero industrial": {en:"Industrial Engineer", alt:["Process Improvement Engineer","Operations Analyst"], kw:["Lean","Six Sigma","process mapping","KPIs"], lanes:["Operations Analyst","Process Improvement Specialist","Production Planner"]},
+  "ingeniero de sistemas": {en:"IT Support Specialist", alt:["Systems Analyst","Implementation Specialist"], kw:["help desk","troubleshooting","SQL","implementation"], lanes:["IT Support Specialist","Implementation Specialist","Systems Analyst"]},
+  "abogado": {en:"Paralegal / Legal Assistant", alt:["Compliance Analyst","Contract Administrator"], kw:["legal research","contracts","compliance","bilingual"], lanes:["Bilingual Paralegal","Compliance Analyst","Contract Administrator"]},
+  "medico": {en:"Clinical Research Coordinator", alt:["Medical Assistant","Patient Navigator"], kw:["patient care","EHR","clinical trials","bilingual"], lanes:["Clinical Research Coordinator","Medical Assistant","Patient Navigator"]},
+  "enfermero": {en:"Patient Care Technician", alt:["Certified Nursing Assistant","Patient Navigator"], kw:["patient care","vital signs","EHR","bilingual"], lanes:["Patient Care Technician","Patient Navigator","Medical Assistant"]},
+  "maestro": {en:"Teacher", alt:["Bilingual Teacher","Teaching Assistant"], kw:["lesson planning","classroom management","bilingual","curriculum"], lanes:["Bilingual Teacher","Teaching Assistant","Corporate Trainer"]},
+  "docente": {en:"Teacher", alt:["Bilingual Teacher","Teaching Assistant"], kw:["lesson planning","classroom management","bilingual","curriculum"], lanes:["Bilingual Teacher","Teaching Assistant","Corporate Trainer"]},
+  "ventas": {en:"Sales Manager", alt:["Account Manager","Business Development Rep"], kw:["pipeline","CRM","quota","B2B"], lanes:["Account Manager","Sales Representative","Customer Success Manager"]},
+  "administrador": {en:"Operations Coordinator", alt:["Business Analyst","Office Manager"], kw:["operations","scheduling","budgeting","reporting"], lanes:["Operations Coordinator","Office Manager","Business Analyst"]},
+  "psicologo organizacional": {en:"People Operations Specialist", alt:["HR Business Partner","Talent Development Specialist"], kw:["organizational psychology","employee engagement","assessment","L&D"], lanes:["People Operations Specialist","HR Generalist","Talent Development Specialist"]},
+  "psicologo": {en:"Case Manager", alt:["Behavioral Health Technician","Recruiter"], kw:["case management","assessment","bilingual","documentation"], lanes:["Case Manager","Recruiter","HR Coordinator"]},
+  "bodega": {en:"Warehouse Supervisor", alt:["Inventory Control Specialist","Logistics Coordinator"], kw:["inventory","WMS","OSHA","shipping & receiving"], lanes:["Logistics Coordinator","Inventory Control Specialist","Warehouse Supervisor"]},
+  "ingeniero electromecanico": {en:"Electromechanical Engineer", alt:["Maintenance Engineer","Automation Technician"], kw:["PLC","preventive maintenance","motors","hydraulics"], lanes:["Maintenance Engineer","Electromechanical Technician","Automation Technician"]},
+  "ciberseguridad": {en:"Cybersecurity Analyst", alt:["SOC Analyst","Information Security Analyst"], kw:["SIEM","incident response","vulnerability","network security"], lanes:["Cybersecurity Analyst","SOC Analyst","IT Security Specialist"]},
+  "turismo": {en:"Guest Services Coordinator", alt:["Hotel Operations Coordinator","Destination Marketing Coordinator"], kw:["hospitality","guest services","reservations","customer experience"], lanes:["Guest Services Coordinator","Hotel Front Desk Supervisor","Destination Marketing Coordinator"]},
+  "hoteleria": {en:"Hotel Operations Coordinator", alt:["Front Desk Supervisor","Guest Services Manager"], kw:["hospitality","PMS","guest services","front office"], lanes:["Hotel Operations Coordinator","Guest Services Supervisor","Front Desk Supervisor"]},
+  "marketing de destinos": {en:"Destination Marketing Coordinator", alt:["Tourism Marketing Specialist","Communications Coordinator"], kw:["destination marketing","social media","tourism","campaigns"], lanes:["Destination Marketing Coordinator","Tourism Marketing Specialist","Communications Coordinator"]}
+};
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
+function expandir(raw){
+  let t = norm(raw);
+  t = t.replace(/\bing\.?\b/g, "ingeniero");
+  t = t.replace(/\bingenieria\b/g, "ingeniero");
+  t = t.replace(/\bingeniero en\b/g, "ingeniero de");
+  t = t.replace(/\bmaestra\b/g, "maestro");
+  t = t.replace(/\bcontadora\b/g, "contador");
+  t = t.replace(/\bpsicologa\b/g, "psicologo");
+  t = t.replace(/\bdocencia\b/g, "docente");
+  return t.replace(/\s+/g, " ").trim();
+}
+function esGrado(raw){
+  const t = expandir(raw);
+  if (/\b(maestro|maestra|docente)\b/.test(t)) return false;
+  return /\b(maestria|master|licenciatura|doctorado|diplomado|bachelor|mba)\b/.test(t);
+}
+function partesProfesion(raw){
+  return expandir(raw).split(/\s*(?:\/|,|;|\s+y\s+)\s*/).map(s => s.trim()).filter(s => s.length >= 3);
+}
+function findTitle(raw){
+  const chunks = [];
+  const full = expandir(raw);
+  if (full) chunks.push(full);
+  partesProfesion(raw).forEach(p => { if (chunks.indexOf(p) < 0) chunks.push(p); });
+  const keys = Object.keys(TITLES).sort((a,b) => b.length - a.length);
+  for (const n of chunks){
+    if (esGrado(n) && n.split(/\s+/).length <= 3 && !keys.some(k => n.includes(k))) continue;
+    const v = [n, n.replace(/a\b/g,"o"), n.replace(/ra\b/g,"r"), n.replace(/a\b/g,"")];
+    for (const k of keys){
+      if (v.some(x => x===k || x.includes(k) || (x.length>=5 && k.includes(x)))) return {key:k, ...TITLES[k]};
+    }
+  }
+  return null;
+}
+
+const slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+let i = 0;
+function ir(n){
+  i = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, k) => s.classList.toggle("on", k === i));
+  document.getElementById("cuenta").textContent = (i + 1) + "/" + slides.length;
+  document.getElementById("prev").disabled = i === 0;
+  document.getElementById("next").disabled = i === slides.length - 1;
+}
+document.getElementById("prev").addEventListener("click", () => ir(i - 1));
+document.getElementById("next").addEventListener("click", () => ir(i + 1));
+document.addEventListener("keydown", e => {
+  const tag = (e.target && e.target.tagName) || "";
+  if (tag === "INPUT" || tag === "TEXTAREA") return;
+  if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); ir(i + 1); }
+  if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); ir(i - 1); }
+  if (e.key === "Home") { e.preventDefault(); ir(0); }
+  if (e.key === "End") { e.preventDefault(); ir(slides.length - 1); }
+});
+let tx = null;
+document.getElementById("deck").addEventListener("touchstart", e => { tx = e.changedTouches[0].screenX; }, {passive:true});
+document.getElementById("deck").addEventListener("touchend", e => {
+  if (tx == null) return;
+  const dx = e.changedTouches[0].screenX - tx;
+  if (dx < -50) ir(i + 1);
+  if (dx > 50) ir(i - 1);
+  tx = null;
+}, {passive:true});
+ir(0);
+
+const out = document.getElementById("busca-out");
+function buscar(){
+  const raw = document.getElementById("q-cargo").value;
+  out.textContent = "";
+  const m = findTitle(raw);
+  if (!m){
+    out.appendChild(document.createTextNode("No está en el diccionario. Escríbelo en la hoja y lo afinamos en la llamada de 15 min."));
+    return;
+  }
+  const tit = document.createElement("div");
+  const b = document.createElement("b");
+  b.textContent = m.en;
+  tit.appendChild(document.createTextNode("En EE. UU. se busca: "));
+  tit.appendChild(b);
+  out.appendChild(tit);
+  if (m.alt && m.alt.length){
+    const p = document.createElement("div");
+    p.textContent = "También: " + m.alt.join(" · ");
+    out.appendChild(p);
+  }
+  if (m.lanes && m.lanes.length){
+    const p = document.createElement("div");
+    p.textContent = "Carriles: " + m.lanes.join(" · ");
+    out.appendChild(p);
+  }
+  if (m.kw && m.kw.length){
+    const p = document.createElement("div");
+    m.kw.forEach(k => {
+      const s = document.createElement("span");
+      s.className = "kw";
+      s.textContent = k;
+      p.appendChild(s);
+    });
+    out.appendChild(p);
+  }
+  const en = document.getElementById("in-en");
+  if (en && !en.value) en.value = m.en;
+  pintarPitch();
+}
+document.getElementById("btn-buscar").addEventListener("click", buscar);
+document.getElementById("q-cargo").addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); buscar(); }
+});
+
+function pintarPitch(){
+  const set = (id, val, fallback) => {
+    const el = document.getElementById(id);
+    el.textContent = (val && val.trim()) ? val.trim() : fallback;
+  };
+  set("p-nom", document.getElementById("in-nom").value, "[tu nombre]");
+  set("p-es", document.getElementById("in-es").value, "[profesión]");
+  set("p-en", document.getElementById("in-en").value, "[cargo en inglés]");
+  set("p-logro", document.getElementById("in-logro").value, "[número + resultado]");
+}
+["in-nom","in-es","in-en","in-logro"].forEach(id => {
+  document.getElementById(id).addEventListener("input", pintarPitch);
+});
+</script>
+</body>
+</html>
