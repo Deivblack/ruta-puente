@@ -85,6 +85,7 @@ nav.bar button{min-width:48px;min-height:48px}
   .brand svg{width:36px;height:36px}
   .lista li{font-size:16px}
   nav.bar button{min-width:44px}
+  .row input{flex-basis:100%;min-width:100%;width:100%}
 }
 @media (min-width:900px){
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -123,7 +124,7 @@ nav.bar button{min-width:48px;min-height:48px}
   <div class="card">
     <label for="q-cargo">¿Qué estudiaste o cuál era tu cargo?</label>
     <div class="row">
-      <input id="q-cargo" type="text" placeholder="Ej.: contadora, maestro, ingeniero civil" autocomplete="off">
+      <input id="q-cargo" type="text" placeholder="Ej.: contadora, maestro" autocomplete="off">
       <button class="btn" type="button" id="btn-buscar">Buscar</button>
     </div>
     <div id="busca-out" class="hint">Prueba con una profesión. El diccionario es el mismo de la app.</div>
