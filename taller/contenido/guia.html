@@ -18,7 +18,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font:700 17px/1.45 var(--f-b);color:var(--ink);background:var(--bg);padding:16px 16px 48px}
-.wrap{max-width:720px;margin:0 auto}
+.wrap{max-width:760px;margin:0 auto}
 h1,h2{font-family:var(--f-d);letter-spacing:-.03em;line-height:1.15}
 h1{font-size:clamp(28px,6vw,40px);margin:8px 0 12px}
 h2{font-size:22px;margin:22px 0 8px;color:var(--hope)}
@@ -31,12 +31,16 @@ h2{font-size:22px;margin:22px 0 8px;color:var(--hope)}
 .tiempo{display:inline-block;background:var(--hope-soft);color:var(--hope);font-weight:800;font-size:13px;padding:3px 10px;border-radius:999px;margin-bottom:8px}
 dt{font-weight:800;margin-top:10px}
 dd{margin-left:0;color:var(--muted)}
-ol.pasos{margin:8px 0 0 18px}
-ol.pasos li{margin:6px 0}
+ol.pasos,ul.pasos{margin:8px 0 0 18px}
+ol.pasos li,ul.pasos li{margin:6px 0}
 a{color:var(--hope)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{border:1px solid var(--line);padding:8px;vertical-align:top;text-align:left}
+th{background:var(--hope-soft)}
+.aviso{background:#fff;border:2px solid var(--hope);border-radius:14px;padding:14px 16px;margin:12px 0}
 @media print{
   body{background:#fff;padding:0}
-  .bloque{break-inside:avoid}
+  .bloque,table{break-inside:avoid}
 }
 </style>
 </head>
@@ -45,28 +49,28 @@ a{color:var(--hope)}
   <p class="tiempo">Solo para David · no se proyecta</p>
   <h1>Guía del facilitador</h1>
   <p class="meta">Vuelve a lo tuyo · viernes 20 nov 2026 · 2:00–3:30 p. m. · Consulado · máx. 10 personas.<br>
-  Diapositivas: <a href="index.html">index.html</a> · Hoja: <a href="hoja.html">hoja.html</a></p>
+  Diapositivas: <a href="index.html">index.html</a> (11 slides) · Hoja: <a href="hoja.html">hoja.html</a> · Celular: <a href="participante.html">participante.html</a></p>
 
   <p class="regla">Cada bloque cierra con la gente escribiendo en su hoja, no conmigo hablando.</p>
 
   <div class="bloque">
     <p class="tiempo">Antes de las 2:00</p>
     <ul class="pasos">
-      <li>Abre <code>taller/contenido/index.html</code> en el navegador (funciona sin wifi). Pantalla grande o el celular de respaldo.</li>
-      <li>Imprime 10 copias de la hoja (dos caras). Lápices.</li>
+      <li>Abre <code>taller/contenido/index.html</code> (funciona sin wifi). Pantalla grande o el celular de respaldo.</li>
+      <li>Imprime 10 copias de la hoja (dos caras). Lápices. Quien prefiera celular: abre <code>participante.html</code>.</li>
       <li>Lista de inscritos: pestaña <b>Taller</b> de la hoja. Confirma nombres al entrar.</li>
       <li>No preguntes estatus migratorio. No uses «trabajar legalmente» ni «paisanos».</li>
     </ul>
   </div>
 
-  <h2>Bloque 0 · Bienvenida · 0–10 min · slides 1–2</h2>
+  <h2>Bloque 0 · Bienvenida · 0–8 min · slides 1–2</h2>
   <div class="bloque">
     <p class="tiempo">Slide 1 · Portada</p>
     <dl>
       <dt>Qué decir</dt>
       <dd>Soy David, de Ruta Puente. Esto es gratis. En 90 minutos sales con tres cosas escritas, no con un discurso.</dd>
       <dt>Consigna</dt>
-      <dd>Escriban su nombre arriba de la hoja.</dd>
+      <dd>Escriban su nombre arriba de la hoja (o en el celular).</dd>
     </dl>
     <p class="tiempo" style="margin-top:12px">Slide 2 · Gancho</p>
     <dl>
@@ -77,68 +81,90 @@ a{color:var(--hope)}
     </dl>
   </div>
 
-  <h2>Bloque 1 · Tu cargo · 10–30 min · slides 3–4</h2>
+  <h2>Bloque 1 · Tu cargo · 8–20 min · slide 3</h2>
   <div class="bloque">
     <p class="tiempo">Slide 3 · Buscador</p>
     <dl>
       <dt>Qué decir</dt>
       <dd>El mercado no busca «contadora». Busca Staff Accountant. Vamos a encontrar el tuyo, con el mismo diccionario de la app.</dd>
       <dt>Consigna</dt>
-      <dd>Cada persona dice su profesión. Tú la buscas en la slide. Ellos copian el cargo en inglés en la sección 1 de la hoja. Si no sale, lo escriben igual.</dd>
+      <dd>Cada persona dice su profesión. Tú la buscas. Ellos copian el cargo en inglés. Si no sale, lo escriben igual. Cierra: «¿Ya está el cargo en la hoja? Sí.»</dd>
     </dl>
-    <p class="tiempo" style="margin-top:12px">Slide 4 · Título</p>
+  </div>
+
+  <h2>Bloque de inglés · 20–35 min · slides 4–5</h2>
+  <div class="bloque">
+    <p class="tiempo">Slide 4 · No necesitas fluidez</p>
+    <dl>
+      <dt>Qué decir</dt>
+      <dd>El aviso puede decir fluent o bilingual. Eso no es un examen. Para aplicar te basta leer la vacante, contestar una llamada corta y decir 30 segundos. La fluidez llega trabajando. No esperes a hablar perfecto.</dd>
+      <dt>Consigna</dt>
+      <dd>Todavía no eligen sitio. Solo asienten: «¿Puedo aplicar sin fluidez? Sí.»</dd>
+    </dl>
+    <p class="tiempo" style="margin-top:12px">Slide 5 · Sitios gratis</p>
+    <dl>
+      <dt>Qué decir</dt>
+      <dd>Estos son reales, con página oficial. Horarios cambian: confirmen en el enlace. Elijan UNO cerca de casa o USA Learns en casa.</dd>
+      <dt>Consigna</dt>
+      <dd>Escriben el sitio en la hoja, sección 1b (o en el celular, paso Inglés). El bloque cierra cuando hay un nombre escrito. Máximo 2 preguntas en voz alta.</dd>
+    </dl>
+  </div>
+
+  <h2>Cierre del bloque 1 · Título · slide 6 · 2–3 min</h2>
+  <div class="bloque">
+    <p class="tiempo">Slide 6</p>
     <dl>
       <dt>Qué decir</dt>
       <dd>No todos los avisos piden equivalencia. Primero el cargo y un logro. Si el rol sí exige grado, lo vemos en la llamada de 15 min. Hoy no traemos papeles.</dd>
       <dt>Consigna</dt>
-      <dd>No llenan nada extra. Cierra el bloque: «¿Ya está el cargo en la hoja? Sí. Seguimos.»</dd>
+      <dd>No llenan nada extra. «¿Cargo e inglés ya están en la hoja? Sí. Seguimos.»</dd>
     </dl>
   </div>
 
-  <h2>Bloque 2 · Historia y CV · 30–55 min · slides 5–6</h2>
+  <h2>Bloque 2 · Historia y CV · 35–55 min · slides 7–8</h2>
   <div class="bloque">
-    <p class="tiempo">Slide 5 · 30 segundos</p>
+    <p class="tiempo">Slide 7 · 30 segundos</p>
     <dl>
       <dt>Qué decir</dt>
       <dd>Cuatro huecos: nombre, profesión, cargo en inglés, un logro con número. Lo lees en 30 segundos, como si alguien te preguntara en el pasillo.</dd>
       <dt>Consigna</dt>
-      <dd>Rellenan la plantilla en la hoja (sección 2). En parejas, se la dicen en voz alta una vez. Tú das un ejemplo primero.</dd>
+      <dd>Rellenan la plantilla. En parejas, se la dicen una vez. Tú das un ejemplo primero.</dd>
     </dl>
-    <p class="tiempo" style="margin-top:12px">Slide 6 · Tres arreglos de CV</p>
+    <p class="tiempo" style="margin-top:12px">Slide 8 · Tres arreglos de CV</p>
     <dl>
       <dt>Qué decir</dt>
       <dd>Tres cambios que más mueven: sin foto ni edad ni cédula; una columna; un logro con número. El resto puede esperar.</dd>
       <dt>Consigna</dt>
-      <dd>Marcan en la sección 3 qué van a hacer. Escriben ya el logro con número. El bloque cierra cuando el logro está en el papel.</dd>
+      <dd>Marcan qué van a hacer. Escriben ya el logro con número. El bloque cierra cuando el logro está en el papel.</dd>
     </dl>
   </div>
 
-  <h2>Bloque 3 · Dónde está el trabajo · 55–75 min · slide 7</h2>
+  <h2>Bloque 3 · Dónde está el trabajo · 55–75 min · slide 9</h2>
   <div class="bloque">
-    <p class="tiempo">Slide 7</p>
+    <p class="tiempo">Slide 9</p>
     <dl>
       <dt>Qué decir</dt>
       <dd>Aplicar en frío cansa. Una conversación abre más. Elige 3 empresas donde exista tu cargo. LinkedIn mínimo: foto, titular en inglés, una línea.</dd>
       <dt>Consigna</dt>
-      <dd>Escriben 3 empresas y a quién podrían escribir (rol, no hace falta conocerlos). Cierra: «¿Hay tres nombres de empresa? Sí.»</dd>
+      <dd>Escriben 3 empresas y a quién podrían escribir (rol). Cierra: «¿Hay tres nombres de empresa? Sí.»</dd>
     </dl>
   </div>
 
-  <h2>Bloque 4 · Primer paso y cierre · 75–90 min · slides 8–9</h2>
+  <h2>Bloque 4 · Primer paso y cierre · 75–90 min · slides 10–11</h2>
   <div class="bloque">
-    <p class="tiempo">Slide 8 · Acción a 7 días</p>
+    <p class="tiempo">Slide 10 · Acción a 7 días</p>
     <dl>
       <dt>Qué decir</dt>
-      <dd>Una sola acción, de aquí al viernes que viene. Tiene que pegar con un paso de la app: perfil, cargo, carril, vacantes, contacto o aplicaciones.</dd>
+      <dd>Una sola acción, de aquí al viernes que viene. Tiene que pegar con un paso de la app.</dd>
       <dt>Consigna</dt>
       <dd>Escriben la acción, el paso y la fecha. Eso es el cierre del aprendizaje. No añadas más teoría.</dd>
     </dl>
-    <p class="tiempo" style="margin-top:12px">Slide 9 · QR</p>
+    <p class="tiempo" style="margin-top:12px">Slide 11 · QR</p>
     <dl>
       <dt>Qué decir</dt>
       <dd>Ruta Puente es gratis. Escanean la app y agendan la llamada de 15 min. Si ya tienen enlace personal, usen ese.</dd>
       <dt>Consigna</dt>
-      <dd>Que saquen el celular y escaneen antes de irse. Foto de grupo solo si ellos quieren.</dd>
+      <dd>Que saquen el celular y escaneen antes de irse.</dd>
     </dl>
   </div>
 
@@ -147,9 +173,83 @@ a{color:var(--hope)}
     <ol class="pasos">
       <li>No recortes el escribir en la hoja. Recorta tus ejemplos.</li>
       <li>El buscador: máximo 6 personas en voz alta; el resto lo hace en silencio y tú pasas.</li>
+      <li>Inglés: elige 2 sitios en voz alta (biblioteca + uno cerca). El resto lee la slide.</li>
       <li>Si faltan 10 minutos: salta empresas y ve a la acción de 7 días + QR.</li>
     </ol>
   </div>
+
+  <h2>Sitios de inglés (solo con fuente)</h2>
+  <p class="meta">Revisado el 19 nov 2026. Si no hay página oficial, no está. Di a la gente: confirma horario antes de ir.</p>
+  <div class="aviso">
+    <b>No proyectes ni mandes a HCC Adult Education ni a HCDE Adult Education en este taller.</b>
+    Tienen ESL real, pero su inscripción pide documentos de elegibilidad. En Ruta Puente no preguntamos eso. En la slide van bibliotecas, iglesias, India House y USA Learns.
+  </div>
+  <div class="bloque" style="overflow:auto">
+    <table>
+      <thead>
+        <tr><th>Nombre</th><th>Qué ofrecen</th><th>Gratis</th><th>Zona</th><th>Enlace (fuente)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Biblioteca Pública de Houston (HPL)</td>
+          <td>English Language Learning para adultos 18+: 16 semanas, 90 min, libros incluidos. Inscripción y prueba de nivel.</td>
+          <td>Sí</td>
+          <td>Varias sucursales de la ciudad (el calendario lista, entre otras, Mancuso y McGovern–Stella Link)</td>
+          <td><a href="https://calendar.houstonlibrary.org/event/17335220">calendar.houstonlibrary.org</a> · hub: <a href="https://houstonlibrary.org/language-citizenship">houstonlibrary.org/language-citizenship</a></td>
+        </tr>
+        <tr>
+          <td>Biblioteca del Condado Harris (HCPL)</td>
+          <td>ESL con tutores voluntarios. Casi siempre 1 vez por semana, 12 o 16 semanas. Libros incluidos. Inscripción en la sucursal.</td>
+          <td>Sí (lo dice su FAQ)</td>
+          <td>Sucursales del condado (en su web salen, entre otras, Northwest, Jacinto City, Crosby, CyFair)</td>
+          <td><a href="https://hcpl.net/adult-education/">hcpl.net/adult-education</a></td>
+        </tr>
+        <tr>
+          <td>CityRise Church (West U Baptist y Missouri City)</td>
+          <td>ESL. Puedes ir a una clase o a todas. Cuidado de niños. Mié 6–8 p. m. en West U; domingo 12:45–2:00 p. m. en Missouri City (ciclo 2026–27).</td>
+          <td>Sí</td>
+          <td>West University (6218 Auden, Houston 77005) y Missouri City (2106 5th St)</td>
+          <td><a href="https://cityrise.org/esl">cityrise.org/esl</a></td>
+        </tr>
+        <tr>
+          <td>Emerson Unitarian Universalist Church</td>
+          <td>ESL para adultos, niveles Basic a 4. Mar y jue 6:30–8:30 p. m. Inscripción en persona.</td>
+          <td>Sí (libro opcional 10 USD; si no pueden, lo dan gratis)</td>
+          <td>Galleria / West Houston (1900 Bering Dr, 77057)</td>
+          <td><a href="https://emersonhouston.org/items/01-english-class-program-esl-2/">emersonhouston.org · English Class Program</a></td>
+        </tr>
+        <tr>
+          <td>India House Houston + HCPL</td>
+          <td>Inglés para adultos 18+, todos los niveles. Miércoles (ciclo sep–dic 2026 en su página).</td>
+          <td>Sí</td>
+          <td>Suroeste (8888 West Bellfort, Houston 77031)</td>
+          <td><a href="https://www.indiahouseinc.org/english-hcpl/">indiahouseinc.org/english-hcpl</a></td>
+        </tr>
+        <tr>
+          <td>USA Learns</td>
+          <td>Curso de inglés del gobierno, con lecciones de trabajo. En casa. Ya está en el diagnóstico de Ruta Puente.</td>
+          <td>Sí (cuenta gratis)</td>
+          <td>En línea</td>
+          <td><a href="https://www.usalearns.org/">usalearns.org</a></td>
+        </tr>
+        <tr>
+          <td>Berean Community Center (en Berean Baptist)</td>
+          <td>ESL todos los niveles, martes 6:30–8:30 p. m., 2 horas, cuidado de niños. Extra: no está en la slide para no saturar; úsalo si alguien vive al norte.</td>
+          <td>Sí</td>
+          <td>Norte / I-45 (10250 North Freeway, Houston 77037)</td>
+          <td><a href="https://www.bereancommunitycenter.org/esl">bereancommunitycenter.org/esl</a></td>
+        </tr>
+        <tr>
+          <td>Gethsemane Lutheran Church</td>
+          <td>ESL miércoles 9:30 a. m.–12:00 p. m., sigue calendario HISD, hay niñera. Extra: no está en la slide; úsalo si alguien vive en el noroeste y puede de día.</td>
+          <td>Sí</td>
+          <td>Noroeste (4040 Watonga Blvd, Houston 77092)</td>
+          <td><a href="https://gethsemanelutheran.org/esl-classes">gethsemanelutheran.org/esl-classes</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="meta">No incluí BakerRipley: hay ESL, pero piden membresía de pago (75 USD adulto en su propia web). No incluí HCC ni HCDE en la slide por lo de los documentos de inscripción.</p>
 </div>
 </body>
 </html>
