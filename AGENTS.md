@@ -36,7 +36,11 @@ Servicio de empleabilidad para **profesionales latinoamericanos que viven en EE.
 │   ├── kit-mensajes.json → Calendario de textos y versión de cupo lleno
 │   ├── afiche.html   → Afiche carta (Imprimir → Guardar como PDF)
 │   ├── qr-taller.svg / qr-taller.png → QR a /taller/?utm=afiche
-│   └── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
+│   ├── afiche.pdf / afiche.png → borrador para WhatsApp (marca de agua BORRADOR)
+│   └── contenido/    → Materiales del taller presencial (DI): diapositivas, hoja, guía
+│       ├── index.html → Diapositivas (flechas, offline, buscador TITLES de la app)
+│       ├── hoja.html  → Hoja de trabajo para imprimir (carta, dos caras)
+│       └── guia.html  → Guía del facilitador (minuto a minuto)
 ├── ingles/           → Diagnóstico de inglés para el trabajo
 │   ├── index.html    → 5 escenas + resultado, tarjeta del taller y plan de 7 días
 │   ├── banco.json    → ítems (todos con revisar: true hasta que David apruebe)
@@ -53,6 +57,9 @@ URLs públicas:
 - Taller: https://deivblack.github.io/ruta-puente/taller/
 - Kit (privado): https://deivblack.github.io/ruta-puente/taller/kit.html
 - Afiche: https://deivblack.github.io/ruta-puente/taller/afiche.html
+- Taller presencial (DI): https://deivblack.github.io/ruta-puente/taller/contenido/
+- Hoja de trabajo: https://deivblack.github.io/ruta-puente/taller/contenido/hoja.html
+- Guía del facilitador: https://deivblack.github.io/ruta-puente/taller/contenido/guia.html
 - Inglés: https://deivblack.github.io/ruta-puente/ingles/
 
 ## 4. Arquitectura
@@ -142,6 +149,7 @@ URLs públicas:
 - Datos en **un solo archivo** `taller/config.js` (`TALLER`). Fecha: viernes 20 de noviembre de 2026, 2:00–3:30 p. m. (`inicioISO`/`finISO`). `cupos: 13`. La confirmación de la inscripción lee la fecha de aquí. El texto de `TALLER.apoyo` va solo en los mensajes de WhatsApp, no en el afiche ni con logo.
 - `taller/kit.html` (noindex) pide la misma clave que la Bitácora y la manda por POST. Muestra la tarea del día (Copiar y Abrir WhatsApp), el contador, los recordatorios del 19 al 21, el buscador de cargos, los enlaces `?utm=` del taller y los del diagnóstico (`ingles/?utm=whatsapp|tiktok|estado`). Si `inscritos >= cupos`, los mensajes de difusión pasan a su versión de cupo lleno. `?fecha=AAAA-MM-DD` solo sirve para ensayar el día; no lleva la clave. En textos al público: «querida comunidad», no «paisanos».
 - Los textos están en `taller/kit-mensajes.json`. El lunes 16 el kit mira `ingles/banco.json`: si hay ítems con `revisar: true`, manda el ejemplo de CV; si no, ofrece el diagnóstico.
+- Materiales para dar el taller (90 min): `taller/contenido/`. Diapositivas con flechas, hoja imprimible y guía del facilitador. El buscador de cargos copia el diccionario `TITLES` de `app/index.html` (no reescribirlo a mano). Funciona sin internet. No cambia la página de inscripción. QRs: app y agenda de 15 min.
 - Para publicar hora/lugar: edita `config.js` y vuelve a exportar el PDF del afiche. El PNG y el PDF que ya están en el repo pueden seguir diciendo la fecha vieja hasta que los exportes de nuevo.
 - `?utm=afiche` (y whatsapp, facebook, consulado, embajadora, radio) se guarda en `fuente`. No pedir estatus migratorio ni usar "trabajar legalmente" en esa página.
 
