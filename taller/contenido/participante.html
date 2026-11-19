@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tu hoja · Vuelve a lo tuyo · Ruta Puente</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../../logo-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{
+  --hope:#2e7d5b; --hope-soft:#e1efe7; --sun:#e8b04b; --sun-soft:#fbf0d9;
+  --bg:#f5f7f4; --ink:#1f2a26; --muted:#5d6c66; --line:#dde5e0; --white:#fff;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-b:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font:700 17px/1.4 var(--f-b)}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 110px}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-d);font-weight:800;font-size:18px;margin-bottom:8px}
+.brand svg{width:32px;height:32px}
+.kicker{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--hope)}
+h1,h2{font-family:var(--f-d);font-weight:800;letter-spacing:-.03em;line-height:1.15}
+h1{font-size:clamp(26px,7vw,36px);margin:4px 0 10px}
+h2{font-size:clamp(22px,6vw,28px);margin:4px 0 10px}
+.lead{color:var(--muted);margin-bottom:12px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:10px 0;display:flex;flex-direction:column;gap:8px}
+label{font-size:14px}
+input,textarea,select{
+  font:700 17px var(--f-b);color:var(--ink);background:var(--white);
+  border:2px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--hope);outline:none}
+textarea{min-height:88px;resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;padding:8px 0}
+.check input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
+.plantilla{background:var(--white);border-left:6px solid var(--sun);padding:12px 14px;border-radius:8px;margin:8px 0;line-height:1.45}
+.plantilla span{background:var(--sun-soft);padding:0 4px;border-radius:4px}
+.hint{font-size:14px;color:var(--muted)}
+.resumen dt{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:10px}
+.resumen dd{margin:2px 0 0;min-height:1.3em}
+.qr-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:12px}
+.qr-row img{width:112px;height:112px;background:#fff;border:1px solid var(--line);border-radius:12px}
+nav.bar{
+  position:fixed;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+  background:var(--bg);border-top:1px solid var(--line);
+}
+.btn{
+  font:800 16px var(--f-b);border:0;border-radius:999px;padding:12px 18px;
+  background:var(--hope);color:#fff;cursor:pointer;min-height:48px;
+}
+.btn.ghost{background:transparent;color:var(--hope);border:2px solid var(--line)}
+.btn[disabled]{opacity:.4}
+#cuenta{font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.paso{display:none}
+.paso.on{display:block}
+@media (min-width:900px){
+  .wrap{max-width:720px;padding-top:28px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#1D2B26" stroke-width="5" stroke-linecap="round"/></svg>
+    Ruta Puente
+  </div>
+
+  <section class="paso on" data-p="0">
+    <p class="kicker">Tu hoja en el celular</p>
+    <h1>Vuelve a lo tuyo</h1>
+    <p class="lead">Sigue las diapositivas. Lo que escribas se queda en este teléfono, no se envía a nadie.</p>
+    <div class="card">
+      <label for="nombre">Tu nombre</label>
+      <input id="nombre" type="text" autocomplete="given-name" placeholder="Ana">
+    </div>
+  </section>
+
+  <section class="paso" data-p="1">
+    <p class="kicker">1 · Cargo</p>
+    <h2>Tu cargo existe aquí, y se dice así</h2>
+    <div class="card">
+      <label for="prof">Profesión (como la dices tú)</label>
+      <input id="prof" type="text" placeholder="contadora">
+    </div>
+    <div class="card">
+      <label for="cargo">Cargo en inglés</label>
+      <input id="cargo" type="text" placeholder="Staff Accountant">
+    </div>
+    <p class="hint">Cópialo de la pantalla grande. Si no salió en el buscador, escríbelo igual.</p>
+  </section>
+
+  <section class="paso" data-p="2">
+    <p class="kicker">2 · 30 segundos</p>
+    <h2>Tu historia vende</h2>
+    <p class="plantilla" id="pitch">Hola, soy <span id="p-nom">[tu nombre]</span>. Fui <span id="p-es">[profesión]</span> y hoy busco <span id="p-en">[cargo en inglés]</span>. Un logro: <span id="p-logro">[número + resultado]</span>.</p>
+    <div class="card">
+      <label for="logro">Un logro con número</label>
+      <textarea id="logro" placeholder="Cerré 40 cuentas al mes"></textarea>
+    </div>
+    <p class="hint">Dilo en voz alta. Máximo 30 segundos.</p>
+  </section>
+
+  <section class="paso" data-p="3">
+    <p class="kicker">3 · CV</p>
+    <h2>Los 3 arreglos de mayor impacto</h2>
+    <div class="card">
+      <label class="check"><input id="cv1" type="checkbox"><span>Quitar foto, edad y cédula u otros documentos de identidad.</span></label>
+      <label class="check"><input id="cv2" type="checkbox"><span>Dejar el CV en una sola columna (para que lo lea el ATS).</span></label>
+      <label class="check"><input id="cv3" type="checkbox"><span>Reescribir 1 logro con número.</span></label>
+    </div>
+    <p class="hint">Marca los que vas a hacer esta semana.</p>
+  </section>
+
+  <section class="paso" data-p="4">
+    <p class="kicker">4 · Empresas</p>
+    <h2>Tres empresas objetivo</h2>
+    <div class="grid2">
+      <div class="card"><label for="e1">Empresa 1</label><input id="e1" type="text"></div>
+      <div class="card"><label for="e2">Empresa 2</label><input id="e2" type="text"></div>
+    </div>
+    <div class="card"><label for="e3">Empresa 3</label><input id="e3" type="text"></div>
+    <div class="card"><label for="contacto">A quién le puedes escribir (rol)</label><input id="contacto" type="text" placeholder="HR Coordinator, Hiring Manager…"></div>
+  </section>
+
+  <section class="paso" data-p="5">
+    <p class="kicker">5 · Inglés</p>
+    <h2>Dónde vas a practicar</h2>
+    <p class="lead">Elige un sitio gratis. Confirma horario en el enlace antes de ir.</p>
+    <div class="card">
+      <label for="ingles">Sitio</label>
+      <select id="ingles">
+        <option value="">Elige uno</option>
+        <option>Biblioteca Pública de Houston (gratis, ciudad)</option>
+        <option>Biblioteca del Condado Harris (gratis, condado)</option>
+        <option>CityRise West U (gratis, West University)</option>
+        <option>Emerson UU (gratis, Galleria)</option>
+        <option>India House (gratis, suroeste)</option>
+        <option>USA Learns en casa (gratis, en línea)</option>
+        <option>Otro (lo anoto yo)</option>
+      </select>
+    </div>
+    <div class="card">
+      <label for="ingles_otro">Si es otro, escríbelo</label>
+      <input id="ingles_otro" type="text">
+    </div>
+  </section>
+
+  <section class="paso" data-p="6">
+    <p class="kicker">6 · 7 días</p>
+    <h2>Una acción para esta semana</h2>
+    <p class="lead">Una sola. Alineada a la app: Perfil · Tu cargo · Carril · Vacantes · Contacto · Aplicaciones.</p>
+    <div class="card">
+      <label for="accion">Tu acción</label>
+      <textarea id="accion" placeholder="Ej.: reescribir 1 logro y agendar la llamada de 15 min"></textarea>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <label for="paso_app">Paso de la app</label>
+        <select id="paso_app">
+          <option value="">Elige</option>
+          <option>1 Perfil</option>
+          <option>2 Tu cargo</option>
+          <option>3 Carril</option>
+          <option>4 Vacantes</option>
+          <option>5 Contacto</option>
+          <option>6 Aplicaciones</option>
+        </select>
+      </div>
+      <div class="card">
+        <label for="fecha">Fecha en que lo haces</label>
+        <input id="fecha" type="text" placeholder="vie 27 nov" inputmode="text">
+      </div>
+    </div>
+  </section>
+
+  <section class="paso" data-p="7">
+    <p class="kicker">Listo</p>
+    <h2>Esto te llevas</h2>
+    <p class="lead" id="hola"></p>
+    <dl class="resumen card">
+      <dt>Cargo en inglés</dt><dd id="r-cargo"></dd>
+      <dt>Pitch</dt><dd id="r-pitch"></dd>
+      <dt>Arreglos de CV</dt><dd id="r-cv"></dd>
+      <dt>Empresas</dt><dd id="r-emp"></dd>
+      <dt>Inglés</dt><dd id="r-ing"></dd>
+      <dt>Acción a 7 días</dt><dd id="r-acc"></dd>
+    </dl>
+    <div class="qr-row">
+      <div>
+        <img src="qr-app.svg" alt="QR a la app" width="112" height="112">
+        <p class="hint">App</p>
+      </div>
+      <div>
+        <img src="qr-agenda.svg" alt="QR para agendar" width="112" height="112">
+        <p class="hint">Agenda tu llamada gratis</p>
+      </div>
+    </div>
+    <p class="hint">Ruta Puente es gratis. Lo escrito se queda en este teléfono.</p>
+  </section>
+</div>
+
+<nav class="bar">
+  <button class="btn ghost" type="button" id="prev" aria-label="Anterior">←</button>
+  <span id="cuenta">1/8</span>
+  <button class="btn" type="button" id="next" aria-label="Siguiente">→</button>
+</nav>
+
+<script>
+const KEY = "rp-taller-part";
+const pasos = Array.prototype.slice.call(document.querySelectorAll(".paso"));
+const fields = ["nombre","prof","cargo","logro","cv1","cv2","cv3","e1","e2","e3","contacto","ingles","ingles_otro","accion","paso_app","fecha"];
+let i = 0;
+
+function leer(){
+  try{ return JSON.parse(localStorage.getItem(KEY) || "{}"); }
+  catch(e){ return {}; }
+}
+function guardar(){
+  const d = {};
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    d[id] = el.type === "checkbox" ? el.checked : el.value;
+  });
+  try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){}
+}
+function cargar(){
+  const d = leer();
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || d[id] == null) return;
+    if (el.type === "checkbox") el.checked = !!d[id];
+    else el.value = d[id];
+  });
+  pintar();
+}
+function setTxt(id, val, fallback){
+  const el = document.getElementById(id);
+  if (!el) return;
+  const t = (val && String(val).trim()) ? String(val).trim() : fallback;
+  el.textContent = t;
+}
+function pintar(){
+  const nom = document.getElementById("nombre").value;
+  const es = document.getElementById("prof").value;
+  const en = document.getElementById("cargo").value;
+  const logro = document.getElementById("logro").value;
+  setTxt("p-nom", nom, "[tu nombre]");
+  setTxt("p-es", es, "[profesión]");
+  setTxt("p-en", en, "[cargo en inglés]");
+  setTxt("p-logro", logro, "[número + resultado]");
+}
+function resumen(){
+  const nom = document.getElementById("nombre").value.trim();
+  setTxt("hola", nom ? ("Esto es lo que anotó " + nom + ".") : "Esto es lo que anotaste.", "");
+  setTxt("r-cargo", document.getElementById("cargo").value, "—");
+  const pitch = "Hola, soy " + (document.getElementById("nombre").value.trim() || "…") +
+    ". Fui " + (document.getElementById("prof").value.trim() || "…") +
+    " y hoy busco " + (document.getElementById("cargo").value.trim() || "…") +
+    ". Un logro: " + (document.getElementById("logro").value.trim() || "…") + ".";
+  setTxt("r-pitch", pitch, "—");
+  const cv = [];
+  if (document.getElementById("cv1").checked) cv.push("sin foto/edad/cédula");
+  if (document.getElementById("cv2").checked) cv.push("una columna");
+  if (document.getElementById("cv3").checked) cv.push("logro con número");
+  setTxt("r-cv", cv.join(" · "), "Ninguno marcado");
+  const emp = [document.getElementById("e1").value, document.getElementById("e2").value, document.getElementById("e3").value]
+    .map(s => s.trim()).filter(Boolean);
+  setTxt("r-emp", emp.join(" · "), "—");
+  let ing = document.getElementById("ingles").value;
+  const otro = document.getElementById("ingles_otro").value.trim();
+  if (ing === "Otro (lo anoto yo)" && otro) ing = otro;
+  setTxt("r-ing", ing, "—");
+  const acc = document.getElementById("accion").value.trim();
+  const paso = document.getElementById("paso_app").value;
+  const fecha = document.getElementById("fecha").value.trim();
+  setTxt("r-acc", [acc, paso, fecha].filter(Boolean).join(" · "), "—");
+}
+function ir(n){
+  i = Math.max(0, Math.min(pasos.length - 1, n));
+  pasos.forEach((s, k) => s.classList.toggle("on", k === i));
+  document.getElementById("cuenta").textContent = (i + 1) + "/" + pasos.length;
+  document.getElementById("prev").disabled = i === 0;
+  document.getElementById("next").disabled = i === pasos.length - 1;
+  guardar();
+  pintar();
+  if (i === pasos.length - 1) resumen();
+  try{ window.scrollTo(0, 0); }catch(e){}
+}
+document.getElementById("prev").addEventListener("click", () => ir(i - 1));
+document.getElementById("next").addEventListener("click", () => ir(i + 1));
+document.addEventListener("keydown", e => {
+  const tag = (e.target && e.target.tagName) || "";
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); ir(i + 1); }
+  if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); ir(i - 1); }
+});
+fields.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", () => { guardar(); pintar(); });
+  el.addEventListener("change", () => { guardar(); pintar(); });
+});
+cargar();
+ir(0);
+</script>
+</body>
+</html>
