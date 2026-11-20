@@ -58,6 +58,16 @@ nav.bar{
 #cuenta{font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
 .paso{display:none}
 .paso.on{display:block}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{
+  background:var(--hope-soft);border:2px solid var(--hope);border-radius:999px;
+  padding:8px 14px;font:800 15px var(--f-b);color:var(--ink);cursor:pointer;
+}
+.pill.on{background:var(--hope);color:#fff}
+.prompt{
+  white-space:pre-wrap;font:700 14px/1.35 var(--f-b);
+  background:var(--bg);border-radius:12px;padding:12px;max-height:40vh;overflow:auto;
+}
 @media (min-width:900px){
   .wrap{max-width:720px;padding-top:28px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -74,7 +84,7 @@ nav.bar{
   <section class="paso on" data-p="0">
     <p class="kicker">Tu hoja en el celular</p>
     <h1>Vuelve a lo tuyo</h1>
-    <p class="lead">Sigue las diapositivas. Lo que escribas se queda en este teléfono, no se envía a nadie.</p>
+    <p class="lead">Este es el material del taller. Ve llenando mientras David avanza. Se queda en este teléfono, no se envía a nadie. Si se cae la señal, pide la hoja de papel.</p>
     <div class="card">
       <label for="nombre">Tu nombre</label>
       <input id="nombre" type="text" autocomplete="given-name" placeholder="Ana">
@@ -96,42 +106,31 @@ nav.bar{
   </section>
 
   <section class="paso" data-p="2">
-    <p class="kicker">2 · 30 segundos</p>
-    <h2>Tu historia vende</h2>
-    <p class="plantilla" id="pitch">Hola, soy <span id="p-nom">[tu nombre]</span>. Fui <span id="p-es">[profesión]</span> y hoy busco <span id="p-en">[cargo en inglés]</span>. Un logro: <span id="p-logro">[número + resultado]</span>.</p>
-    <div class="card">
-      <label for="logro">Un logro con número</label>
-      <textarea id="logro" placeholder="Cerré 40 cuentas al mes"></textarea>
+    <p class="kicker">2 · IA</p>
+    <h2>La IA busca. Tú verificas.</h2>
+    <p class="lead">Copia el prompt, pégalo en ChatGPT, Gemini u otra gratis. Si inventa una vacante o un número, no lo uses.</p>
+    <div class="pills" id="ia-tabs">
+      <button class="pill on" type="button" data-ia="vacantes">Vacantes</button>
+      <button class="pill" type="button" data-ia="cv">CV</button>
+      <button class="pill" type="button" data-ia="ingles">Inglés</button>
+      <button class="pill" type="button" data-ia="pitch">30 segundos</button>
     </div>
-    <p class="hint">Dilo en voz alta. Máximo 30 segundos.</p>
+    <div class="card">
+      <pre class="prompt" id="ia-texto"></pre>
+      <button class="btn" type="button" id="ia-copiar">Copiar prompt</button>
+    </div>
+    <div class="card">
+      <label class="check"><input id="ia_vac" type="checkbox"><span>Ya copié el de vacantes</span></label>
+      <label class="check"><input id="ia_cv" type="checkbox"><span>Ya copié el de CV</span></label>
+      <label class="check"><input id="ia_ing" type="checkbox"><span>Ya copié el de inglés</span></label>
+      <label class="check"><input id="ia_pitch" type="checkbox"><span>Ya copié el de 30 segundos</span></label>
+    </div>
   </section>
 
   <section class="paso" data-p="3">
-    <p class="kicker">3 · CV</p>
-    <h2>Los 3 arreglos de mayor impacto</h2>
-    <div class="card">
-      <label class="check"><input id="cv1" type="checkbox"><span>Quitar foto, edad y cédula u otros documentos de identidad.</span></label>
-      <label class="check"><input id="cv2" type="checkbox"><span>Dejar el CV en una sola columna (para que lo lea el ATS).</span></label>
-      <label class="check"><input id="cv3" type="checkbox"><span>Reescribir 1 logro con número.</span></label>
-    </div>
-    <p class="hint">Marca los que vas a hacer esta semana.</p>
-  </section>
-
-  <section class="paso" data-p="4">
-    <p class="kicker">4 · Empresas</p>
-    <h2>Tres empresas objetivo</h2>
-    <div class="grid2">
-      <div class="card"><label for="e1">Empresa 1</label><input id="e1" type="text"></div>
-      <div class="card"><label for="e2">Empresa 2</label><input id="e2" type="text"></div>
-    </div>
-    <div class="card"><label for="e3">Empresa 3</label><input id="e3" type="text"></div>
-    <div class="card"><label for="contacto">A quién le puedes escribir (rol)</label><input id="contacto" type="text" placeholder="HR Coordinator, Hiring Manager…"></div>
-  </section>
-
-  <section class="paso" data-p="5">
-    <p class="kicker">5 · Inglés</p>
+    <p class="kicker">3 · Inglés</p>
     <h2>Dónde vas a practicar</h2>
-    <p class="lead">Elige un sitio gratis. Confirma horario en el enlace antes de ir.</p>
+    <p class="lead">Elige un sitio gratis. Confirma horario en el enlace antes de ir. El prompt de inglés es para practicar en casa.</p>
     <div class="card">
       <label for="ingles">Sitio</label>
       <select id="ingles">
@@ -155,8 +154,41 @@ nav.bar{
     </div>
   </section>
 
+  <section class="paso" data-p="4">
+    <p class="kicker">4 · 30 segundos</p>
+    <h2>Tu historia vende</h2>
+    <p class="plantilla" id="pitch">Hola, soy <span id="p-nom">[tu nombre]</span>. Fui <span id="p-es">[profesión]</span> y hoy busco <span id="p-en">[cargo en inglés]</span>. Un logro: <span id="p-logro">[número + resultado]</span>.</p>
+    <div class="card">
+      <label for="logro">Un logro con número</label>
+      <textarea id="logro" placeholder="Cerré 40 cuentas al mes"></textarea>
+    </div>
+    <p class="hint">Dilo en voz alta. Máximo 30 segundos. Si quieres, usa el prompt de 30 segundos.</p>
+  </section>
+
+  <section class="paso" data-p="5">
+    <p class="kicker">5 · CV</p>
+    <h2>Los 3 arreglos de mayor impacto</h2>
+    <div class="card">
+      <label class="check"><input id="cv1" type="checkbox"><span>Quitar foto, edad y cédula u otros documentos de identidad.</span></label>
+      <label class="check"><input id="cv2" type="checkbox"><span>Dejar el CV en una sola columna (para que lo lea el ATS).</span></label>
+      <label class="check"><input id="cv3" type="checkbox"><span>Reescribir 1 logro con número.</span></label>
+    </div>
+    <p class="hint">Marca los que vas a hacer esta semana.</p>
+  </section>
+
   <section class="paso" data-p="6">
-    <p class="kicker">6 · 7 días</p>
+    <p class="kicker">6 · Empresas</p>
+    <h2>Tres empresas objetivo</h2>
+    <div class="grid2">
+      <div class="card"><label for="e1">Empresa 1</label><input id="e1" type="text"></div>
+      <div class="card"><label for="e2">Empresa 2</label><input id="e2" type="text"></div>
+    </div>
+    <div class="card"><label for="e3">Empresa 3</label><input id="e3" type="text"></div>
+    <div class="card"><label for="contacto">A quién le puedes escribir (rol)</label><input id="contacto" type="text" placeholder="HR Coordinator, Hiring Manager…"></div>
+  </section>
+
+  <section class="paso" data-p="7">
+    <p class="kicker">7 · 7 días</p>
     <h2>Una acción para esta semana</h2>
     <p class="lead">Una sola. Alineada a la app: Perfil · Tu cargo · Carril · Vacantes · Contacto · Aplicaciones.</p>
     <div class="card">
@@ -183,12 +215,13 @@ nav.bar{
     </div>
   </section>
 
-  <section class="paso" data-p="7">
+  <section class="paso" data-p="8">
     <p class="kicker">Listo</p>
     <h2>Esto te llevas</h2>
     <p class="lead" id="hola"></p>
     <dl class="resumen card">
       <dt>Cargo en inglés</dt><dd id="r-cargo"></dd>
+      <dt>Prompts de IA copiados</dt><dd id="r-ia"></dd>
       <dt>Pitch</dt><dd id="r-pitch"></dd>
       <dt>Arreglos de CV</dt><dd id="r-cv"></dd>
       <dt>Empresas</dt><dd id="r-emp"></dd>
@@ -205,7 +238,7 @@ nav.bar{
         <p class="hint">Agenda tu llamada gratis</p>
       </div>
     </div>
-    <p class="hint">Ruta Puente es gratis. Lo escrito se queda en este teléfono.</p>
+    <p class="hint">Ruta Puente es gratis. El siguiente paso es la llamada de 15 minutos. Lo escrito se queda en este teléfono.</p>
   </section>
 </div>
 
@@ -218,7 +251,7 @@ nav.bar{
 <script>
 const KEY = "rp-taller-part";
 const pasos = Array.prototype.slice.call(document.querySelectorAll(".paso"));
-const fields = ["nombre","prof","cargo","logro","cv1","cv2","cv3","e1","e2","e3","contacto","ingles","ingles_otro","accion","paso_app","fecha"];
+const fields = ["nombre","prof","cargo","ia_vac","ia_cv","ia_ing","ia_pitch","logro","cv1","cv2","cv3","e1","e2","e3","contacto","ingles","ingles_otro","accion","paso_app","fecha"];
 let i = 0;
 
 function leer(){
@@ -250,6 +283,51 @@ function setTxt(id, val, fallback){
   const t = (val && String(val).trim()) ? String(val).trim() : fallback;
   el.textContent = t;
 }
+function dato(id, fallback){
+  const el = document.getElementById(id);
+  const v = el && el.value && el.value.trim();
+  return v || fallback;
+}
+function promptsIA(){
+  const nom = dato("nombre", "[tu nombre]");
+  const es = dato("prof", "[profesión]");
+  const en = dato("cargo", "[cargo en inglés]");
+  const logro = dato("logro", "[un logro con número]");
+  return {
+    vacantes: "Ayúdame a buscar empleo real. No inventes vacantes, empresas, enlaces ni salarios. Si no tienes un dato confirmado, escribe «no lo confirmo».\n\nCargo que busco: " + en + "\nCiudad: Houston, Texas\n\nDame solo esto:\n1) 5 búsquedas listas para pegar en Indeed y en LinkedIn (usa comillas).\n2) 5 empresas reales del área de Houston donde suele existir este cargo. Si dudas, no las pongas.\n3) 8 palabras clave típicas de esos avisos, para el CV.\n4) 3 preguntas cortas para una conversación de 10 minutos con alguien que ya trabaja ahí.\n\nNo listes ofertas concretas salvo que puedas dar el enlace real. Prefiero búsquedas buenas antes que avisos inventados.",
+    cv: "Reescribe logros de CV para Estados Unidos. No inventes números ni empleos que yo no escribí. No pidas foto, edad ni documentos de identidad.\n\nCargo meta: " + en + "\nTexto actual: " + logro + "\n\nDevuelve:\n- 3 viñetas de una línea: verbo en pasado + qué hice + un número que yo ya di.\n- 1 titular de CV de máximo 12 palabras, en inglés, con el cargo meta.\n- 5 cosas que debo quitar si aparecen (foto, edad, columnas, tablas).\n\nSi falta un número, pregúntame. No lo inventes.",
+    ingles: "Soy profesional. Busco el cargo " + en + " en Houston. Mi inglés no es nativo.\n\nDame material corto para practicar 15 minutos:\n1) 10 palabras de avisos de ese cargo, con español entre paréntesis.\n2) Mi presentación de 30 segundos en inglés sencillo y la misma en español. Datos: " + nom + ", fui " + es + ", busco " + en + ", un logro: " + logro + ".\n3) 6 frases para una llamada: saludar, pedir que repitan, pedir un correo, agradecer.\n4) Si pego un texto abajo, corrígelo en una versión más simple. No me des un discurso.\n\nMi texto (opcional):\n",
+    pitch: "Arma mi presentación de 30 segundos. No inventes logros ni cargos. Si falta un dato, pregúntame.\n\nNombre: " + nom + "\nProfesión en mi país: " + es + "\nCargo que busco en EE. UU.: " + en + "\nUn logro con número: " + logro + "\nCiudad: Houston\n\nDevuelve:\nA) Versión en español, máximo 70 palabras, para decirla en voz alta.\nB) La misma idea en inglés sencillo, máximo 70 palabras.\nC) Una versión de 2 líneas para un mensaje de LinkedIn o WhatsApp.\n\nEmpieza con «Hola, soy…». Cierra con lo que busco, no con mi historia completa."
+  };
+}
+let iaClave = "vacantes";
+function pintarIA(){
+  const pre = document.getElementById("ia-texto");
+  if (!pre) return;
+  pre.textContent = promptsIA()[iaClave] || "";
+}
+function copiarTexto(texto, btn){
+  const listo = () => {
+    if (!btn) return;
+    const t = btn.textContent;
+    btn.textContent = "Copiado";
+    setTimeout(() => { btn.textContent = t; }, 1400);
+  };
+  const fallback = () => {
+    const ta = document.createElement("textarea");
+    ta.value = texto;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); listo(); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(listo).catch(fallback);
+  } else fallback();
+}
 function pintar(){
   const nom = document.getElementById("nombre").value;
   const es = document.getElementById("prof").value;
@@ -259,11 +337,18 @@ function pintar(){
   setTxt("p-es", es, "[profesión]");
   setTxt("p-en", en, "[cargo en inglés]");
   setTxt("p-logro", logro, "[número + resultado]");
+  pintarIA();
 }
 function resumen(){
   const nom = document.getElementById("nombre").value.trim();
   setTxt("hola", nom ? ("Esto es lo que anotó " + nom + ".") : "Esto es lo que anotaste.", "");
   setTxt("r-cargo", document.getElementById("cargo").value, "—");
+  const ia = [];
+  if (document.getElementById("ia_vac").checked) ia.push("vacantes");
+  if (document.getElementById("ia_cv").checked) ia.push("CV");
+  if (document.getElementById("ia_ing").checked) ia.push("inglés");
+  if (document.getElementById("ia_pitch").checked) ia.push("30 segundos");
+  setTxt("r-ia", ia.join(" · "), "Ninguno copiado");
   const pitch = "Hola, soy " + (document.getElementById("nombre").value.trim() || "…") +
     ". Fui " + (document.getElementById("prof").value.trim() || "…") +
     " y hoy busco " + (document.getElementById("cargo").value.trim() || "…") +
@@ -311,8 +396,19 @@ fields.forEach(id => {
   el.addEventListener("input", () => { guardar(); pintar(); });
   el.addEventListener("change", () => { guardar(); pintar(); });
 });
+document.querySelectorAll("#ia-tabs [data-ia]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    iaClave = btn.getAttribute("data-ia");
+    document.querySelectorAll("#ia-tabs [data-ia]").forEach(b => b.classList.toggle("on", b === btn));
+    pintarIA();
+  });
+});
+document.getElementById("ia-copiar").addEventListener("click", function(){
+  copiarTexto(promptsIA()[iaClave], this);
+});
 cargar();
-ir(0);
+if (/^#\d+$/.test(location.hash)) ir(parseInt(location.hash.slice(1), 10) - 1);
+else ir(0);
 </script>
 </body>
 </html>
