@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Despierta la mente · Ruta Puente</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../../logo-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{
+  --hope:#2e7d5b; --hope-soft:#e1efe7; --sun:#e8b04b; --sun-soft:#fbf0d9;
+  --bg:#f5f7f4; --ink:#1f2a26; --muted:#5d6c66; --line:#dde5e0; --white:#fff;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-b:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font:700 17px/1.4 var(--f-b)}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 48px}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-d);font-weight:800;font-size:18px;margin-bottom:8px}
+.brand svg{width:32px;height:32px}
+.kicker{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--hope)}
+h1{font-family:var(--f-d);font-weight:800;letter-spacing:-.03em;font-size:clamp(26px,7vw,36px);margin:4px 0 10px}
+.lead{color:var(--muted);margin-bottom:14px}
+.item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--white);border:1px solid var(--line);border-radius:14px;
+  padding:10px 12px;margin:8px 0;
+}
+.n{
+  flex:0 0 28px;height:28px;border-radius:50%;
+  background:var(--sun-soft);border:2px solid var(--sun);
+  display:grid;place-items:center;
+  font-family:var(--f-d);font-weight:800;font-size:13px;
+}
+input[type="text"]{
+  flex:0 0 72px;width:72px;height:48px;
+  font:800 20px var(--f-b);color:var(--ink);text-align:center;
+  background:var(--white);border:2px solid var(--line);border-radius:12px;
+}
+input[type="text"]:focus{border-color:var(--hope);outline:none}
+.ctx{flex:1;font-size:16px}
+.item.ok{border-color:var(--hope);background:var(--hope-soft)}
+.item.bad{border-color:#c45c4a;background:#fdecea}
+.btn{
+  font:800 16px var(--f-b);border:0;border-radius:999px;padding:14px 18px;
+  background:var(--hope);color:#fff;cursor:pointer;min-height:48px;width:100%;margin-top:12px;
+}
+.btn.ghost{background:transparent;color:var(--hope);border:2px solid var(--line);margin-top:8px}
+#marca{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--white);border:1px solid var(--line);display:none}
+#marca.on{display:block}
+.hint{font-size:14px;color:var(--muted);margin-top:10px}
+@media (min-width:900px){
+  .wrap{max-width:640px;padding-top:28px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#1D2B26" stroke-width="5" stroke-linecap="round"/></svg>
+    Ruta Puente
+  </div>
+  <p class="kicker">Dinámica de arranque</p>
+  <h1>Despierta la mente</h1>
+  <p class="lead">Escribe el número que falta. No es un examen: es para calentar la cabeza. Un par de minutos. Se queda en este teléfono.</p>
+  <form id="form" autocomplete="off">
+    <div id="lista"></div>
+    <button class="btn" type="submit">Revisar</button>
+    <button class="btn ghost" type="button" id="borrar">Borrar y repetir</button>
+  </form>
+  <p id="marca" role="status"></p>
+  <p class="hint">Misma lista que la hoja A4. Si no hay señal, usa el papel.</p>
+</div>
+<script>
+const KEY = "rp-taller-despierta";
+const ITEMS = [
+  {ok:8, ctx:"patas tiene una araña"},
+  {ok:7, ctx:"enanitos tiene el cuento de Blancanieves"},
+  {ok:12, ctx:"apóstoles había"},
+  {ok:100, ctx:"años de soledad (el libro de García Márquez)"},
+  {ok:3, ctx:"cerditos hay en el cuento"},
+  {ok:5, ctx:"dedos tiene una mano"},
+  {ok:8, ctx:"patas tiene un pulpo"},
+  {ok:9, ctx:"planetas tenía el sistema solar clásico (con Plutón)"},
+  {ok:40, ctx:"ladrones tenía Alí Babá"},
+  {ok:66, ctx:"libros tiene la Biblia"},
+  {ok:24, ctx:"horas tiene el día"},
+  {ok:365, ctx:"días tiene el año"},
+  {ok:10, ctx:"mandamientos hay"},
+  {ok:60, ctx:"minutos tiene una hora"}
+];
+const lista = document.getElementById("lista");
+ITEMS.forEach((it, i) => {
+  const row = document.createElement("div");
+  row.className = "item";
+  row.id = "row-" + i;
+  const n = document.createElement("span");
+  n.className = "n";
+  n.textContent = String(i + 1);
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.inputMode = "numeric";
+  inp.pattern = "[0-9]*";
+  inp.id = "n" + i;
+  inp.setAttribute("aria-label", "Número: " + it.ctx);
+  inp.autocomplete = "off";
+  const ctx = document.createElement("span");
+  ctx.className = "ctx";
+  ctx.textContent = it.ctx;
+  row.appendChild(n);
+  row.appendChild(inp);
+  row.appendChild(ctx);
+  lista.appendChild(row);
+});
+function leer(){
+  try{ return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+  catch(e){ return []; }
+}
+function guardar(){
+  const vals = ITEMS.map((_, i) => document.getElementById("n" + i).value);
+  try{ localStorage.setItem(KEY, JSON.stringify(vals)); }catch(e){}
+}
+function cargar(){
+  const vals = leer();
+  ITEMS.forEach((_, i) => {
+    if (vals[i] != null) document.getElementById("n" + i).value = vals[i];
+  });
+}
+function numero(s){
+  const t = String(s || "").replace(/\s+/g, "").replace(",", "");
+  if (!t) return null;
+  const n = parseInt(t, 10);
+  return isNaN(n) ? null : n;
+}
+function revisar(e){
+  if (e) e.preventDefault();
+  guardar();
+  let bien = 0;
+  ITEMS.forEach((it, i) => {
+    const row = document.getElementById("row-" + i);
+    const v = numero(document.getElementById("n" + i).value);
+    row.classList.remove("ok", "bad");
+    if (v === it.ok){ row.classList.add("ok"); bien += 1; }
+    else row.classList.add("bad");
+  });
+  const el = document.getElementById("marca");
+  el.className = "on";
+  el.textContent = "Llevas " + bien + " de 14. La clave: 8, 7, 12, 100, 3, 5, 8, 9, 40, 66, 24, 365, 10, 60.";
+  try{ el.scrollIntoView({behavior:"smooth", block:"nearest"}); }catch(err){}
+}
+document.getElementById("form").addEventListener("submit", revisar);
+document.getElementById("borrar").addEventListener("click", () => {
+  ITEMS.forEach((_, i) => {
+    document.getElementById("n" + i).value = "";
+    document.getElementById("row-" + i).classList.remove("ok", "bad");
+  });
+  document.getElementById("marca").className = "";
+  document.getElementById("marca").textContent = "";
+  try{ localStorage.removeItem(KEY); }catch(e){}
+});
+ITEMS.forEach((_, i) => {
+  document.getElementById("n" + i).addEventListener("input", guardar);
+});
+cargar();
+</script>
+</body>
+</html>
