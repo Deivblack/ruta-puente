@@ -510,12 +510,22 @@ function leerIngles() {
 /* ---------- Eventos del diagnóstico (sin datos personales) ---------- */
 
 const HOJA_INGLES_EVENTOS = 'Ingles_eventos';
-const COL_INGLES_EVENTOS = ['fecha', 'evento', 'utm'];
-const EVENTOS_INGLES_OK = { inicio: 1, fin: 1, cupo: 1 };
+const COL_INGLES_EVENTOS = ['fecha_hora', 'evento', 'utm', 'id_anon', 'carril', 'dispositivo', 'recurso'];
+const CANALES_INGLES = ['whatsapp', 'tiktok', 'estado', 'landing', 'taller', 'directo'];
+const EVENTOS_INGLES_OK = {
+  visita: 1, inicio: 1, escena_1: 1, escena_2: 1, escena_3: 1, escena_4: 1, escena_5: 1,
+  fin: 1, clic_cupo: 1, cupo: 1, clic_whatsapp: 1, clic_pdf: 1, clic_recurso: 1
+};
 
 function utmInglesLimpio(v) {
   const s = String(v || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 32);
   return s || 'directo';
+}
+
+function eventoInglesLimpio(v) {
+  const s = String(v || '');
+  if (s === 'cupo') return 'clic_cupo';
+  return EVENTOS_INGLES_OK[s] ? s : '';
 }
 
 function hojaInglesEventos() {
@@ -528,6 +538,11 @@ function hojaInglesEventos() {
     h.getRange(1, 1, 1, COL_INGLES_EVENTOS.length).setFontWeight('bold').setBackground('#e1efe7');
   } else {
     const cab = h.getRange(1, 1, 1, Math.max(h.getLastColumn(), 1)).getValues()[0].map(String);
+    const iFecha = cab.indexOf('fecha');
+    if (iFecha >= 0 && cab.indexOf('fecha_hora') < 0) {
+      h.getRange(1, iFecha + 1).setValue('fecha_hora');
+      cab[iFecha] = 'fecha_hora';
+    }
     COL_INGLES_EVENTOS.forEach(c => {
       if (cab.indexOf(c) < 0) {
         const col = h.getLastColumn() + 1;
@@ -540,28 +555,166 @@ function hojaInglesEventos() {
 }
 
 function guardarInglesEvento(p) {
-  const evento = String(p.evento || '');
-  if (!EVENTOS_INGLES_OK[evento]) return { ok: false };
-  hojaInglesEventos().appendRow([new Date(), evento, utmInglesLimpio(p.utm)]);
+  const evento = eventoInglesLimpio(p.evento);
+  if (!evento) return { ok: false };
+  const h = hojaInglesEventos();
+  const cab = h.getRange(1, 1, 1, h.getLastColumn()).getValues()[0].map(String);
+  const fila = cab.map(function () { return ''; });
+  const set = function (n, v) {
+    const i = cab.indexOf(n);
+    if (i >= 0) fila[i] = v;
+  };
+  set('fecha_hora', new Date());
+  set('evento', evento);
+  set('utm', utmInglesLimpio(p.utm));
+  set('id_anon', String(p.id_anon || '').replace(/\D/g, '').slice(0, 16));
+  set('carril', limpiar(String(p.carril || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 32)));
+  const disp = String(p.dispositivo || '') === 'escritorio' ? 'escritorio' : (String(p.dispositivo || '') === 'movil' ? 'movil' : '');
+  set('dispositivo', disp);
+  set('recurso', evento === 'clic_recurso' ? limpiar(String(p.recurso || '').slice(0, 80)) : '');
+  h.appendRow(fila);
   return { ok: true };
 }
 
-function resumenInglesEventos() {
-  const total = { inicio: 0, fin: 0, cupo: 0 };
-  const canales = {};
-  const h = hojaInglesEventos();
-  if (h.getLastRow() < 2) return { ok: true, total: total, canales: canales };
-  const datos = h.getDataRange().getValues();
-  datos.shift();
-  datos.forEach(r => {
-    const evento = String(r[1] || '');
-    const utm = String(r[2] || 'directo') || 'directo';
-    if (!EVENTOS_INGLES_OK[evento]) return;
-    if (!canales[utm]) canales[utm] = { inicio: 0, fin: 0, cupo: 0 };
-    canales[utm][evento]++;
-    total[evento]++;
+function ymdIngles(v, tz) {
+  if (v instanceof Date && !isNaN(v.getTime())) return Utilities.formatDate(v, tz, 'yyyy-MM-dd');
+  const s = String(v || '');
+  const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (m) return m[1];
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) return Utilities.formatDate(d, tz, 'yyyy-MM-dd');
+  return '';
+}
+
+function ymdMasDias(ymd, dias) {
+  const p = String(ymd || '').split('-');
+  const d = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10) + dias));
+  const y = d.getUTCFullYear();
+  const m = ('0' + (d.getUTCMonth() + 1)).slice(-2);
+  const day = ('0' + d.getUTCDate()).slice(-2);
+  return y + '-' + m + '-' + day;
+}
+
+function vacioInglesPeriodo() {
+  const por_canal = {};
+  CANALES_INGLES.forEach(function (c) {
+    por_canal[c] = { visitas_unicas: 0, iniciaron: 0, terminaron: 0, pct_termina: 0, clic_cupo: 0, clic_whatsapp: 0 };
   });
-  return { ok: true, total: total, canales: canales };
+  return {
+    visitas_unicas: 0, iniciaron: 0, terminaron: 0, pct_termina: 0, clic_cupo: 0, clic_whatsapp: 0,
+    por_canal: por_canal,
+    embudo: { visita: 0, inicio: 0, escena_3: 0, fin: 0, clic_cupo: 0 }
+  };
+}
+
+function idsUnicos(filas, evento) {
+  const set = {};
+  filas.forEach(function (r) {
+    if (r.evento !== evento) return;
+    set[r.id_anon || ('fila-' + r.i)] = 1;
+  });
+  return Object.keys(set).length;
+}
+
+function clicsDe(filas, evento) {
+  let n = 0;
+  filas.forEach(function (r) { if (r.evento === evento) n++; });
+  return n;
+}
+
+function periodoInglesDe(filas) {
+  const out = vacioInglesPeriodo();
+  out.visitas_unicas = idsUnicos(filas, 'visita');
+  out.iniciaron = idsUnicos(filas, 'inicio');
+  out.terminaron = idsUnicos(filas, 'fin');
+  out.pct_termina = out.iniciaron ? Math.round(1000 * out.terminaron / out.iniciaron) / 10 : 0;
+  out.clic_cupo = clicsDe(filas, 'clic_cupo');
+  out.clic_whatsapp = clicsDe(filas, 'clic_whatsapp');
+  out.embudo = {
+    visita: idsUnicos(filas, 'visita'),
+    inicio: idsUnicos(filas, 'inicio'),
+    escena_3: idsUnicos(filas, 'escena_3'),
+    fin: idsUnicos(filas, 'fin'),
+    clic_cupo: idsUnicos(filas, 'clic_cupo')
+  };
+  const porUtm = {};
+  filas.forEach(function (r) {
+    if (!porUtm[r.utm]) porUtm[r.utm] = [];
+    porUtm[r.utm].push(r);
+  });
+  Object.keys(porUtm).forEach(function (utm) {
+    const g = porUtm[utm];
+    const ini = idsUnicos(g, 'inicio');
+    const fin = idsUnicos(g, 'fin');
+    out.por_canal[utm] = {
+      visitas_unicas: idsUnicos(g, 'visita'),
+      iniciaron: ini,
+      terminaron: fin,
+      pct_termina: ini ? Math.round(1000 * fin / ini) / 10 : 0,
+      clic_cupo: clicsDe(g, 'clic_cupo'),
+      clic_whatsapp: clicsDe(g, 'clic_whatsapp')
+    };
+  });
+  return out;
+}
+
+function leerFilasInglesEventos() {
+  const tz = Session.getScriptTimeZone() || 'America/Chicago';
+  const h = hojaInglesEventos();
+  if (h.getLastRow() < 2) return { tz: tz, filas: [] };
+  const datos = h.getDataRange().getValues();
+  const cab = datos.shift().map(String);
+  const i = function (n) { return cab.indexOf(n); };
+  const iFecha = i('fecha_hora') >= 0 ? i('fecha_hora') : i('fecha');
+  const filas = [];
+  datos.forEach(function (r, idx) {
+    const evento = eventoInglesLimpio(r[i('evento')]);
+    if (!evento) return;
+    filas.push({
+      i: idx,
+      ymd: ymdIngles(iFecha >= 0 ? r[iFecha] : '', tz),
+      evento: evento,
+      utm: utmInglesLimpio(i('utm') >= 0 ? r[i('utm')] : ''),
+      id_anon: String(i('id_anon') >= 0 ? r[i('id_anon')] : '').replace(/\D/g, '').slice(0, 16)
+    });
+  });
+  return { tz: tz, filas: filas };
+}
+
+function resumenInglesEventos() {
+  const leido = leerFilasInglesEventos();
+  const filas = leido.filas;
+  const hoy = ymdIngles(new Date(), leido.tz);
+  const ayer = ymdMasDias(hoy, -1);
+  const desde7 = ymdMasDias(hoy, -6);
+  const enRango = function (desde, hasta) {
+    return filas.filter(function (r) { return r.ymd && r.ymd >= desde && r.ymd <= hasta; });
+  };
+  const periodos = {
+    hoy: periodoInglesDe(enRango(hoy, hoy)),
+    ayer: periodoInglesDe(enRango(ayer, ayer)),
+    d7: periodoInglesDe(enRango(desde7, hoy)),
+    total: periodoInglesDe(filas)
+  };
+  const totalViejo = { inicio: 0, fin: 0, cupo: 0 };
+  const canalesViejos = {};
+  filas.forEach(function (r) {
+    const ev = r.evento === 'clic_cupo' ? 'cupo' : r.evento;
+    if (ev !== 'inicio' && ev !== 'fin' && ev !== 'cupo') return;
+    if (!canalesViejos[r.utm]) canalesViejos[r.utm] = { inicio: 0, fin: 0, cupo: 0 };
+    canalesViejos[r.utm][ev]++;
+    totalViejo[ev]++;
+  });
+  return { ok: true, total: totalViejo, canales: canalesViejos, periodos: periodos };
+}
+
+function lineaDiagnosticoAyer() {
+  const p = resumenInglesEventos().periodos.ayer;
+  const x = p.visitas_unicas;
+  const y = p.terminaron;
+  const z = p.clic_cupo;
+  const txt = 'Diagnóstico ayer: ' + x + ' visitas, ' + y + ' terminaron, ' + z + ' clics al taller';
+  return { html: '<p style="margin:12px 0 0">' + esc(txt) + '.</p>', texto: txt, visitas: x, terminaron: y, clic_cupo: z };
 }
 
 /* ---------- Ficha de entrevista por correo ---------- */
@@ -1072,7 +1225,8 @@ function correoDiario() {
   const llamadas = llamadasHoyDesdeHoja();
   const huerfanos = leerHuerfanosAgenda();
   const taller = bloqueTallerCorreo();
-  if (!lista.length && !llamadas.length && !huerfanos.length && !taller) {
+  const diag = lineaDiagnosticoAyer();
+  if (!lista.length && !llamadas.length && !huerfanos.length && !taller && !(diag && diag.visitas)) {
     Logger.log('Correo diario: nadie para hoy; no se envía.');
     return;
   }
@@ -1136,6 +1290,7 @@ function correoDiario() {
     huerfanos.length + '</b> reservas sin formulario · <b>Inscritos al taller: ' + (taller ? taller.inscritos : contarTaller().inscritos) +
     '</b>. Nada se envía solo a las personas.</p>' +
     (taller ? taller.html : '') +
+    (diag ? diag.html : '') +
     cuerpo +
     avisoDup +
     '<p style="font-size:13px;color:#5d6c66;margin-top:16px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Abrir la hoja</a> · ' +
@@ -1143,9 +1298,10 @@ function correoDiario() {
 
   MailApp.sendEmail({
     to: Session.getEffectiveUser().getEmail(),
-    subject: total ? ('Ruta Puente · ' + total + ' para hoy') : 'Ruta Puente · Taller de hoy',
+    subject: total ? ('Ruta Puente · ' + total + ' para hoy') : (taller ? 'Ruta Puente · Taller de hoy' : 'Ruta Puente · Diagnóstico de ayer'),
     body: 'Llamadas: ' + llamadas.length + '. Pendientes: ' + lista.length + '. Sin formulario: ' + huerfanos.length +
       (taller ? '\nTaller: ' + taller.tarea + '. Inscritos ' + taller.inscritos + '/' + taller.cupos + '.' : '') +
+      (diag ? '\n' + diag.texto + '.' : '') +
       (taller && taller.lleno ? '\nCUPO LLENO. Usa las versiones de lista de espera.' : ''),
     htmlBody: html,
     name: 'Ruta Puente'

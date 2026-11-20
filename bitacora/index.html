@@ -111,6 +111,19 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
 .estado-box .meta{font-size:.85rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:420px){.facts{grid-template-columns:1fr}.row2{grid-template-columns:1fr}}
+#ingles-met-tabla{overflow-x:auto}
+#ingles-met-tabla table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:8px}
+#ingles-met-tabla th,#ingles-met-tabla td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+#ingles-met-tabla td:nth-child(n+2),#ingles-met-tabla th:nth-child(n+2){text-align:right}
+#ingles-met-tabla .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+#ingles-met-tabla .tabs button{font:inherit;font-size:.82rem;font-weight:700;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:8px 12px;cursor:pointer}
+#ingles-met-tabla .tabs button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+#ingles-met-tabla .nums{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+#ingles-met-tabla .nums div{background:var(--green-soft);border-radius:12px;padding:10px 12px}
+#ingles-met-tabla .nums b{display:block;font-family:var(--display);font-size:1.35rem}
+#ingles-met-tabla .embudo{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+#ingles-met-tabla .embudo div{display:flex;justify-content:space-between;gap:8px;background:var(--bg);border-radius:10px;padding:8px 10px}
+#ingles-met-tabla .muted{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 </style>
 </head>
 <body>
@@ -145,6 +158,12 @@ textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2p
     <p id="g-msg">Diana y Paulette (7 oct) quedaron fuera del perfil y no cuentan.</p>
     <p id="g-taller" style="grid-column:1/-1;margin:0;font-weight:700">Taller 20 nov: 0 inscritos</p>
     <button class="link" id="copy-taller" type="button" style="grid-column:1/-1;text-align:left;padding:0">Copiar WhatsApp del taller</button>
+  </section>
+
+  <section class="estado-box" id="ingles-reporte" aria-label="Diagnóstico de inglés">
+    <h2>Diagnóstico de inglés</h2>
+    <p class="meta" id="ingles-met-estado">Conteo: se prende al desplegar el Apps Script (misma URL, nueva versión).</p>
+    <div id="ingles-met-tabla"></div>
   </section>
 
   <section>
@@ -352,7 +371,7 @@ async function cargar(desdeLogin){
   personas = r.personas || []; gate = r.gate || gate; taller = r.taller || taller;
   if (r.estados && r.estados.length) ESTADOS_UI = r.estados;
   $('#login').hidden = true; $('#main').hidden = false;
-  pintarGate(); pintarPersonas();
+  pintarGate(); pintarPersonas(); pintarInglesMetricas();
   if (actual){ const p = personas.find(x => x.codigo === actual.codigo); if (p) elegir(p.codigo, true); }
   else if (personas.length){
     const lista = personas.filter(pasaFiltro);
@@ -377,6 +396,96 @@ function pintarGate(){
   const nT = taller.inscritos || 0;
   const espera = taller.espera ? ' · ' + taller.espera + ' en espera' : '';
   $('#g-taller').textContent = 'Taller 20 nov: ' + nT + ' inscritos' + espera;
+}
+function pintarInglesMetricas(){
+  const est = $('#ingles-met-estado');
+  const box = $('#ingles-met-tabla');
+  if (!est || !box) return;
+  box.textContent = '';
+  fetch(SCRIPT_URL + '?ingles_eventos=resumen').then(r => r.json()).then(d => {
+    pintarInglesReporte(est, box, d);
+  }).catch(() => {
+    est.textContent = 'Conteo: se prende al desplegar el Apps Script (misma URL, nueva versión).';
+  });
+}
+function pintarInglesReporte(est, box, d){
+  box.textContent = '';
+  if (!d || !d.ok){
+    est.textContent = 'Conteo: se prende al desplegar el Apps Script (misma URL, nueva versión).';
+    return;
+  }
+  const periodos = d.periodos;
+  if (!periodos){
+    est.textContent = 'Conteo viejo (inicio/fin/cupo). Vuelve a desplegar el Apps Script para visitas únicas y el embudo.';
+    return;
+  }
+  est.textContent = 'Personas únicas (mismo celular = 1). Sin nombres ni respuestas.';
+  const orden = ['whatsapp','tiktok','estado','landing','taller','directo'];
+  const tabs = document.createElement('div'); tabs.className = 'tabs';
+  const panes = {hoy:'Hoy', d7:'7 días', total:'Total'};
+  let actual = 'hoy';
+  const cuerpo = document.createElement('div');
+  const pintarPeriodo = clave => {
+    actual = clave;
+    [...tabs.children].forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k===clave)));
+    cuerpo.textContent = '';
+    const p = periodos[clave] || {};
+    const nums = document.createElement('div'); nums.className = 'nums';
+    [
+      ['Visitas únicas', p.visitas_unicas],
+      ['Iniciaron', p.iniciaron],
+      ['Terminaron', p.terminaron],
+      ['% que termina', (p.pct_termina||0) + '%'],
+      ['Clics al taller', p.clic_cupo],
+      ['Clics WhatsApp', p.clic_whatsapp]
+    ].forEach(([t,v]) => {
+      const dlt = document.createElement('div');
+      const b = document.createElement('b'); b.textContent = String(v==null?0:v);
+      const s = document.createElement('span'); s.textContent = t;
+      dlt.appendChild(b); dlt.appendChild(s); nums.appendChild(dlt);
+    });
+    cuerpo.appendChild(nums);
+    const nota = document.createElement('p'); nota.className = 'muted';
+    nota.textContent = 'Embudo (únicos): visita → inicio → escena 3 → fin → clic al taller';
+    cuerpo.appendChild(nota);
+    const emb = document.createElement('div'); emb.className = 'embudo';
+    const e = p.embudo || {};
+    [['Visita', e.visita],['Inicio', e.inicio],['Escena 3', e.escena_3],['Fin', e.fin],['Clic al taller', e.clic_cupo]].forEach(([t,v]) => {
+      const row = document.createElement('div');
+      const a = document.createElement('span'); a.textContent = t;
+      const b = document.createElement('b'); b.textContent = String(v||0);
+      row.appendChild(a); row.appendChild(b); emb.appendChild(row);
+    });
+    cuerpo.appendChild(emb);
+    const por = p.por_canal || {};
+    const extras = Object.keys(por).filter(k => orden.indexOf(k)<0).sort();
+    const keys = orden.concat(extras);
+    const tabla = document.createElement('table');
+    const thead = document.createElement('thead');
+    const hr = document.createElement('tr');
+    ['Canal','Únicas','Inicio','Fin','%','Taller','WhatsApp'].forEach(t => { const th=document.createElement('th'); th.textContent=t; hr.appendChild(th); });
+    thead.appendChild(hr); tabla.appendChild(thead);
+    const tb = document.createElement('tbody');
+    keys.forEach(k => {
+      const c = por[k] || {};
+      const tr = document.createElement('tr');
+      [k, c.visitas_unicas||0, c.iniciaron||0, c.terminaron||0, (c.pct_termina||0)+'%', c.clic_cupo||0, c.clic_whatsapp||0].forEach(v => {
+        const td=document.createElement('td'); td.textContent=String(v); tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    tabla.appendChild(tb);
+    cuerpo.appendChild(tabla);
+  };
+  Object.keys(panes).forEach(k => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.k = k; b.textContent = panes[k];
+    b.addEventListener('click', () => pintarPeriodo(k));
+    tabs.appendChild(b);
+  });
+  box.appendChild(tabs);
+  box.appendChild(cuerpo);
+  pintarPeriodo(actual);
 }
 $('#copy-taller').addEventListener('click', () => {
   const nums = (taller.lista || []).map(x => String(x.whatsapp || '').replace(/\D/g, '')).filter(n => n.length >= 10);

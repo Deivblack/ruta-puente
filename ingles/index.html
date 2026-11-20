@@ -248,17 +248,78 @@ const CODIGO = (new URLSearchParams(location.search).get("c")||"").trim();
 const PRUEBAS = (new URLSearchParams(location.search).get("prueba")||"").split(/[,+]/).map(s=>s.trim()).filter(Boolean);
 function hayPrueba(k){ return PRUEBAS.indexOf(k)>=0; }
 const UTM = (new URLSearchParams(location.search).get("utm")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,32) || "directo";
-function enviarEvento(evento){
-  if (PRUEBAS.length) return;
-  if (!/^(inicio|fin|cupo)$/.test(evento)) return;
-  if (!SCRIPT_URL.startsWith("https://")) return;
+const EVENTOS_OK = {visita:1,inicio:1,escena_1:1,escena_2:1,escena_3:1,escena_4:1,escena_5:1,fin:1,clic_cupo:1,clic_whatsapp:1,clic_pdf:1,clic_recurso:1};
+const EVENTOS_UNA_VEZ = {visita:1,inicio:1,escena_1:1,escena_2:1,escena_3:1,escena_4:1,escena_5:1,fin:1};
+function idAnon(){
   try{
-    const k = "rp-ingles-ev-"+evento;
-    if (sessionStorage.getItem(k)) return;
-    sessionStorage.setItem(k, "1");
+    let v = localStorage.getItem("rp-ingles-anon");
+    if (v && /^\d{6,16}$/.test(v)) return v;
+    v = String(Math.floor(1e9 + Math.random()*9e9));
+    localStorage.setItem("rp-ingles-anon", v);
+    return v;
+  }catch(e){
+    return String(Math.floor(1e9 + Math.random()*9e9));
+  }
+}
+function dispositivo(){
+  try{
+    if (window.matchMedia && window.matchMedia("(max-width:700px)").matches) return "movil";
   }catch(e){}
-  const body = new URLSearchParams({form:"ingles_evento", evento:evento, utm:UTM, fecha:new Date().toISOString()});
-  fetch(SCRIPT_URL, {method:"POST", mode:"no-cors", body}).catch(()=>{});
+  return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent||"") ? "movil" : "escritorio";
+}
+function sinEventos(){
+  if (PRUEBAS.length) return true;
+  if (/^PRUEBA$/i.test(CODIGO)) return true;
+  return false;
+}
+function marcarDbgEvento(dato){
+  try{
+    if (location.hostname!=="127.0.0.1" && location.hostname!=="localhost") return;
+    window.__rpEventos = window.__rpEventos || [];
+    window.__rpEventos.push(dato);
+    let n = document.getElementById("dbg-ev");
+    if (!n){ n=document.createElement("pre"); n.id="dbg-ev"; n.hidden=true; document.body.appendChild(n); }
+    n.textContent = JSON.stringify(window.__rpEventos);
+  }catch(e){}
+}
+function enviarEvento(evento, extra){
+  try{
+    if (sinEventos()){
+      marcarDbgEvento({evento:evento, skip:true, anon:idAnon(), utm:UTM});
+      return;
+    }
+    if (!EVENTOS_OK[evento]) return;
+    if (!SCRIPT_URL.startsWith("https://")) return;
+    if (EVENTOS_UNA_VEZ[evento]){
+      try{
+        const k = "rp-ingles-ev-"+evento;
+        if (sessionStorage.getItem(k)) return;
+        sessionStorage.setItem(k, "1");
+      }catch(e){}
+    }
+    marcarDbgEvento({evento:evento, skip:false, anon:idAnon(), utm:UTM});
+    const body = new URLSearchParams({
+      form:"ingles_evento",
+      evento:evento,
+      utm:UTM,
+      id_anon:idAnon(),
+      carril: String((typeof S!=="undefined" && S && S.carril) || "").slice(0,32),
+      dispositivo:dispositivo()
+    });
+    if (evento==="clic_recurso" && extra && extra.recurso){
+      body.set("recurso", String(extra.recurso).slice(0,80));
+    }
+    const raw = body.toString();
+    let ok = false;
+    try{
+      if (navigator.sendBeacon){
+        ok = navigator.sendBeacon(SCRIPT_URL, new Blob([raw], {type:"application/x-www-form-urlencoded"}));
+      }
+    }catch(e){ ok = false; }
+    if (!ok){
+      fetch(SCRIPT_URL, {method:"POST", mode:"no-cors", keepalive:true, body:body}).catch(()=>{});
+    }
+  }catch(e){}
 }
 const LINEA_TALLER = {
   vocabulario: "Te enseño cómo se llama tu cargo en inglés y qué palabras usan las vacantes de tu área.",
@@ -434,6 +495,7 @@ function pintarItem(){
     box.appendChild(b);
   });
   const first = box.querySelector("button"); if (first) first.focus();
+  enviarEvento("escena_"+S.escena);
 }
 function vocesIngles(){
   if (!window.speechSynthesis) return false;
@@ -505,6 +567,7 @@ function guion(){
   return "Hi, my name is "+nom+". I'm a "+S.cargo+" with "+aniosEn()+" of experience. I'm in the Houston area, and I'm looking for "+S.cargo+" roles where I can bring that background.";
 }
 function abrirOral(){
+  enviarEvento("escena_5");
   mostrar("scr-oral");
   $("#oral-guion").textContent = guion();
   const box = $("#rubrica"); box.innerHTML = "";
@@ -723,6 +786,7 @@ function pintarRecursos(peor){
     a.target="_blank";
     a.rel="noopener";
     a.textContent="Abrir";
+    a.addEventListener("click", ()=> enviarEvento("clic_recurso", {recurso: r.nombre}));
     li.appendChild(nom);
     li.appendChild(p);
     li.appendChild(url);
@@ -788,8 +852,10 @@ function pintarTarjetaTaller(peor){
     btn.textContent = "El taller del " + dia + " se llenó. Únete a la lista para el próximo";
   });
 }
-$("#btn-pdf").addEventListener("click", ()=> window.print());
-$("#btn-cupo").addEventListener("click", ()=> enviarEvento("cupo"));
+$("#btn-pdf").addEventListener("click", ()=>{ enviarEvento("clic_pdf"); window.print(); });
+$("#btn-cupo").addEventListener("click", ()=> enviarEvento("clic_cupo"));
+$("#btn-wa").addEventListener("click", ()=> enviarEvento("clic_whatsapp"));
+enviarEvento("visita");
 function peorDePrueba(){
   const keys = ["lectura","escucha","vocabulario","escritura","oral_auto","oral"];
   const k = keys.find(x => hayPrueba(x));
