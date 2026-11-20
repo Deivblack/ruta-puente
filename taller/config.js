@@ -1,8 +1,8 @@
 // Único lugar para los datos del taller del 20 de noviembre.
 // Cambia aquí hora, lugar, dirección, apoyo y cupos. La página, el afiche y el kit leen esto.
 const TALLER = {
-  titulo: "¿Cómo se llama tu cargo en inglés?",
-  subtitulo: "Taller gratuito para profesionales latinos: tu cargo en EE. UU. y tu CV listo para aplicar",
+  titulo: "Vuelve a lo tuyo",
+  subtitulo: "Taller gratuito: cómo volver a trabajar en tu profesión en Estados Unidos",
   fecha: "Viernes 20 de noviembre de 2026",
   hora: "2:00 p. m. – 3:30 p. m.",
   lugar: "Consulado General del Ecuador en Houston",

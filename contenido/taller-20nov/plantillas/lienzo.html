@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Lienzo · artes taller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{
+  --hope:#2e7d5b; --hope-soft:#e1efe7; --sun:#e8b04b; --sun-soft:#fbf0d9;
+  --bg:#f5f7f4; --ink:#1f2a26; --muted:#3d4a45; --white:#fff;
+  --flag-y:#ffd100; --flag-b:#034ea2; --flag-r:#ed1c24;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-b:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#111;margin:0}
+#lienzo{
+  position:relative; overflow:hidden;
+  background:var(--bg); color:var(--ink);
+  font-family:var(--f-b);
+  display:flex; flex-direction:column;
+}
+#lienzo[data-formato="historia"]{width:1080px;height:1920px;padding:250px 80px 250px}
+#lienzo[data-formato="post"]{width:1080px;height:1350px;padding:72px 72px 64px}
+#lienzo[data-formato="facebook"]{width:1080px;height:1080px;padding:56px 56px 48px}
+
+.blob{position:absolute;border-radius:50%;pointer-events:none}
+.blob.sun{background:var(--sun);opacity:.22}
+.blob.hope{background:var(--hope);opacity:.12}
+#lienzo[data-formato="historia"] .blob.sun{width:420px;height:420px;right:-120px;top:280px}
+#lienzo[data-formato="historia"] .blob.hope{width:480px;height:480px;left:-180px;bottom:220px}
+#lienzo[data-formato="post"] .blob.sun{width:320px;height:320px;right:-80px;top:40px}
+#lienzo[data-formato="post"] .blob.hope{width:360px;height:360px;left:-140px;bottom:40px}
+#lienzo[data-formato="facebook"] .blob.sun{width:280px;height:280px;right:-70px;top:20px}
+#lienzo[data-formato="facebook"] .blob.hope{width:300px;height:300px;left:-120px;bottom:20px}
+
+.bandera{
+  position:relative; z-index:1; flex:0 0 auto;
+  height:18px; border-radius:999px; overflow:hidden;
+  display:grid; grid-template-rows:50% 25% 25%;
+  margin-bottom:28px;
+}
+.bandera i:nth-child(1){background:var(--flag-y)}
+.bandera i:nth-child(2){background:var(--flag-b)}
+.bandera i:nth-child(3){background:var(--flag-r)}
+#lienzo[data-formato="historia"] .bandera{height:22px;margin-bottom:36px}
+
+.head{
+  position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  margin-bottom:28px;
+}
+.brand{display:flex; align-items:center; gap:14px}
+.brand svg{width:64px;height:64px;flex:0 0 auto}
+.brand b{font-family:var(--f-d);font-weight:800;font-size:36px;letter-spacing:-.02em}
+#lienzo[data-formato="historia"] .brand svg{width:72px;height:72px}
+#lienzo[data-formato="historia"] .brand b{font-size:42px}
+#lienzo[data-tipo="flyer"] .bandera,
+#lienzo[data-tipo="flyer"] .head{display:none}
+.logo-esquina{
+  display:none; position:absolute; z-index:2;
+  flex-direction:column; align-items:center; gap:4px;
+  pointer-events:none;
+}
+#lienzo[data-tipo="flyer"] .logo-esquina{display:flex}
+#lienzo[data-formato="historia"] .logo-esquina{top:268px;right:72px}
+#lienzo[data-formato="post"] .logo-esquina{top:64px;right:64px}
+#lienzo[data-formato="facebook"] .logo-esquina{top:48px;right:48px}
+.logo-esquina svg{width:88px;height:88px}
+#lienzo[data-formato="historia"] .logo-esquina svg{width:108px;height:108px}
+#lienzo[data-formato="facebook"] .logo-esquina svg{width:72px;height:72px}
+.logo-esquina span{
+  font-family:var(--f-d); font-weight:800; color:var(--ink); letter-spacing:-.02em; text-align:center;
+}
+#lienzo[data-formato="historia"] .logo-esquina span{font-size:22px}
+#lienzo[data-formato="post"] .logo-esquina span{font-size:18px}
+#lienzo[data-formato="facebook"] .logo-esquina span{font-size:16px}
+#lienzo[data-tipo="flyer"] h1,
+#lienzo[data-tipo="flyer"] .sub{padding-right:150px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] h1{padding-right:180px;font-size:88px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .sub{padding-right:180px}
+.sub{font-weight:800;line-height:1.2;margin:0 0 22px;color:var(--muted)}
+#lienzo[data-formato="historia"] .sub{font-size:48px;margin-bottom:28px}
+#lienzo[data-formato="post"] .sub{font-size:30px}
+#lienzo[data-formato="facebook"] .sub{font-size:26px;margin-bottom:14px}
+.req{
+  background:var(--sun-soft); border:4px solid var(--sun); border-radius:22px;
+  font-weight:800; line-height:1.2; padding:16px 20px; margin-top:16px; flex:0 0 auto;
+}
+#lienzo[data-formato="historia"] .req{font-size:48px;padding:20px 24px;margin-top:24px}
+#lienzo[data-formato="post"] .req{font-size:28px}
+#lienzo[data-formato="facebook"] .req{font-size:24px;padding:12px 16px;margin-top:12px}
+.pill{
+  background:var(--sun); color:var(--ink);
+  font-weight:800; font-size:28px; letter-spacing:.04em;
+  padding:10px 22px; border-radius:999px; white-space:nowrap;
+}
+#lienzo[data-formato="historia"] .pill{font-size:32px;padding:12px 26px}
+
+.cuerpo{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.pie{
+  position:relative;z-index:1;flex:0 0 auto;padding-top:20px;
+  font-weight:800;color:var(--muted);font-size:26px;
+}
+#lienzo[data-formato="historia"] .pie{font-size:32px;padding-top:24px}
+
+h1{
+  font-family:var(--f-d); font-weight:800; line-height:.95;
+  letter-spacing:-.03em; margin:0 0 28px;
+}
+#lienzo[data-formato="historia"] h1{font-size:76px;margin-bottom:36px}
+#lienzo[data-formato="post"] h1{font-size:62px}
+#lienzo[data-formato="facebook"] h1{font-size:52px;margin-bottom:20px}
+
+.fecha{
+  font-family:var(--f-d); font-weight:800; line-height:1.15;
+  color:var(--hope);
+}
+#lienzo[data-formato="historia"] .fecha{font-size:48px}
+#lienzo[data-formato="post"] .fecha{font-size:36px}
+#lienzo[data-formato="facebook"] .fecha{font-size:32px}
+
+.meta{font-weight:800; line-height:1.25; margin-top:10px}
+#lienzo[data-formato="historia"] .meta{font-size:48px}
+#lienzo[data-formato="post"] .meta{font-size:34px}
+#lienzo[data-formato="facebook"] .meta{font-size:30px}
+
+.badge{
+  display:inline-flex; align-items:center; gap:10px; align-self:flex-start;
+  background:var(--hope); color:var(--white);
+  font-family:var(--f-d); font-weight:800;
+  border-radius:999px; margin-top:22px;
+}
+#lienzo[data-formato="historia"] .badge{font-size:40px;padding:14px 28px;margin-top:32px}
+#lienzo[data-formato="post"] .badge{font-size:32px;padding:12px 24px}
+#lienzo[data-formato="facebook"] .badge{font-size:28px;padding:10px 22px;margin-top:16px}
+
+.fila-qr{
+  display:flex; align-items:center; gap:28px; margin-top:auto; padding-top:24px; flex:0 0 auto;
+}
+#lienzo[data-formato="historia"] .fila-qr{gap:32px}
+.qr-card{
+  background:var(--white); border:6px solid var(--ink); border-radius:28px;
+  padding:14px; flex:0 0 auto;
+}
+.qr-card img{display:block;width:260px;height:260px}
+#lienzo[data-formato="historia"] .qr-card img{width:260px;height:260px}
+#lienzo[data-formato="facebook"] .qr-card{border-width:5px;padding:10px;border-radius:22px}
+#lienzo[data-formato="facebook"] .qr-card img{width:220px;height:220px}
+.qr-txt{display:flex;flex-direction:column;gap:8px}
+.qr-txt strong{
+  font-family:var(--f-d); font-weight:800; line-height:1.1;
+}
+#lienzo[data-formato="historia"] .qr-txt strong{font-size:48px}
+#lienzo[data-formato="post"] .qr-txt strong{font-size:36px}
+#lienzo[data-formato="facebook"] .qr-txt strong{font-size:32px}
+.qr-txt span{font-weight:800;color:var(--muted);line-height:1.25}
+#lienzo[data-formato="historia"] .qr-txt span{font-size:32px}
+#lienzo[data-formato="post"] .qr-txt span{font-size:26px}
+#lienzo[data-formato="facebook"] .qr-txt span{font-size:24px}
+
+.hero-num{
+  font-family:var(--f-d); font-weight:800; line-height:.85;
+  color:var(--hope); letter-spacing:-.04em;
+}
+#lienzo[data-formato="historia"] .hero-num{font-size:320px;margin:12px 0}
+#lienzo[data-formato="post"] .hero-num{font-size:220px}
+.hero-frase{
+  font-family:var(--f-d); font-weight:800; line-height:.95;
+  letter-spacing:-.03em;
+}
+#lienzo[data-formato="historia"] .hero-frase{font-size:96px;margin:8px 0 28px}
+#lienzo[data-formato="post"] .hero-frase{font-size:72px;margin-bottom:20px}
+.kicker{
+  font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--hope);
+}
+#lienzo[data-formato="historia"] .kicker{font-size:36px}
+#lienzo[data-formato="post"] .kicker{font-size:28px}
+#lienzo[data-formato="facebook"] .kicker{font-size:24px}
+
+.foto-hueco{
+  flex:1; min-height:240px; margin:20px 0 8px;
+  border:6px dashed #9aafA4; border-radius:32px;
+  background: repeating-linear-gradient(-45deg, var(--hope-soft), var(--hope-soft) 18px, #eef5f0 18px, #eef5f0 36px);
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:32px;
+}
+.foto-hueco p{
+  font-family:var(--f-d); font-weight:800; color:var(--muted); line-height:1.2;
+}
+#lienzo[data-formato="historia"] .foto-hueco p{font-size:40px}
+#lienzo[data-formato="post"] .foto-hueco p{font-size:32px}
+
+.n-de{
+  font-weight:800; color:var(--hope);
+}
+#lienzo[data-formato="historia"] .n-de{font-size:36px;margin-bottom:20px}
+#lienzo[data-formato="post"] .n-de{font-size:28px;margin-bottom:16px}
+.cargo-es{
+  font-family:var(--f-d); font-weight:800; line-height:.95; letter-spacing:-.03em;
+}
+#lienzo[data-formato="historia"] .cargo-es{font-size:84px;margin:12px 0 28px}
+#lienzo[data-formato="post"] .cargo-es{font-size:68px;margin:8px 0 22px}
+.flecha{
+  font-weight:800; color:var(--muted);
+}
+#lienzo[data-formato="historia"] .flecha{font-size:40px;margin-bottom:16px}
+#lienzo[data-formato="post"] .flecha{font-size:32px;margin-bottom:12px}
+.cargo-en{
+  font-family:var(--f-d); font-weight:800; line-height:1.12;
+  background:var(--hope); color:var(--white);
+  border-radius:32px; padding:36px 36px;
+  flex:1; display:flex; align-items:center;
+  min-height:280px;
+}
+#lienzo[data-formato="historia"] .cargo-en{font-size:56px;padding:36px 36px;border-radius:32px}
+#lienzo[data-formato="post"] .cargo-en{font-size:48px}
+.hint{
+  margin-top:18px; font-weight:800; color:var(--hope); flex:0 0 auto;
+}
+#lienzo[data-formato="post"] .hint{font-size:28px}
+
+.lista{display:flex;flex-direction:column;gap:14px;margin:12px 0 8px}
+.lista li{
+  display:flex; gap:14px; align-items:flex-start;
+  font-weight:800; line-height:1.2; list-style:none;
+}
+#lienzo[data-formato="historia"] .lista li{font-size:40px}
+#lienzo[data-formato="post"] .lista li{font-size:32px}
+#lienzo[data-formato="facebook"] .lista li{font-size:28px}
+.lista .dot{
+  flex:0 0 36px; height:36px; border-radius:50%;
+  background:var(--hope); color:#fff;
+  display:grid; place-items:center;
+  font-family:var(--f-d); font-weight:800; font-size:20px; margin-top:4px;
+}
+#lienzo[data-formato="historia"] .lista .dot{width:44px;height:44px;flex-basis:44px;font-size:24px}
+
+#lienzo[data-tipo="flyer"]{padding:0;background:#143328;color:#f5f7f4}
+#lienzo[data-tipo="flyer"] .blob,
+#lienzo[data-tipo="flyer"] .pie{display:none}
+.foto-flyer{display:none}
+#lienzo[data-tipo="flyer"] .foto-flyer{
+  display:block; flex:1.25 1 0; min-height:0; overflow:hidden; position:relative;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .foto-flyer{flex:1.4 1 0}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] .foto-flyer{flex:1.05 1 0}
+.foto-flyer img{width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block}
+#lienzo[data-tipo="flyer"] .logo-esquina{
+  top:28px; right:28px;
+  background:rgba(245,247,244,.94);
+  border-radius:18px; padding:10px 12px 8px;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .logo-esquina{top:36px;right:36px}
+#lienzo[data-tipo="flyer"] .cuerpo{
+  flex:0 1 auto; background:#143328; color:#f5f7f4;
+  padding:28px 40px 36px;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .cuerpo{padding:36px 48px 48px}
+#lienzo[data-tipo="flyer"] h1{color:#fff;padding-right:0;margin:0 0 10px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] h1{font-size:64px;padding-right:0}
+#lienzo[data-formato="post"][data-tipo="flyer"] h1{font-size:52px}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] h1{font-size:46px;margin-bottom:8px}
+#lienzo[data-tipo="flyer"] .sub{color:#e8b04b;padding-right:0;margin-bottom:12px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .sub{font-size:32px}
+#lienzo[data-formato="post"][data-tipo="flyer"] .sub{font-size:26px}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] .sub{font-size:22px;margin-bottom:8px}
+#lienzo[data-tipo="flyer"] .fecha{color:#e8b04b}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .fecha,
+#lienzo[data-formato="historia"][data-tipo="flyer"] .meta{font-size:32px}
+#lienzo[data-tipo="flyer"] .meta{color:#f5f7f4}
+#lienzo[data-tipo="flyer"] .badge{background:#e8b04b;color:#1f2a26}
+#lienzo[data-tipo="flyer"] .lista{margin:10px 0}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .lista li{font-size:32px}
+#lienzo[data-tipo="flyer"] .lista .dot{background:#e8b04b;color:#1f2a26}
+#lienzo[data-tipo="flyer"] .req{
+  background:#e8b04b; border-color:#e8b04b; color:#1f2a26; margin-top:12px;
+}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .req{font-size:32px;padding:14px 18px}
+#lienzo[data-tipo="flyer"] .fila-qr{margin-top:14px;padding-top:10px}
+#lienzo[data-tipo="flyer"] .qr-card img{width:160px;height:160px}
+#lienzo[data-formato="historia"][data-tipo="flyer"] .qr-card img{width:180px;height:180px}
+#lienzo[data-formato="facebook"][data-tipo="flyer"] .qr-card img{width:140px;height:140px}
+#lienzo[data-tipo="flyer"] .qr-txt strong{color:#fff}
+#lienzo[data-tipo="flyer"] .qr-txt span{color:#d5e4dc}
+</style>
+</head>
+<body>
+<div id="lienzo" data-formato="historia" data-tipo="flyer">
+  <div class="blob sun"></div>
+  <div class="blob hope"></div>
+  <div class="logo-esquina" aria-hidden="true">
+    <svg viewBox="0 0 64 64"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#1D2B26" stroke-width="5" stroke-linecap="round"/></svg>
+    <span>Ruta<br>Puente</span>
+  </div>
+  <div class="foto-flyer" id="foto-flyer" hidden></div>
+  <div class="bandera" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="head">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 40a12 12 0 0 1 24 0Z" fill="#E8B04B"/><path d="M9 54 C 16 14, 48 14, 55 54" fill="none" stroke="#2E7D5B" stroke-width="5.5" stroke-linecap="round"/><path d="M4 40h56" stroke="#1D2B26" stroke-width="5" stroke-linecap="round"/></svg>
+      <b>Ruta Puente</b>
+    </div>
+    <span class="pill" id="pill">TALLER GRATIS</span>
+  </div>
+  <div class="cuerpo" id="cuerpo"></div>
+  <div class="pie" id="pie">Ruta Puente · Houston</div>
+</div>
+<script>
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+  }[c]));
+}
+function qrBlock(p, label, sub){
+  if (!p.qr) return "";
+  return '<div class="fila-qr">' +
+    '<div class="qr-card"><img alt="" src="' + p.qr + '" width="280" height="280"></div>' +
+    '<div class="qr-txt"><strong>' + esc(label) + '</strong><span>' + esc(sub) + '</span></div>' +
+    '</div>';
+}
+window.pintar = async function(p){
+  const lienzo = document.getElementById("lienzo");
+  const cuerpo = document.getElementById("cuerpo");
+  const pie = document.getElementById("pie");
+  const pill = document.getElementById("pill");
+  lienzo.setAttribute("data-formato", p.formato);
+  lienzo.setAttribute("data-tipo", p.tipo);
+  const t = p.taller || {};
+  pie.textContent = "deivblack.github.io/ruta-puente/taller";
+  const takes = p.formato === "historia" ? "" :
+    '<ul class="lista">' +
+      '<li><span class="dot">1</span><span>Tu cargo en inglés</span></li>' +
+      '<li><span class="dot">2</span><span>Un logro con número para el CV</span></li>' +
+      '<li><span class="dot">3</span><span>Tu presentación de 30 segundos</span></li>' +
+    "</ul>";
+  const foto = document.getElementById("foto-flyer");
+  if (p.tipo === "flyer"){
+    const src = p.formato === "historia" ? "foto-historia.jpg" : "foto-cuadrado.jpg";
+    foto.hidden = false;
+    foto.replaceChildren();
+    const img = document.createElement("img");
+    img.alt = "";
+    img.src = src;
+    foto.appendChild(img);
+    if (!img.complete){
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+    }
+  } else {
+    foto.hidden = true;
+    foto.replaceChildren();
+  }
+  if (p.tipo === "flyer"){
+    pill.textContent = "TALLER GRATIS";
+    cuerpo.innerHTML =
+      "<h1>" + esc(t.titulo) + "</h1>" +
+      '<p class="sub">' + esc(t.subtitulo) + "</p>" +
+      '<p class="fecha">' + esc(t.fecha) + " · " + esc(t.hora) + "</p>" +
+      '<p class="meta">' + esc(t.lugar) + "</p>" +
+      '<p class="badge">Gratis · 10 cupos</p>' +
+      '<ul class="lista">' +
+        '<li><span class="dot">1</span><span>Tu cargo en inglés, como te buscan aquí</span></li>' +
+        '<li><span class="dot">2</span><span>Un logro de tu CV, reescrito en la práctica</span></li>' +
+      "</ul>" +
+      '<p class="req">Requisito: trae tu CV para la práctica (impreso o en el celular)</p>' +
+      qrBlock(p, "Escanea e inscríbete", "Cupos limitados · Houston");
+  } else if (p.tipo === "cuenta"){
+    pill.textContent = "TALLER GRATIS";
+    const num = p.numero;
+    const frase = p.frase;
+    cuerpo.innerHTML =
+      '<p class="kicker">Querida comunidad</p>' +
+      (num
+        ? '<p class="kicker" style="margin-top:12px">Faltan</p><p class="hero-num">' + esc(num) + '</p><p class="hero-frase">días</p>'
+        : '<p class="hero-frase">' + esc(frase) + "</p>") +
+      '<p class="fecha">' + esc(t.fecha) + "</p>" +
+      '<p class="meta">' + esc(t.hora) + "</p>" +
+      '<p class="meta">' + esc(t.lugar) + "</p>" +
+      qrBlock(p, "Inscríbete", "Gratis · 10 cupos");
+  } else if (p.tipo === "ultimos"){
+    pill.textContent = "10 CUPOS";
+    cuerpo.innerHTML =
+      '<p class="kicker">Querida comunidad</p>' +
+      '<p class="hero-frase">¡Últimos cupos!</p>' +
+      '<p class="fecha">' + esc(t.fecha) + "</p>" +
+      '<p class="meta">' + esc(t.hora) + "</p>" +
+      '<p class="meta">' + esc(t.lugar) + "</p>" +
+      '<p class="badge">Gratis · quedan pocos</p>' +
+      qrBlock(p, "Aún estás a tiempo", "Escanea e inscríbete");
+  } else if (p.tipo === "carrusel"){
+    pill.textContent = (p.lamina === 6) ? "TALLER GRATIS" : "5 PROFESIONES";
+    if (p.lamina === 6){
+      cuerpo.innerHTML =
+        "<h1>" + esc(t.titulo) + "</h1>" +
+        '<p class="fecha">' + esc(t.fecha) + "</p>" +
+        '<p class="meta">' + esc(t.hora) + "</p>" +
+        '<p class="meta">' + esc(t.lugar) + "</p>" +
+        '<p class="badge">Gratis · 10 cupos</p>' +
+        qrBlock(p, "Inscríbete", "Houston · 90 minutos");
+    } else {
+      cuerpo.innerHTML =
+        '<p class="n-de">' + esc(p.n) + " de 5</p>" +
+        '<p class="cargo-es">' + esc(p.es) + "</p>" +
+        '<p class="flecha">en EE. UU. se busca como</p>' +
+        '<p class="cargo-en">' + esc(p.en) + "</p>" +
+        '<p class="hint">Desliza: el viernes practicas el tuyo →</p>';
+    }
+  } else if (p.tipo === "gracias"){
+    pill.textContent = "GRACIAS";
+    cuerpo.innerHTML =
+      '<p class="hero-frase">Gracias</p>' +
+      '<p class="meta">por venir al taller. El próximo se avisa aquí.</p>' +
+      '<div class="foto-hueco"><p>Aquí va la foto del taller</p></div>' +
+      '<p class="fecha">Lista de espera abierta</p>' +
+      qrBlock(p, "Déjanos tu nombre", "para el próximo taller");
+  }
+};
+</script>
+</body>
+</html>
